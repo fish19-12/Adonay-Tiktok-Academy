@@ -1,161 +1,305 @@
-const Student = require("../models/Student");
-const cloudinary = require("../config/cloudinary");
+const Registration = require("../models/Registration");
 
-/* =========================
-   CREATE REGISTRATION
-========================= */
-exports.createRegistration = async (req, res, next) => {
+/*
+|--------------------------------------------------------------------------
+| CREATE REGISTRATION
+|--------------------------------------------------------------------------
+*/
+
+const createRegistration = async (req, res, next) => {
   try {
     const {
       name,
-      email,
       phone,
-      age,
-      gender,
-      course,
-      address,
-      education,
-      emergencyName,
-      emergencyPhone,
+      email,
+      hasTikTok,
+      tiktokUsername,
+      tiktokProfileLink,
+      followers,
+      realEstateCompany,
+      trainingType,
     } = req.body;
 
-    if (!name || !email || !phone || !age || !course) {
+    /*
+    |--------------------------------------------------------------------------
+    | BASIC VALIDATION
+    |--------------------------------------------------------------------------
+    */
+
+    if (!name || !name.trim()) {
       return res.status(400).json({
-        message: "Please fill all required fields.",
+        message: "Please enter your full name.",
       });
     }
 
-    if (Number(age) < 18) {
+    if (!phone || !phone.trim()) {
       return res.status(400).json({
-        message: "Student must be 18 years or older.",
+        message: "Please enter your phone number.",
       });
     }
 
-    if (!req.file) {
+    if (!email || !email.trim()) {
       return res.status(400).json({
-        message: "ID document is required.",
+        message: "Please enter your email address.",
       });
     }
 
-    const student = await Student.create({
-      name,
-      email,
-      phone,
-      age,
-      gender,
-      course,
-      address,
-      education,
-      emergencyName,
-      emergencyPhone,
-      idDocument: req.file.path, // URL
-      idDocument: req.file.secure_url, // Cloudinary public_id
+    if (typeof hasTikTok !== "boolean") {
+      return res.status(400).json({
+        message: "Please specify whether you have a TikTok account.",
+      });
+    }
+
+    if (!realEstateCompany || !realEstateCompany.trim()) {
+      return res.status(400).json({
+        message: "Please enter your real estate company or agency.",
+      });
+    }
+
+    if (!trainingType || !trainingType.trim()) {
+      return res.status(400).json({
+        message: "Training type is required.",
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | TIKTOK VALIDATION
+    |--------------------------------------------------------------------------
+    */
+
+    if (hasTikTok) {
+      if (!tiktokUsername || !tiktokUsername.trim()) {
+        return res.status(400).json({
+          message: "Please enter your TikTok username.",
+        });
+      }
+
+      if (!tiktokProfileLink || !tiktokProfileLink.trim()) {
+        return res.status(400).json({
+          message: "Please enter your TikTok profile link.",
+        });
+      }
+
+      if (
+        followers === null ||
+        followers === undefined ||
+        !Number.isInteger(Number(followers)) ||
+        Number(followers) < 0
+      ) {
+        return res.status(400).json({
+          message: "Please enter your exact TikTok follower count.",
+        });
+      }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CHECK IF EMAIL IS ALREADY REGISTERED
+    |--------------------------------------------------------------------------
+    */
+
+    const existingRegistration = await Registration.findOne({
+      email: email.trim().toLowerCase(),
+    });
+
+    if (existingRegistration) {
+      return res.status(409).json({
+        message: "This email address is already registered.",
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | CREATE REGISTRATION
+    |--------------------------------------------------------------------------
+    */
+
+    const registration = await Registration.create({
+      name: name.trim(),
+      phone: phone.trim(),
+      email: email.trim().toLowerCase(),
+
+      hasTikTok,
+
+      tiktokUsername: hasTikTok ? tiktokUsername.trim() : null,
+
+      tiktokProfileLink: hasTikTok ? tiktokProfileLink.trim() : null,
+
+      followers: hasTikTok ? Number(followers) : null,
+
+      realEstateCompany: realEstateCompany.trim(),
+
+      trainingType: trainingType.trim(),
+
       status: "pending",
     });
 
-    res.status(201).json({
-      success: true,
-      message: "Registration submitted successfully.",
-      student,
+    return res.status(201).json({
+      message: "Registration completed successfully.",
+      registration,
     });
   } catch (error) {
     next(error);
   }
 };
 
-/* =========================
-   GET ALL STUDENTS
-========================= */
-exports.getStudents = async (req, res, next) => {
+/*
+|--------------------------------------------------------------------------
+| REGISTRATION STATS
+|--------------------------------------------------------------------------
+|
+| Your registration page already calls:
+|
+| GET /api/registration/stats
+|
+| It expects:
+|
+| {
+|   registeredStudents: number
+| }
+|
+*/
+
+const getRegistrationStats = async (req, res, next) => {
   try {
-    const students = await Student.find().sort({ createdAt: -1 });
-    res.status(200).json(students);
+    const registeredStudents = await Registration.countDocuments();
+
+    const approved = await Registration.countDocuments({
+      status: "approved",
+    });
+
+    const pending = await Registration.countDocuments({
+      status: "pending",
+    });
+
+    const rejected = await Registration.countDocuments({
+      status: "rejected",
+    });
+
+    return res.status(200).json({
+      registeredStudents,
+      approved,
+      pending,
+      rejected,
+    });
   } catch (error) {
     next(error);
   }
 };
 
-/* =========================
-   ✅ GET SINGLE STUDENT
-========================= */
-exports.getSingleStudent = async (req, res, next) => {
-  try {
-    const student = await Student.findById(req.params.id);
+/*
+|--------------------------------------------------------------------------
+| GET ALL REGISTRATIONS
+|--------------------------------------------------------------------------
+*/
 
-    if (!student) {
+const getRegistrations = async (req, res, next) => {
+  try {
+    const registrations = await Registration.find().sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      count: registrations.length,
+      registrations,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/*
+|--------------------------------------------------------------------------
+| GET SINGLE REGISTRATION
+|--------------------------------------------------------------------------
+*/
+
+const getRegistration = async (req, res, next) => {
+  try {
+    const registration = await Registration.findById(req.params.id);
+
+    if (!registration) {
       return res.status(404).json({
-        message: "Student not found.",
+        message: "Registration not found.",
       });
     }
 
-    res.status(200).json(student);
-  } catch (error) {
-    next(error);
-  }
-};
-
-/* =========================
-   UPDATE STATUS
-========================= */
-exports.updateStudentStatus = async (req, res, next) => {
-  try {
-    const { status } = req.body;
-
-    const allowedStatuses = ["approved", "pending", "rejected"];
-
-    if (!allowedStatuses.includes(status)) {
-      return res.status(400).json({
-        message: "Invalid status value.",
-      });
-    }
-
-    const student = await Student.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true },
-    );
-
-    if (!student) {
-      return res.status(404).json({
-        message: "Student not found.",
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Status updated successfully.",
-      student,
+    return res.status(200).json({
+      registration,
     });
   } catch (error) {
     next(error);
   }
 };
 
-exports.deleteStudent = async (req, res, next) => {
-  try {
-    const student = await Student.findById(req.params.id);
+/*
+|--------------------------------------------------------------------------
+| APPROVE REGISTRATION
+|--------------------------------------------------------------------------
+*/
 
-    if (!student) {
+const approveRegistration = async (req, res, next) => {
+  try {
+    const registration = await Registration.findById(req.params.id);
+
+    if (!registration) {
       return res.status(404).json({
-        message: "Student not found.",
+        message: "Registration not found.",
       });
     }
 
-    // Delete document from Cloudinary
-    if (student.idDocumentPublicId) {
-      await cloudinary.uploader.destroy(student.idDocumentPublicId);
-    }
+    registration.status = "approved";
 
-    await student.deleteOne();
+    await registration.save();
 
-    res.status(200).json({
-      success: true,
-      message: "Student deleted successfully.",
+    return res.status(200).json({
+      message: "Registration approved successfully.",
+      registration,
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Server error while deleting student",
-    });
+    next(error);
   }
+};
+
+/*
+|--------------------------------------------------------------------------
+| REJECT REGISTRATION
+|--------------------------------------------------------------------------
+*/
+
+const rejectRegistration = async (req, res, next) => {
+  try {
+    const registration = await Registration.findById(req.params.id);
+
+    if (!registration) {
+      return res.status(404).json({
+        message: "Registration not found.",
+      });
+    }
+
+    registration.status = "rejected";
+
+    await registration.save();
+
+    return res.status(200).json({
+      message: "Registration rejected successfully.",
+      registration,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/*
+|--------------------------------------------------------------------------
+| EXPORT
+|--------------------------------------------------------------------------
+*/
+
+module.exports = {
+  createRegistration,
+  getRegistrationStats,
+  getRegistrations,
+  getRegistration,
+  approveRegistration,
+  rejectRegistration,
 };

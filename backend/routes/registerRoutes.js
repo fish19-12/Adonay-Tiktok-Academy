@@ -1,32 +1,97 @@
 const express = require("express");
-const router = express.Router();
-const upload = require("../middleware/studentUpload");
 
 const {
   createRegistration,
-  getStudents,
-  getSingleStudent, // ✅ NEW
-  updateStudentStatus,
-  deleteStudent,
+  getRegistrationStats,
+  getRegistrations,
+  getRegistration,
+  approveRegistration,
+  rejectRegistration,
 } = require("../controllers/registerController");
 
-/* =========================
-   ROUTES
-========================= */
+const router = express.Router();
 
-// Create registration
-router.post("/", upload.single("idDocument"), createRegistration);
+/*
+|--------------------------------------------------------------------------
+| REGISTRATION
+|--------------------------------------------------------------------------
+*/
 
-// Get all students
-router.get("/", getStudents);
+/*
+POST
+/api/register
 
-// ✅ Get single student
-router.get("/:id", getSingleStudent);
+Used by your registration page.
+*/
+router.post("/", createRegistration);
 
-// Update student status
-router.patch("/:id/status", updateStudentStatus);
+/*
+|--------------------------------------------------------------------------
+| REGISTRATION STATS
+|--------------------------------------------------------------------------
+*/
 
-// Delete student
-router.delete("/:id", deleteStudent);
+/*
+GET
+/api/register/stats
+
+Returns:
+
+{
+  registeredStudents: 10,
+  approved: 5,
+  pending: 4,
+  rejected: 1
+}
+*/
+router.get("/stats", getRegistrationStats);
+
+/*
+|--------------------------------------------------------------------------
+| GET ALL REGISTRATIONS
+|--------------------------------------------------------------------------
+*/
+
+/*
+GET
+/api/register
+*/
+router.get("/", getRegistrations);
+
+/*
+|--------------------------------------------------------------------------
+| GET ONE REGISTRATION
+|--------------------------------------------------------------------------
+*/
+
+/*
+GET
+/api/register/:id
+*/
+router.get("/:id", getRegistration);
+
+/*
+|--------------------------------------------------------------------------
+| APPROVE REGISTRATION
+|--------------------------------------------------------------------------
+*/
+
+/*
+PUT
+/api/register/:id/approve
+*/
+router.put("/:id/approve", approveRegistration);
+
+/*
+|--------------------------------------------------------------------------
+| REJECT REGISTRATION
+|--------------------------------------------------------------------------
+*/
+
+/*
+PUT
+/api/register/:id/reject
+*/
+router.put("/:id/reject", rejectRegistration);
 
 module.exports = router;
