@@ -14,7 +14,7 @@ mongoose
   });
 
 const createAdmin = async () => {
-  const email = "napi@gmail.com";
+  const email = "adonay@gmail.com";
   const password = "112233";
 
   try {

@@ -1,30 +1,27 @@
 import { Routes, Route } from "react-router-dom";
+
 import Home from "../pages/Home.jsx";
 import ServicesPage from "../pages/ServicesPage.jsx";
-import GalleryPage from "../pages/GalleryPage.jsx";
-import TrainingPage from "../pages/TrainingPage.jsx";
-import TrainingDetails from "../pages/TrainingDetails.jsx"; // ⭐ NEW
-import BookingPage from "../pages/BookingPage.jsx";
+import AboutPage from "../pages/AboutPage.jsx";
 import TestimonialPage from "../pages/TestimonialPage.jsx";
 import RegisterPage from "../pages/RegisterPage.jsx";
 import FAQPage from "../pages/FAQPage.jsx";
-import SuccessPage from "../pages/SuccessPage";
 
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* Home */}
       <Route path="/" element={<Home />} />
+
+      {/* Academy */}
+      <Route path="/about" element={<AboutPage />} />
       <Route path="/services" element={<ServicesPage />} />
-      <Route path="/gallery" element={<GalleryPage />} />
-      <Route path="/training" element={<TrainingPage />} />
-
-      {/* ⭐ NEW TRAINING VIDEO PAGE */}
-      <Route path="/training/:id" element={<TrainingDetails />} />
-
-      <Route path="/booking" element={<BookingPage />} />
       <Route path="/testimonial" element={<TestimonialPage />} />
+
+      {/* Registration */}
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/booking-success" element={<SuccessPage />} />
+
+      {/* Support */}
       <Route path="/faq" element={<FAQPage />} />
     </Routes>
   );
