@@ -1,24 +1,11 @@
 const { Resend } = require("resend");
 
-/*
-|--------------------------------------------------------------------------
-| RESEND CLIENT
-|--------------------------------------------------------------------------
-*/
-
-if (!process.env.RESEND_API_KEY) {
-  console.warn(
-    "⚠️ RESEND_API_KEY is not configured. Registration emails will not be sent.",
-  );
-}
-
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
-
-const FROM_EMAIL =
+const resendApiKey = process.env.RESEND_API_KEY;
+const fromEmail =
   process.env.RESEND_FROM_EMAIL ||
   "Adonay TikTok Academy <noreply@adonaytiktokacademy.com>";
+
+const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,330 +13,393 @@ const FROM_EMAIL =
 |--------------------------------------------------------------------------
 */
 
-const escapeHtml = (value = "") => {
-  return String(value)
+function escapeHtml(value) {
+  return String(value ?? "")
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#039;");
-};
+}
 
-const formatTrainingType = (value = "") => {
-  return String(value)
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-};
-
-const baseEmailStyles = `
-  body {
-    margin: 0;
-    padding: 0;
-    background: #050505;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #ffffff;
+function formatNumber(value) {
+  if (value === null || value === undefined || value === "") {
+    return "—";
   }
 
-  .wrapper {
-    width: 100%;
-    background: #050505;
-    padding: 40px 16px;
-    box-sizing: border-box;
+  const number = Number(value);
+
+  if (!Number.isFinite(number)) {
+    return escapeHtml(value);
   }
 
-  .container {
-    max-width: 620px;
-    margin: 0 auto;
-    background: #0b0b0b;
-    border: 1px solid #222222;
-    border-radius: 24px;
-    overflow: hidden;
-  }
+  return new Intl.NumberFormat("en-US").format(number);
+}
 
-  .top-line {
-    height: 4px;
-    background: linear-gradient(
-      90deg,
-      #25F4EE,
-      #ffffff,
-      #FE2C55
-    );
-  }
+/*
+|--------------------------------------------------------------------------
+| BASE EMAIL TEMPLATE
+|--------------------------------------------------------------------------
+*/
 
-  .header {
-    padding: 34px 32px 20px;
-    text-align: center;
-  }
-
-  .logo-mark {
-    width: 58px;
-    height: 58px;
-    margin: 0 auto 18px;
-    border-radius: 16px;
-    background: linear-gradient(
-      135deg,
-      rgba(37,244,238,0.18),
-      rgba(254,44,85,0.18)
-    );
-    border: 1px solid rgba(255,255,255,0.10);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #25F4EE;
-    font-size: 25px;
-    font-weight: 800;
-  }
-
-  .brand {
-    margin: 0;
-    font-size: 13px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: #ffffff;
-  }
-
-  .content {
-    padding: 10px 32px 36px;
-  }
-
-  .eyebrow {
-    margin: 0 0 10px;
-    color: #25F4EE;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  h1 {
-    margin: 0;
-    color: #ffffff;
-    font-size: 30px;
-    line-height: 1.2;
-  }
-
-  .intro {
-    margin: 18px 0 0;
-    color: #a6a6a6;
-    font-size: 15px;
-    line-height: 1.8;
-  }
-
-  .highlight {
-    margin-top: 26px;
-    padding: 20px;
-    border-radius: 16px;
-    background: rgba(37,244,238,0.05);
-    border: 1px solid rgba(37,244,238,0.12);
-  }
-
-  .highlight-title {
-    margin: 0;
-    color: #25F4EE;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-  }
-
-  .highlight-text {
-    margin: 8px 0 0;
-    color: #ffffff;
-    font-size: 15px;
-    line-height: 1.6;
-  }
-
-  .details {
-    margin-top: 24px;
-    border: 1px solid #1d1d1d;
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .detail-row {
-    padding: 14px 18px;
-    border-bottom: 1px solid #1d1d1d;
-  }
-
-  .detail-row:last-child {
-    border-bottom: 0;
-  }
-
-  .detail-label {
-    display: block;
-    margin-bottom: 5px;
-    color: #666666;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-  }
-
-  .detail-value {
-    color: #eeeeee;
-    font-size: 14px;
-  }
-
-  .footer {
-    padding: 24px 32px 30px;
-    border-top: 1px solid #1b1b1b;
-    text-align: center;
-  }
-
-  .footer-brand {
-    margin: 0;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 700;
-  }
-
-  .footer-text {
-    margin: 8px 0 0;
-    color: #666666;
-    font-size: 11px;
-    line-height: 1.7;
-  }
-
-  .status {
-    display: inline-block;
-    margin-top: 16px;
-    padding: 8px 13px;
-    border-radius: 999px;
-    background: rgba(37,244,238,0.08);
-    border: 1px solid rgba(37,244,238,0.15);
-    color: #25F4EE;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.2px;
-    text-transform: uppercase;
-  }
-
-  @media only screen and (max-width: 600px) {
-    .wrapper {
-      padding: 20px 10px;
-    }
-
-    .header,
-    .content,
-    .footer {
-      padding-left: 22px;
-      padding-right: 22px;
-    }
-
-    h1 {
-      font-size: 25px;
-    }
-  }
-`;
-
-const layout = ({
+function emailLayout({
+  previewText,
   eyebrow,
   title,
   intro,
-  highlightTitle,
-  highlightText,
-  details = "",
-  status = "",
-}) => `
+  content,
+  footerText = "Adonay TikTok Academy",
+}) {
+  return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>${escapeHtml(title)}</title>
 
   <style>
-    ${baseEmailStyles}
+    body {
+      margin: 0;
+      padding: 0;
+      background: #050506;
+      color: #ffffff;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+    }
+
+    table {
+      border-collapse: collapse;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .wrapper {
+      width: 100%;
+      background: #050506;
+      padding: 40px 16px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 620px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: #0d0d10;
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 24px;
+      overflow: hidden;
+    }
+
+    .top-line {
+      height: 4px;
+      background: linear-gradient(
+        90deg,
+        #25F4EE,
+        #ffffff,
+        #FE2C55
+      );
+    }
+
+    .content {
+      padding: 42px 38px;
+    }
+
+    .brand {
+      margin-bottom: 34px;
+    }
+
+    .brand-name {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+      margin: 0;
+    }
+
+    .brand-subtitle {
+      margin: 5px 0 0;
+      color: rgba(255,255,255,0.38);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(37,244,238,0.07);
+      border: 1px solid rgba(37,244,238,0.15);
+      color: #25F4EE;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.6px;
+    }
+
+    h1 {
+      margin: 20px 0 0;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      color: #ffffff;
+    }
+
+    .intro {
+      margin: 18px 0 0;
+      color: rgba(255,255,255,0.55);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .panel {
+      margin-top: 28px;
+      padding: 20px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 16px;
+    }
+
+    .panel-title {
+      margin: 0 0 14px;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .row {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.055);
+    }
+
+    .row:last-child {
+      border-bottom: 0;
+    }
+
+    .label {
+      color: rgba(255,255,255,0.3);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .value {
+      margin-top: 4px;
+      color: rgba(255,255,255,0.82);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .callout {
+      margin-top: 24px;
+      padding: 18px;
+      border-radius: 15px;
+      background: rgba(37,244,238,0.045);
+      border: 1px solid rgba(37,244,238,0.12);
+    }
+
+    .callout-title {
+      margin: 0;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .callout-text {
+      margin: 7px 0 0;
+      color: rgba(255,255,255,0.48);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .footer {
+      padding: 24px 38px 30px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      text-align: center;
+    }
+
+    .footer-text {
+      margin: 0;
+      color: rgba(255,255,255,0.22);
+      font-size: 10px;
+      line-height: 1.7;
+    }
+
+    .footer-brand {
+      margin-top: 8px;
+      color: rgba(255,255,255,0.38);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    @media only screen and (max-width: 600px) {
+      .wrapper {
+        padding: 20px 10px;
+      }
+
+      .content {
+        padding: 30px 22px;
+      }
+
+      .footer {
+        padding: 20px 22px 26px;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+    }
   </style>
 </head>
 
 <body>
-  <div class="wrapper">
-    <div class="container">
-
-      <div class="top-line"></div>
-
-      <div class="header">
-        <div class="logo-mark">A</div>
-
-        <p class="brand">
-          Adonay TikTok Academy
-        </p>
-      </div>
-
-      <div class="content">
-
-        <p class="eyebrow">
-          ${escapeHtml(eyebrow)}
-        </p>
-
-        <h1>
-          ${escapeHtml(title)}
-        </h1>
-
-        <p class="intro">
-          ${intro}
-        </p>
-
-        ${
-          highlightText
-            ? `
-          <div class="highlight">
-            <p class="highlight-title">
-              ${escapeHtml(highlightTitle)}
-            </p>
-
-            <p class="highlight-text">
-              ${highlightText}
-            </p>
-          </div>
-        `
-            : ""
-        }
-
-        ${
-          details
-            ? `
-          <div class="details">
-            ${details}
-          </div>
-        `
-            : ""
-        }
-
-        ${
-          status
-            ? `
-          <div style="text-align:center;">
-            <span class="status">
-              ${escapeHtml(status)}
-            </span>
-          </div>
-        `
-            : ""
-        }
-
-      </div>
-
-      <div class="footer">
-        <p class="footer-brand">
-          Adonay TikTok Academy
-        </p>
-
-        <p class="footer-text">
-          Learn. Create. Grow. Go Viral.<br />
-          This is an automated message regarding your academy registration.
-        </p>
-      </div>
-
-    </div>
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+    ${escapeHtml(previewText)}
   </div>
+
+  <table
+    role="presentation"
+    width="100%"
+    cellpadding="0"
+    cellspacing="0"
+    border="0"
+  >
+    <tr>
+      <td class="wrapper">
+        <div class="container">
+          <div class="card">
+
+            <div class="top-line"></div>
+
+            <div class="content">
+
+              <div class="brand">
+                <p class="brand-name">Adonay</p>
+                <p class="brand-subtitle">TikTok Academy</p>
+              </div>
+
+              <span class="eyebrow">
+                ${escapeHtml(eyebrow)}
+              </span>
+
+              <h1>
+                ${title}
+              </h1>
+
+              <p class="intro">
+                ${intro}
+              </p>
+
+              ${content}
+
+            </div>
+
+            <div class="footer">
+              <p class="footer-text">
+                ${escapeHtml(footerText)}
+              </p>
+
+              <p class="footer-brand">
+                Adonay TikTok Academy
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
 `;
+}
+
+/*
+|--------------------------------------------------------------------------
+| REGISTRATION DETAILS
+|--------------------------------------------------------------------------
+*/
+
+function registrationDetails(registration) {
+  const hasTikTok = registration.hasTikTok;
+
+  return `
+    <div class="panel">
+      <p class="panel-title">Registration details</p>
+
+      <div class="row">
+        <div class="label">Name</div>
+        <div class="value">${escapeHtml(registration.name)}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Phone</div>
+        <div class="value">${escapeHtml(registration.phone)}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Email</div>
+        <div class="value">${escapeHtml(registration.email)}</div>
+      </div>
+
+      <div class="row">
+        <div class="label">Company / Agency</div>
+        <div class="value">
+          ${escapeHtml(registration.realEstateCompany)}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="label">Training</div>
+        <div class="value">
+          ${escapeHtml(registration.trainingType)}
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="label">TikTok account</div>
+        <div class="value">
+          ${hasTikTok ? "Yes" : "No"}
+        </div>
+      </div>
+
+      ${
+        hasTikTok
+          ? `
+            <div class="row">
+              <div class="label">TikTok username</div>
+              <div class="value">
+                @${escapeHtml(
+                  String(registration.tiktokUsername || "").replace(/^@/, ""),
+                )}
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="label">Followers</div>
+              <div class="value">
+                ${formatNumber(registration.followers)}
+              </div>
+            </div>
+          `
+          : ""
+      }
+    </div>
+  `;
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -357,10 +407,10 @@ const layout = ({
 |--------------------------------------------------------------------------
 */
 
-const sendEmail = async ({ to, subject, html, text }) => {
+async function sendEmail({ to, subject, html, idempotencyKey }) {
   if (!resend) {
     console.warn(
-      `⚠️ Email skipped because RESEND_API_KEY is missing. Recipient: ${to}`,
+      "[EmailService] RESEND_API_KEY is not configured. Email skipped.",
     );
 
     return {
@@ -370,16 +420,22 @@ const sendEmail = async ({ to, subject, html, text }) => {
   }
 
   try {
-    const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: [to],
-      subject,
-      html,
-      text,
-    });
+    const { data, error } = await resend.emails.send(
+      {
+        from: fromEmail,
+        to: [to],
+        subject,
+        html,
+      },
+      idempotencyKey
+        ? {
+            idempotencyKey,
+          }
+        : undefined,
+    );
 
     if (error) {
-      console.error("❌ Resend error:", error);
+      console.error("[EmailService] Resend error:", error);
 
       return {
         success: false,
@@ -387,238 +443,198 @@ const sendEmail = async ({ to, subject, html, text }) => {
       };
     }
 
-    console.log(`✅ Email sent to ${to}. ID: ${data?.id}`);
+    console.log("[EmailService] Email sent:", data?.id);
 
     return {
       success: true,
       data,
     };
   } catch (error) {
-    console.error("❌ Email service error:", error);
+    console.error("[EmailService] Failed to send email:", error);
 
     return {
       success: false,
       error,
     };
   }
-};
+}
 
 /*
 |--------------------------------------------------------------------------
-| REGISTRATION RECEIVED EMAIL
+| 1. REGISTRATION RECEIVED
 |--------------------------------------------------------------------------
 */
 
-const sendRegistrationReceivedEmail = async (registration) => {
-  const name = escapeHtml(registration.name);
-  const trainingType = escapeHtml(
-    formatTrainingType(registration.trainingType),
-  );
+async function sendRegistrationReceivedEmail(registration) {
+  const firstName =
+    String(registration.name || "")
+      .trim()
+      .split(/\s+/)[0] || "there";
 
-  const html = layout({
-    eyebrow: "Registration Received",
-    title: `You're officially on our list, ${name}.`,
-    intro: `
-      Thank you for registering with Adonay TikTok Academy.
-      We have successfully received your training application and our team
-      is now reviewing your information.
-    `,
-    highlightTitle: "What happens next?",
-    highlightText: `
-      Our team will review your registration and contact you by phone or email
-      with the next steps. Please keep your phone available and watch your inbox.
-    `,
-    details: `
-      <div class="detail-row">
-        <span class="detail-label">Student</span>
-        <span class="detail-value">${name}</span>
+  const html = emailLayout({
+    previewText: "Your Adonay TikTok Academy registration has been received.",
+    eyebrow: "Registration received",
+    title: `You're on the list, ${escapeHtml(firstName)}. 🎉`,
+    intro:
+      "Your registration has been successfully received. Our academy team will review your information and contact you shortly with the next steps.",
+    content: `
+      ${registrationDetails(registration)}
+
+      <div class="callout">
+        <p class="callout-title">
+          What happens next?
+        </p>
+
+        <p class="callout-text">
+          Your registration is currently <strong>pending review</strong>.
+          Our team will call you using the phone number you provided to
+          confirm your registration and share the next important details.
+        </p>
       </div>
 
-      <div class="detail-row">
-        <span class="detail-label">Training</span>
-        <span class="detail-value">${trainingType}</span>
-      </div>
+      <div class="callout">
+        <p class="callout-title">
+          Please keep an eye on your inbox
+        </p>
 
-      <div class="detail-row">
-        <span class="detail-label">Registration Status</span>
-        <span class="detail-value">Pending Review</span>
+        <p class="callout-text">
+          We'll use this email address for important updates about your
+          registration and training.
+        </p>
       </div>
     `,
-    status: "Pending Review",
   });
-
-  const text = `
-Adonay TikTok Academy
-
-Registration received.
-
-Hello ${registration.name},
-
-Thank you for registering with Adonay TikTok Academy.
-
-We have successfully received your registration for:
-${formatTrainingType(registration.trainingType)}
-
-Our team will review your information and contact you by phone or email with the next steps.
-
-Current status: Pending Review
-
-Adonay TikTok Academy
-Learn. Create. Grow. Go Viral.
-`;
 
   return sendEmail({
     to: registration.email,
-    subject: "Registration Received — Adonay TikTok Academy",
+    subject: "Registration received — Adonay TikTok Academy",
     html,
-    text,
+    idempotencyKey: `registration-received-${registration._id}`,
   });
-};
+}
 
 /*
 |--------------------------------------------------------------------------
-| APPROVED EMAIL
+| 2. APPROVED
 |--------------------------------------------------------------------------
 */
 
-const sendRegistrationApprovedEmail = async (registration) => {
-  const name = escapeHtml(registration.name);
-  const trainingType = escapeHtml(
-    formatTrainingType(registration.trainingType),
-  );
+async function sendRegistrationApprovedEmail(registration) {
+  const firstName =
+    String(registration.name || "")
+      .trim()
+      .split(/\s+/)[0] || "there";
 
-  const html = layout({
-    eyebrow: "Registration Approved",
-    title: `You're in, ${name}.`,
-    intro: `
-      Great news. Your registration for Adonay TikTok Academy has been
-      approved.
-    `,
-    highlightTitle: "Your next step",
-    highlightText: `
-      Our team will contact you with the training schedule, location,
-      preparation details, and any additional information you need before
-      your training begins.
-    `,
-    details: `
-      <div class="detail-row">
-        <span class="detail-label">Student</span>
-        <span class="detail-value">${name}</span>
+  const html = emailLayout({
+    previewText: "Your Adonay TikTok Academy registration has been approved.",
+    eyebrow: "Registration approved",
+    title: `You're officially approved, ${escapeHtml(firstName)}. 🚀`,
+    intro:
+      "Great news — your registration for Adonay TikTok Academy has been approved.",
+    content: `
+      <div class="callout">
+        <p class="callout-title">
+          Your place is confirmed
+        </p>
+
+        <p class="callout-text">
+          We're excited to have you join the academy. Your registration
+          has been reviewed and approved by our team.
+        </p>
       </div>
 
-      <div class="detail-row">
-        <span class="detail-label">Training</span>
-        <span class="detail-value">${trainingType}</span>
-      </div>
+      ${registrationDetails(registration)}
 
-      <div class="detail-row">
-        <span class="detail-label">Status</span>
-        <span class="detail-value">Approved</span>
+      <div class="callout">
+        <p class="callout-title">
+          What's next?
+        </p>
+
+        <p class="callout-text">
+          Our team will contact you with the training schedule, location,
+          arrival information and any additional instructions you need
+          before the session.
+        </p>
       </div>
     `,
-    status: "Approved",
   });
-
-  const text = `
-Adonay TikTok Academy
-
-Your registration has been approved.
-
-Hello ${registration.name},
-
-Great news! Your registration for ${formatTrainingType(
-    registration.trainingType,
-  )} has been approved.
-
-Our team will contact you with the training schedule, location, preparation details, and next steps.
-
-Status: Approved
-
-Adonay TikTok Academy
-Learn. Create. Grow. Go Viral.
-`;
 
   return sendEmail({
     to: registration.email,
-    subject: "You're Approved — Adonay TikTok Academy",
+    subject: "You're approved! — Adonay TikTok Academy",
     html,
-    text,
+    idempotencyKey: `registration-approved-${registration._id}`,
   });
-};
+}
 
 /*
 |--------------------------------------------------------------------------
-| REJECTED EMAIL
+| 3. REJECTED
 |--------------------------------------------------------------------------
 */
 
-const sendRegistrationRejectedEmail = async (registration) => {
-  const name = escapeHtml(registration.name);
-  const trainingType = escapeHtml(
-    formatTrainingType(registration.trainingType),
-  );
+async function sendRegistrationRejectedEmail(registration, reason = "") {
+  const firstName =
+    String(registration.name || "")
+      .trim()
+      .split(/\s+/)[0] || "there";
 
-  const html = layout({
-    eyebrow: "Registration Update",
-    title: `An update regarding your registration, ${name}.`,
-    intro: `
-      Thank you for your interest in Adonay TikTok Academy and for taking
-      the time to register.
-    `,
-    highlightTitle: "Registration status",
-    highlightText: `
-      After reviewing your application, we are unable to approve this
-      registration at this time.
-      We truly appreciate your interest and encourage you to stay connected
-      for future training opportunities.
-    `,
-    details: `
-      <div class="detail-row">
-        <span class="detail-label">Student</span>
-        <span class="detail-value">${name}</span>
+  const reasonBlock = reason
+    ? `
+      <div class="callout">
+        <p class="callout-title">
+          Review note
+        </p>
+
+        <p class="callout-text">
+          ${escapeHtml(reason)}
+        </p>
+      </div>
+    `
+    : "";
+
+  const html = emailLayout({
+    previewText:
+      "There is an update regarding your Adonay TikTok Academy registration.",
+    eyebrow: "Registration update",
+    title: `An update about your registration, ${escapeHtml(firstName)}`,
+    intro:
+      "Thank you for your interest in Adonay TikTok Academy. Our team has completed the review of your registration.",
+    content: `
+      <div class="callout">
+        <p class="callout-title">
+          Registration status
+        </p>
+
+        <p class="callout-text">
+          Unfortunately, we are unable to approve this registration
+          for the current training intake.
+        </p>
       </div>
 
-      <div class="detail-row">
-        <span class="detail-label">Training</span>
-        <span class="detail-value">${trainingType}</span>
-      </div>
+      ${reasonBlock}
 
-      <div class="detail-row">
-        <span class="detail-label">Status</span>
-        <span class="detail-value">Not Approved</span>
+      <div class="callout">
+        <p class="callout-title">
+          This isn't the end
+        </p>
+
+        <p class="callout-text">
+          Training availability can change between intakes. If you would
+          like more information or would like to be considered for a
+          future intake, please contact our academy team.
+        </p>
       </div>
     `,
-    status: "Registration Update",
   });
-
-  const text = `
-Adonay TikTok Academy
-
-Registration update.
-
-Hello ${registration.name},
-
-Thank you for your interest in Adonay TikTok Academy.
-
-After reviewing your application, we are unable to approve this registration at this time.
-
-We appreciate your interest and encourage you to stay connected for future training opportunities.
-
-Training: ${formatTrainingType(registration.trainingType)}
-
-Status: Not Approved
-
-Adonay TikTok Academy
-Learn. Create. Grow. Go Viral.
-`;
 
   return sendEmail({
     to: registration.email,
-    subject: "Registration Update — Adonay TikTok Academy",
+    subject: "An update about your academy registration",
     html,
-    text,
+    idempotencyKey: `registration-rejected-${registration._id}`,
   });
-};
+}
 
 module.exports = {
   sendRegistrationReceivedEmail,

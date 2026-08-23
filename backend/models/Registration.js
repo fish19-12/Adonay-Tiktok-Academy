@@ -54,17 +54,37 @@ const registrationSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+      default: "In-person / Face-to-face",
     },
 
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],
       default: "pending",
+      index: true,
     },
   },
   {
     timestamps: true,
   },
 );
+
+/*
+|--------------------------------------------------------------------------
+| INDEX
+|--------------------------------------------------------------------------
+|
+| Helps the admin registration queries remain fast.
+|
+*/
+
+registrationSchema.index({
+  email: 1,
+});
+
+registrationSchema.index({
+  status: 1,
+  createdAt: -1,
+});
 
 module.exports = mongoose.model("Registration", registrationSchema);

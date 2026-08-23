@@ -1,11 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+
 import { Link } from "react-router-dom";
+
 import api from "../services/api";
 
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   Building2,
+  CalendarCheck2,
   Check,
   CheckCircle2,
   ExternalLink,
@@ -20,8 +24,6 @@ import {
   Sparkles,
   UserRound,
   Users,
-  AlertCircle,
-  CalendarCheck2,
 } from "lucide-react";
 
 const TOTAL_SEATS = 300;
@@ -37,13 +39,21 @@ const initialForm = {
   realEstateCompany: "",
 };
 
+/*
+|--------------------------------------------------------------------------
+| MAIN PAGE
+|--------------------------------------------------------------------------
+*/
+
 export default function RegisterPage() {
   const [form, setForm] = useState(initialForm);
 
   const [registeredStudents, setRegisteredStudents] = useState(0);
+
   const [loadingSeats, setLoadingSeats] = useState(true);
 
   const [submitting, setSubmitting] = useState(false);
+
   const [submitted, setSubmitted] = useState(false);
 
   const [registrationData, setRegistrationData] = useState(null);
@@ -61,7 +71,7 @@ export default function RegisterPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | LOAD REGISTRATION COUNT
+  | LOAD SEAT COUNT
   |--------------------------------------------------------------------------
   */
 
@@ -99,7 +109,7 @@ export default function RegisterPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | UPDATE FORM
+  | UPDATE FIELD
   |--------------------------------------------------------------------------
   */
 
@@ -207,8 +217,10 @@ export default function RegisterPage() {
     try {
       const payload = {
         name: form.name.trim(),
+
         phone: form.phone.trim(),
-        email: form.email.trim(),
+
+        email: form.email.trim().toLowerCase(),
 
         hasTikTok: hasTikTokAccount,
 
@@ -229,15 +241,19 @@ export default function RegisterPage() {
 
       const data = response?.data;
 
-      /*
-       * Save registration information so the success
-       * screen can use the actual student's details.
-       */
-      setRegistrationData(data?.registration || payload);
+      setRegistrationData(
+        data?.registration || {
+          ...payload,
+          status: "pending",
+        },
+      );
 
       /*
-       * Increase local seat count immediately.
-       */
+      |--------------------------------------------------------------------------
+      | Update local count
+      |--------------------------------------------------------------------------
+      */
+
       setRegisteredStudents((current) => Math.min(current + 1, TOTAL_SEATS));
 
       setSubmitted(true);
@@ -266,7 +282,7 @@ export default function RegisterPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | SUCCESS SCREEN
+  | SUCCESS
   |--------------------------------------------------------------------------
   */
 
@@ -281,7 +297,7 @@ export default function RegisterPage() {
 
   /*
   |--------------------------------------------------------------------------
-  | MAIN PAGE
+  | MAIN
   |--------------------------------------------------------------------------
   */
 
@@ -290,6 +306,7 @@ export default function RegisterPage() {
       <Background />
 
       {/* HEADER */}
+
       <header className="relative z-10 border-b border-white/[0.06] bg-black/10 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="group flex items-center gap-3">
@@ -319,8 +336,10 @@ export default function RegisterPage() {
       </header>
 
       {/* CONTENT */}
+
       <div className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14 lg:py-16">
         {/* HERO */}
+
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#25F4EE]/10 bg-[#25F4EE]/[0.045] px-3.5 py-2">
             <Sparkles size={13} className="text-[#25F4EE]" />
@@ -343,7 +362,8 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* SEAT STATUS */}
+        {/* SEATS */}
+
         <div className="mx-auto mt-9 max-w-4xl">
           <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] shadow-2xl backdrop-blur-2xl">
             <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
@@ -412,9 +432,11 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* MAIN */}
+        {/* MAIN GRID */}
+
         <div className="mx-auto mt-8 grid max-w-6xl gap-7 lg:grid-cols-[0.68fr_1.32fr]">
           {/* LEFT */}
+
           <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
             <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 backdrop-blur-xl">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.06]">
@@ -472,8 +494,8 @@ export default function RegisterPage() {
           </aside>
 
           {/* FORM */}
+
           <section className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-2xl backdrop-blur-2xl">
-            {/* FORM HEADER */}
             <div className="border-b border-white/[0.06] px-5 py-6 sm:px-8">
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -497,7 +519,6 @@ export default function RegisterPage() {
             </div>
 
             <div className="p-5 sm:p-8">
-              {/* ERROR */}
               {error && (
                 <div
                   role="alert"
@@ -514,6 +535,7 @@ export default function RegisterPage() {
 
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* PERSONAL */}
+
                 <FormSection
                   icon={UserRound}
                   title="Personal details"
@@ -568,6 +590,7 @@ export default function RegisterPage() {
                 </FormSection>
 
                 {/* PROFESSIONAL */}
+
                 <FormSection
                   icon={Building2}
                   title="Professional details"
@@ -587,6 +610,7 @@ export default function RegisterPage() {
                 </FormSection>
 
                 {/* TIKTOK */}
+
                 <FormSection
                   title="TikTok profile"
                   description="Tell us about your current TikTok presence"
@@ -739,6 +763,7 @@ export default function RegisterPage() {
                 </FormSection>
 
                 {/* TRAINING INFO */}
+
                 <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FE2C55]/10">
@@ -750,13 +775,14 @@ export default function RegisterPage() {
 
                       <p className="mt-1.5 text-xs leading-5 text-white/30">
                         Confirmed participants will receive the training
-                        location and schedule after registration.
+                        location and schedule after approval.
                       </p>
                     </div>
                   </div>
                 </div>
 
                 {/* SUBMIT */}
+
                 <div>
                   <button
                     type="submit"
@@ -769,7 +795,7 @@ export default function RegisterPage() {
                       {submitting ? (
                         <>
                           <Loader2 size={17} className="animate-spin" />
-                          Processing...
+                          Sending registration...
                         </>
                       ) : remainingSeats <= 0 ? (
                         "Registration is full"
@@ -809,9 +835,10 @@ export default function RegisterPage() {
 function SuccessScreen({ registration, registeredStudents }) {
   const studentName = registration?.name?.trim() || "there";
 
-  const firstName = studentName.split(" ")[0] || studentName;
+  const firstName = studentName.split(/\s+/)[0] || studentName;
 
   const phone = registration?.phone || "";
+
   const email = registration?.email || "";
 
   const seatNumber = registeredStudents;
@@ -823,6 +850,7 @@ function SuccessScreen({ registration, registeredStudents }) {
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-48px)] max-w-2xl items-center justify-center">
         <div className="w-full">
           {/* BRAND */}
+
           <div className="mb-5 flex justify-center">
             <Link
               to="/"
@@ -841,12 +869,13 @@ function SuccessScreen({ registration, registeredStudents }) {
           </div>
 
           {/* SUCCESS CARD */}
+
           <div className="relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-white/[0.035] shadow-[0_30px_100px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
-            {/* TOP GLOW */}
             <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[240px] w-[400px] -translate-x-1/2 rounded-full bg-[#25F4EE]/10 blur-[100px]" />
 
             <div className="relative p-6 sm:p-9">
               {/* ICON */}
+
               <div className="flex justify-center">
                 <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-[22px] border border-[#25F4EE]/20 bg-[#25F4EE]/[0.08] shadow-[0_0_45px_rgba(37,244,238,0.08)]">
                   <CheckCircle2
@@ -860,30 +889,67 @@ function SuccessScreen({ registration, registeredStudents }) {
               </div>
 
               {/* HEADING */}
+
               <div className="mt-6 text-center">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#25F4EE]/10 bg-[#25F4EE]/[0.045] px-3 py-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#25F4EE]" />
 
                   <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#25F4EE]">
-                    Registration successful
+                    Registration received
                   </span>
                 </div>
 
                 <h1 className="mt-4 text-3xl font-black tracking-[-0.04em] sm:text-4xl">
-                  You're officially in,
+                  You're on the list,
                   <span className="block bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
                     {firstName}! 👋
                   </span>
                 </h1>
 
                 <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/35">
-                  Thanks for joining Adonay TikTok Academy. Your registration is
-                  safely received.
+                  Your registration has been successfully received. Our team
+                  will review it and contact you with the next steps.
                 </p>
               </div>
 
+              {/* STATUS */}
+
+              <div className="mt-7 rounded-2xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#25F4EE]/10">
+                    <Sparkles size={18} className="text-[#25F4EE]" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-bold">
+                      Your application is under review
+                    </p>
+
+                    <p className="mt-1.5 text-xs leading-5 text-white/40">
+                      Registration is complete, but your place is not yet
+                      officially approved. Our team will call you on{" "}
+                      <span className="font-semibold text-white/65">
+                        {phone}
+                      </span>{" "}
+                      to confirm your registration.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex items-center gap-2 border-t border-white/[0.06] pt-4">
+                  <Mail size={14} className="shrink-0 text-[#25F4EE]" />
+
+                  <p className="text-[11px] leading-5 text-white/35">
+                    A confirmation email has been sent to{" "}
+                    <span className="font-semibold text-white/55">{email}</span>
+                    .
+                  </p>
+                </div>
+              </div>
+
               {/* STUDENT SUMMARY */}
-              <div className="mt-7 rounded-2xl border border-white/[0.07] bg-black/20 p-4">
+
+              <div className="mt-4 rounded-2xl border border-white/[0.07] bg-black/20 p-4">
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.05]">
@@ -892,7 +958,7 @@ function SuccessScreen({ registration, registeredStudents }) {
 
                     <div>
                       <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/25">
-                        Student
+                        Applicant
                       </p>
 
                       <p className="mt-0.5 text-sm font-bold">{studentName}</p>
@@ -913,48 +979,24 @@ function SuccessScreen({ registration, registeredStudents }) {
                 </div>
               </div>
 
-              {/* NEXT STEP */}
-              <div className="mt-4 rounded-2xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-4 sm:p-5">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#25F4EE]/10">
-                    <Sparkles size={17} className="text-[#25F4EE]" />
-                  </div>
+              {/* NEXT STEPS */}
 
-                  <div>
-                    <p className="text-sm font-bold">What happens next?</p>
+              <div className="mt-5">
+                <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.2em] text-white/25">
+                  Your journey
+                </p>
 
-                    <p className="mt-1.5 text-xs leading-5 text-white/40">
-                      Our admin team will call you on{" "}
-                      <span className="font-semibold text-white/60">
-                        {phone}
-                      </span>{" "}
-                      to confirm your registration, discuss the training and let
-                      you know about any additional requirements.
-                    </p>
-                  </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <StatusItem number="01" label="Registered" active />
+
+                  <StatusItem number="02" label="Team review" />
+
+                  <StatusItem number="03" label="Approved" />
                 </div>
-
-                <div className="mt-4 flex items-center gap-2 border-t border-white/[0.06] pt-4">
-                  <Mail size={14} className="shrink-0 text-[#25F4EE]" />
-
-                  <p className="text-[11px] leading-5 text-white/35">
-                    A confirmation and academy updates will also be sent to{" "}
-                    <span className="font-semibold text-white/55">{email}</span>
-                    .
-                  </p>
-                </div>
-              </div>
-
-              {/* QUICK STATUS */}
-              <div className="mt-5 grid grid-cols-3 gap-2">
-                <StatusItem number="01" label="Registered" active />
-
-                <StatusItem number="02" label="Admin call" />
-
-                <StatusItem number="03" label="Training" />
               </div>
 
               {/* BUTTON */}
+
               <Link
                 to="/"
                 className="group mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.05] px-5 py-3.5 text-sm font-bold text-white transition-all hover:border-white/[0.15] hover:bg-white/[0.08]"
@@ -979,7 +1021,7 @@ function SuccessScreen({ registration, registeredStudents }) {
 
 /*
 |--------------------------------------------------------------------------
-| SUCCESS MINI INFO
+| MINI INFO
 |--------------------------------------------------------------------------
 */
 
