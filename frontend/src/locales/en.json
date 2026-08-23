@@ -1,0 +1,165 @@
+{
+  "nav": {
+    "home": "Home",
+    "services": "Services",
+    "gallery": "Gallery",
+    "about": "About",
+    "testimonial": "Testimonial",
+    "booking": "Book Service"
+  },
+
+  "hero": {
+    "badge": "Years Experience",
+    "title": "Redefining Automotive Luxury",
+    "subtitle": "Premium car interior transformation with luxury leather, precision stitching and professional craftsmanship.",
+    "booking": "Book Service",
+    "gallery": "View Gallery"
+  },
+
+  "services": {
+    "title": "Our Premium Services",
+    "subtitle": "Craftsmanship that transforms every vehicle interior into a statement of luxury.",
+    "stats": {
+      "projects": "Projects Completed",
+      "satisfaction": "Client Satisfaction",
+      "experience": "Years of Experience"
+    },
+    "items": {
+      "custom": {
+        "title": "Custom Leather Interiors",
+        "desc": "High-end genuine leather seat redesign tailored to your vehicle."
+      },
+      "roof": {
+        "title": "Roof & Headliner Restoration",
+        "desc": "Premium suede and luxury roof upholstery upgrades."
+      },
+      "dashboard": {
+        "title": "Dashboard & Panel Wrapping",
+        "desc": "Modern interior wrapping with precision stitching finish."
+      },
+      "repair": {
+        "title": "Seat Repair & Foam Rebuild",
+        "desc": "Professional repair restoring comfort and factory elegance."
+      },
+      "design": {
+        "title": "Luxury Interior Design",
+        "desc": "Complete car interior transformation with modern styling."
+      },
+      "training": {
+        "headline": "International Automotive Interior Training College",
+        "subHeadline": "Join our government recognized professional upholstery training program in Ethiopia and start building a global career in automotive craftsmanship.",
+        "eliteBadge": "🏆 Recognized Technical Training Institution",
+        "apply": "Start Professional Training",
+        "ctaPrimary": "Start Learning Now",
+        "ctaSecondary": "Register as Student",
+        "successStoryTitle": "Student Career Success",
+        "title": "Professional Upholstery Training",
+        "desc": "Join our government recognized automotive upholstery training program and build a professional career."
+      }
+    }
+  },
+  "booking": {
+    "ctaTitle": "Ready to Transform Your Interior?",
+    "ctaSubtitle": "Book your premium upholstery service today and elevate your driving experience.",
+    "ctaButton": "Book Your Service",
+
+    "title": "Book Your Premium Service",
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "selectService": "Select Service",
+    "date": "Select Date",
+    "upload": "Upload Car Photos (Optional but Recommended)",
+    "submit": "Submit Booking",
+    "success": "Booking submitted successfully!",
+    "error": "Error submitting booking."
+  },
+  "beforeafter": {
+    "title": "Transformation",
+    "subtitle": "Drag the slider to see the difference",
+    "before": "BEFORE",
+    "after": "AFTER"
+  },
+  "testimonial": {
+    "title": "Client Stories"
+  },
+  "training": {
+    "title": "Professional Training College",
+    "subtitle": "Join our internationally recognized automotive upholstery training program.",
+    "badge": "🏆 Recognized by Ethiopian Technical Institutions",
+    "apply": "Register Now",
+    "coursesTitle": "Training Programs",
+    "enroll": "Start Learning",
+
+    "courses": {
+      "leather": {
+        "title": "Leather Seat Upholstery",
+        "desc": "Learn professional automotive leather installation and finishing."
+      },
+      "roof": {
+        "title": "Roof Lining Repair",
+        "desc": "Master headliner installation and restoration techniques."
+      },
+      "panel": {
+        "title": "Panel & Carpet Installation",
+        "desc": "Hands-on professional interior panel craftsmanship."
+      }
+    }
+  },
+  "register": {
+    "title": "Student Registration",
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "age": "Age",
+    "gender": "Gender",
+    "male": "Male",
+    "female": "Female",
+    "course": "Select Course",
+    "address": "Address",
+    "submit": "Register Student",
+    "success": "Registration successful!",
+    "error": "Registration failed"
+  },
+  "footer": {
+    "description": "Premium automotive interior craftsmanship in Ethiopia. Luxury, precision, and modern design.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact"
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "subtitle": "Everything you need to know about our premium studio and training college",
+
+    "items": {
+      "q1": {
+        "q": "What is Teme Upholstery ?",
+        "a": "Teme Upholstery is a premium automotive interior craftsmanship studio specializing in luxury car upholstery, leather installation, and professional training programs."
+      },
+
+      "q2": {
+        "q": "When was Teme Upholstery established?",
+        "a": "Teme Upholstery was established to provide high-quality automotive interior solutions and professional craftsmanship training in Ethiopia."
+      },
+
+      "q3": {
+        "q": "What services do you provide?",
+        "a": "We provide luxury car interior design, leather seat upholstery, roof lining restoration, dashboard wrapping, and professional training courses."
+      },
+
+      "q4": {
+        "q": "Do you provide professional training?",
+        "a": "Yes. Our automotive upholstery training college teaches practical interior craftsmanship and modern vehicle interior techniques."
+      },
+
+      "q5": {
+        "q": "How long does upholstery work take?",
+        "a": "Depending on project complexity, most interior work takes between 1 to 5 days."
+      },
+
+      "q6": {
+        "q": "Where is your studio located?",
+        "a": "We are located in Ethiopia and serve clients nationwide."
+      }
+    }
+  }
+}
