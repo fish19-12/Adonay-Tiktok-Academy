@@ -3,16 +3,10 @@ import { Link } from "react-router-dom";
 import {
   ArrowRight,
   ArrowUpRight,
-  CheckCircle2,
-  ChevronRight,
   Play,
   Quote,
-  Sparkles,
   Star,
-  Users,
-  Video,
-  TrendingUp,
-  MessageCircle,
+  Sparkles,
 } from "lucide-react";
 
 /*
@@ -28,13 +22,10 @@ const testimonials = [
     role: "Real Estate Agent",
     location: "Addis Ababa",
     image:
-      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=400&auto=format&fit=crop&q=80",
-    rating: 5,
-    featured: true,
+      "https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=500&auto=format&fit=crop&q=85",
     quote:
-      "The training completely changed the way I think about TikTok. I used to see it as entertainment, but now I understand how to use content strategically to build trust and attract potential clients.",
+      "I learned how to use TikTok to build trust, show properties, and present myself more confidently online.",
     result: "More confident on camera",
-    category: "Real Estate Training",
   },
   {
     id: 2,
@@ -42,13 +33,10 @@ const testimonials = [
     role: "Real Estate Professional",
     location: "Addis Ababa",
     image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80",
-    rating: 5,
-    featured: false,
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&auto=format&fit=crop&q=85",
     quote:
-      "What I liked most was that the training was practical. I didn't just receive information. I learned how to think about content, create ideas, and turn my expertise into videos.",
+      "The training gave me a clear way to turn my real estate knowledge into content people actually want to watch.",
     result: "Clearer content strategy",
-    category: "Real Estate Training",
   },
   {
     id: 3,
@@ -56,13 +44,10 @@ const testimonials = [
     role: "Entrepreneur",
     location: "Addis Ababa",
     image:
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80",
-    rating: 5,
-    featured: false,
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=85",
     quote:
-      "Before the training, I had many ideas but didn't know what to post. Now I have a much better understanding of how to turn my ideas into useful short-form content.",
+      "I stopped wondering what to post. Now I have a simple system for turning my ideas into short videos.",
     result: "Better content planning",
-    category: "Content Strategy",
   },
   {
     id: 4,
@@ -70,13 +55,10 @@ const testimonials = [
     role: "Business Owner",
     location: "Addis Ababa",
     image:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80",
-    rating: 5,
-    featured: false,
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=500&auto=format&fit=crop&q=85",
     quote:
-      "The biggest difference for me was understanding that good TikTok content is not just about going viral. It's about communicating your message clearly and consistently.",
+      "I understood that content is not just about going viral. It is about becoming recognizable and trusted.",
     result: "Stronger personal brand",
-    category: "Personal Branding",
   },
   {
     id: 5,
@@ -84,13 +66,10 @@ const testimonials = [
     role: "Digital Creator",
     location: "Addis Ababa",
     image:
-      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=400&auto=format&fit=crop&q=80",
-    rating: 5,
-    featured: false,
+      "https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?w=500&auto=format&fit=crop&q=85",
     quote:
-      "I finally understand how to structure a short video from the hook to the call to action. That alone made creating content feel much easier.",
-    result: "More effective videos",
-    category: "Content Creation",
+      "The hook, story, and call-to-action framework made creating short videos much easier.",
+    result: "Better videos",
   },
   {
     id: 6,
@@ -98,43 +77,37 @@ const testimonials = [
     role: "Property Consultant",
     location: "Addis Ababa",
     image:
-      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80",
-    rating: 5,
-    featured: false,
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=500&auto=format&fit=crop&q=85",
     quote:
-      "The training gave me a system instead of random TikTok tips. I now know what kind of content I should create and why I am creating it.",
-    result: "A repeatable content system",
-    category: "Real Estate Training",
+      "Instead of random TikTok tips, I finally have a repeatable system for my real estate content.",
+    result: "Repeatable content system",
   },
 ];
 
 /*
 |--------------------------------------------------------------------------
-| VIDEO TESTIMONIALS
+| VIDEO STORIES
 |--------------------------------------------------------------------------
 */
 
 const videoTestimonials = [
   {
     id: 1,
-    name: "Student Experience",
-    role: "Real Estate Training",
+    title: "My TikTok Journey",
     image:
       "https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=1000&auto=format&fit=crop&q=85",
     duration: "01:24",
   },
   {
     id: 2,
-    name: "Learning Journey",
-    role: "Content Strategy",
+    title: "From Ideas to Content",
     image:
       "https://images.unsplash.com/photo-1529390079861-591de354faf5?w=1000&auto=format&fit=crop&q=85",
     duration: "02:08",
   },
   {
     id: 3,
-    name: "Why I Joined",
-    role: "TikTok Training",
+    title: "Why I Joined",
     image:
       "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=1000&auto=format&fit=crop&q=85",
     duration: "01:46",
@@ -143,30 +116,34 @@ const videoTestimonials = [
 
 /*
 |--------------------------------------------------------------------------
-| MAIN COMPONENT
+| MAIN PAGE
 |--------------------------------------------------------------------------
 */
 
 export default function TestimonialPage() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+    <main className="relative min-h-screen overflow-hidden bg-[#070809] text-white">
       {/* ================================================================
-          GLOBAL BACKGROUND
+          ANIMATED BACKGROUND
       ================================================================= */}
 
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute left-[-180px] top-[-180px] h-[500px] w-[500px] rounded-full bg-[#25F4EE]/[0.045] blur-[150px]" />
+        {/* Cyan glow */}
+        <div className="absolute -left-40 -top-40 h-[500px] w-[500px] rounded-full bg-[#25F4EE]/[0.055] blur-[130px] animate-pulse" />
 
-        <div className="absolute right-[-180px] top-[18%] h-[500px] w-[500px] rounded-full bg-[#FE2C55]/[0.04] blur-[150px]" />
+        {/* Pink glow */}
+        <div className="absolute -right-40 top-[25%] h-[500px] w-[500px] rounded-full bg-[#FE2C55]/[0.045] blur-[140px]" />
 
-        <div className="absolute bottom-[10%] left-[35%] h-[450px] w-[450px] rounded-full bg-violet-500/[0.025] blur-[150px]" />
+        {/* Center glow */}
+        <div className="absolute bottom-[-250px] left-1/2 h-[500px] w-[700px] -translate-x-1/2 rounded-full bg-[#25F4EE]/[0.025] blur-[150px]" />
 
+        {/* Fine grid */}
         <div
           className="absolute inset-0 opacity-[0.018]"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px)",
-            backgroundSize: "70px 70px",
+              "linear-gradient(rgba(255,255,255,.7) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.7) 1px, transparent 1px)",
+            backgroundSize: "80px 80px",
           }}
         />
       </div>
@@ -175,39 +152,46 @@ export default function TestimonialPage() {
           HERO
       ================================================================= */}
 
-      <section className="relative z-10 px-5 pb-16 pt-24 sm:px-8 sm:pb-20 sm:pt-28 lg:px-10 lg:pb-24 lg:pt-32">
+      <section className="relative z-10 px-5 pb-16 pt-28 sm:px-8 sm:pt-32 lg:px-10 lg:pb-24">
         <div className="mx-auto max-w-7xl">
-          <div className="grid items-center gap-12 lg:grid-cols-[1fr_0.9fr] lg:gap-20">
-            {/* LEFT */}
+          <div className="grid items-center gap-14 lg:grid-cols-[1fr_0.85fr] lg:gap-24">
+            {/* LEFT CONTENT */}
 
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#25F4EE]/15 bg-[#25F4EE]/[0.045] px-4 py-2">
-                <Sparkles size={14} className="text-[#25F4EE]" />
+              {/* Small label */}
 
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#25F4EE]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3.5 py-2 backdrop-blur-xl">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#25F4EE] shadow-[0_0_12px_#25F4EE]" />
+
+                <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-white/50">
                   Student Stories
                 </span>
               </div>
 
-              <h1 className="mt-7 max-w-3xl text-4xl font-black leading-[1.02] tracking-[-0.05em] sm:text-5xl lg:text-7xl">
-                Real people.
+              {/* Heading */}
+
+              <h1 className="mt-7 max-w-3xl text-5xl font-black leading-[0.98] tracking-[-0.055em] sm:text-6xl lg:text-[78px]">
+                Become the agent
                 <span className="block bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
-                  Real growth.
+                  people remember.
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-xl text-sm leading-7 text-white/45 sm:text-base">
-                Discover how students and professionals are using practical
-                TikTok training, content strategy, and personal branding to
-                build stronger digital skills.
+              {/* Description */}
+
+              <p className="mt-7 max-w-lg text-sm leading-7 text-white/45 sm:text-base">
+                See how real estate professionals are using content to become
+                more visible, trusted, and memorable.
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-4">
+              {/* CTA */}
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   to="/register"
-                  className="group inline-flex items-center gap-2 rounded-xl bg-[#25F4EE] px-6 py-3.5 text-sm font-bold text-black transition duration-300 hover:-translate-y-1 hover:bg-white"
+                  className="group inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] px-6 py-3.5 text-sm font-bold text-black shadow-[0_15px_40px_rgba(37,244,238,0.12)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(254,44,85,0.16)]"
                 >
-                  Start Your Journey
+                  Register Now
                   <ArrowRight
                     size={17}
                     className="transition-transform duration-300 group-hover:translate-x-1"
@@ -215,80 +199,67 @@ export default function TestimonialPage() {
                 </Link>
 
                 <a
-                  href="#video-stories"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-6 py-3.5 text-sm font-semibold text-white/65 transition hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
+                  href="#stories"
+                  className="group inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.035] px-6 py-3.5 text-sm font-semibold text-white/70 backdrop-blur-xl transition duration-300 hover:border-white/20 hover:bg-white/[0.06] hover:text-white"
                 >
-                  <Play size={15} />
-                  Watch Stories
+                  <Play size={14} className="fill-current text-[#25F4EE]" />
+                  Explore Stories
                 </a>
               </div>
 
-              {/* TRUST */}
+              {/* Mini trust */}
 
-              <div className="mt-10 flex flex-wrap items-center gap-6">
-                <div className="flex items-center gap-3">
-                  <div className="flex -space-x-2">
-                    {testimonials.slice(0, 4).map((student) => (
-                      <img
-                        key={student.id}
-                        src={student.image}
-                        alt=""
-                        className="h-8 w-8 rounded-full border-2 border-[#050505] object-cover"
+              <div className="mt-9 flex items-center gap-3">
+                <div className="flex -space-x-2">
+                  {testimonials.slice(0, 4).map((student) => (
+                    <img
+                      key={student.id}
+                      src={student.image}
+                      alt=""
+                      className="h-8 w-8 rounded-full border-2 border-[#070809] object-cover"
+                    />
+                  ))}
+                </div>
+
+                <div>
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        size={11}
+                        fill="currentColor"
+                        className="text-[#25F4EE]"
                       />
                     ))}
                   </div>
 
-                  <div>
-                    <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          size={11}
-                          fill="currentColor"
-                          className="text-[#25F4EE]"
-                        />
-                      ))}
-                    </div>
-
-                    <p className="mt-1 text-[10px] font-semibold text-white/35">
-                      Student experiences
-                    </p>
-                  </div>
-                </div>
-
-                <div className="hidden h-8 w-px bg-white/10 sm:block" />
-
-                <div>
-                  <p className="text-xl font-black">Practical</p>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/30">
-                    Learning approach
+                  <p className="mt-1 text-[10px] text-white/30">
+                    Real learning experiences
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* RIGHT FEATURED TESTIMONIAL */}
+            {/* FEATURED TESTIMONIAL */}
 
             <div className="relative">
-              <div className="absolute -inset-6 rounded-[40px] bg-[#25F4EE]/[0.025] blur-3xl" />
+              {/* Glow */}
 
-              <div className="relative overflow-hidden rounded-[30px] border border-white/[0.09] bg-gradient-to-br from-white/[0.06] to-white/[0.018] p-6 shadow-[0_30px_100px_rgba(0,0,0,0.35)] sm:p-8">
+              <div className="absolute -inset-8 rounded-[50px] bg-[#25F4EE]/[0.025] blur-3xl" />
+
+              <article className="group relative overflow-hidden rounded-[30px] border border-white/10 bg-white/[0.045] p-7 backdrop-blur-xl transition duration-500 hover:border-white/15 sm:p-9">
+                {/* Top line */}
+
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#25F4EE]/10">
-                      <Quote size={17} className="text-[#25F4EE]" />
-                    </div>
-
-                    <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
-                      Featured Story
-                    </span>
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#25F4EE]/10">
+                    <Quote size={18} className="text-[#25F4EE]" />
                   </div>
 
-                  <div className="flex items-center gap-1">
+                  <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <Star
                         key={star}
-                        size={13}
+                        size={12}
                         fill="currentColor"
                         className="text-[#25F4EE]"
                       />
@@ -296,11 +267,15 @@ export default function TestimonialPage() {
                   </div>
                 </div>
 
-                <blockquote className="mt-8 text-xl font-semibold leading-8 tracking-tight text-white/85 sm:text-2xl">
+                {/* Quote */}
+
+                <blockquote className="mt-8 text-2xl font-semibold leading-[1.35] tracking-tight text-white/90 sm:text-[28px]">
                   “{testimonials[0].quote}”
                 </blockquote>
 
-                <div className="mt-8 flex items-center gap-4 border-t border-white/[0.07] pt-6">
+                {/* Person */}
+
+                <div className="mt-9 flex items-center gap-3 border-t border-white/[0.07] pt-6">
                   <img
                     src={testimonials[0].image}
                     alt={testimonials[0].name}
@@ -310,64 +285,63 @@ export default function TestimonialPage() {
                   <div>
                     <p className="text-sm font-bold">{testimonials[0].name}</p>
 
-                    <p className="mt-1 text-xs text-white/35">
-                      {testimonials[0].role} · {testimonials[0].location}
+                    <p className="mt-1 text-[11px] text-white/35">
+                      {testimonials[0].role}
                     </p>
                   </div>
 
-                  <div className="ml-auto hidden rounded-lg border border-[#25F4EE]/10 bg-[#25F4EE]/[0.05] px-3 py-2 sm:block">
-                    <p className="text-[8px] font-bold uppercase tracking-[0.16em] text-[#25F4EE]">
+                  <div className="ml-auto hidden rounded-lg bg-[#25F4EE]/[0.07] px-3 py-2 sm:block">
+                    <p className="text-[8px] uppercase tracking-[0.15em] text-[#25F4EE]/70">
                       Result
                     </p>
 
-                    <p className="mt-1 text-[10px] font-semibold text-white/50">
+                    <p className="mt-1 text-[10px] font-semibold text-white/55">
                       {testimonials[0].result}
                     </p>
                   </div>
                 </div>
-              </div>
+              </article>
             </div>
           </div>
         </div>
       </section>
 
       {/* ================================================================
-          TRUST STATS
+          SIMPLE DIVIDER
       ================================================================= */}
 
-      <section className="relative z-10 border-y border-white/[0.06] bg-white/[0.015]">
-        <div className="mx-auto grid max-w-7xl sm:grid-cols-3">
-          <Stat
-            icon={Users}
-            value="Students"
-            label="Focused on practical learning"
-          />
-
-          <Stat
-            icon={TrendingUp}
-            value="Growth"
-            label="Strategy before random posting"
-          />
-
-          <Stat
-            icon={CheckCircle2}
-            value="Practical"
-            label="Skills designed for real use"
-          />
-        </div>
-      </section>
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8 lg:px-10">
+        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      </div>
 
       {/* ================================================================
-          TESTIMONIAL GRID
+          TESTIMONIALS
       ================================================================= */}
 
-      <section className="relative z-10 px-5 py-20 sm:px-8 sm:py-24 lg:px-10 lg:py-28">
+      <section
+        id="stories"
+        className="relative z-10 px-5 py-20 sm:px-8 sm:py-24 lg:px-10 lg:py-28"
+      >
         <div className="mx-auto max-w-7xl">
-          <SectionHeading
-            eyebrow="What Students Say"
-            title="Experiences that speak for themselves."
-            description="Every learner starts from a different place. The goal is the same: understand the strategy, practice the skill, and become more confident creating content."
-          />
+          {/* Heading */}
+
+          <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#25F4EE]">
+                Real Experiences
+              </p>
+
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+                What they learned.
+              </h2>
+            </div>
+
+            <p className="max-w-sm text-sm leading-6 text-white/35">
+              Practical skills. Better content. More confidence.
+            </p>
+          </div>
+
+          {/* Cards */}
 
           <div className="mt-12 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {testimonials.slice(1).map((testimonial) => (
@@ -381,33 +355,21 @@ export default function TestimonialPage() {
           VIDEO STORIES
       ================================================================= */}
 
-      <section
-        id="video-stories"
-        className="relative z-10 border-y border-white/[0.06] bg-white/[0.012] px-5 py-20 sm:px-8 sm:py-24 lg:px-10 lg:py-28"
-      >
+      <section className="relative z-10 border-y border-white/[0.06] bg-white/[0.012] px-5 py-20 sm:px-8 sm:py-24 lg:px-10">
         <div className="mx-auto max-w-7xl">
-          <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
-            <div className="max-w-2xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#FE2C55]/15 bg-[#FE2C55]/[0.04] px-4 py-2">
-                <Video size={13} className="text-[#FE2C55]" />
-
-                <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#FE2C55]">
-                  Video Stories
-                </span>
-              </div>
-
-              <h2 className="mt-5 text-3xl font-black tracking-tight sm:text-4xl">
-                Hear the experience.
-              </h2>
-
-              <p className="mt-4 text-sm leading-7 text-white/40">
-                Short student stories are one of the best ways to understand
-                what the learning experience feels like.
+          <div className="flex items-end justify-between gap-6">
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-[#FE2C55]">
+                Watch
               </p>
+
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+                Hear it from them.
+              </h2>
             </div>
 
-            <div className="flex items-center gap-2 text-xs font-semibold text-white/30">
-              <Play size={14} className="text-[#25F4EE]" />
+            <div className="hidden items-center gap-2 text-xs text-white/30 sm:flex">
+              <Play size={13} fill="currentColor" className="text-[#25F4EE]" />
               Student stories
             </div>
           </div>
@@ -421,69 +383,56 @@ export default function TestimonialPage() {
       </section>
 
       {/* ================================================================
-          EXPERIENCE BREAKDOWN
+          SIMPLE PROCESS
       ================================================================= */}
 
-      <section className="relative z-10 px-5 py-20 sm:px-8 sm:py-24 lg:px-10 lg:py-28">
+      <section className="relative z-10 px-5 py-20 sm:px-8 sm:py-24 lg:px-10">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-center">
             {/* LEFT */}
 
-            <div className="rounded-[28px] border border-white/[0.08] bg-gradient-to-br from-[#25F4EE]/[0.05] to-white/[0.015] p-7 sm:p-9">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#25F4EE]/10">
-                <MessageCircle size={21} className="text-[#25F4EE]" />
+            <div>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#25F4EE]/10">
+                <Sparkles size={19} className="text-[#25F4EE]" />
               </div>
 
-              <p className="mt-7 text-[9px] font-bold uppercase tracking-[0.22em] text-[#25F4EE]">
-                The Academy Difference
+              <p className="mt-6 text-[9px] font-bold uppercase tracking-[0.22em] text-[#25F4EE]">
+                The Academy Method
               </p>
 
-              <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">
-                Learning should lead to action.
+              <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
+                Learn it.
+                <br />
+                Create it.
+                <br />
+                Grow with it.
               </h2>
 
-              <p className="mt-4 text-sm leading-7 text-white/40">
-                We focus on helping learners understand how content works,
-                develop a strategy, and actually apply what they learn.
+              <p className="mt-5 max-w-sm text-sm leading-7 text-white/35">
+                A simple approach built for real estate professionals who want
+                to use short-form content with purpose.
               </p>
-
-              <Link
-                to="/services"
-                className="group mt-7 inline-flex items-center gap-2 text-xs font-bold text-white/65 transition hover:text-[#25F4EE]"
-              >
-                Explore our training
-                <ArrowRight
-                  size={14}
-                  className="transition-transform group-hover:translate-x-1"
-                />
-              </Link>
             </div>
 
             {/* RIGHT */}
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <ExperienceCard
+            <div className="grid gap-3 sm:grid-cols-3">
+              <MethodCard
                 number="01"
-                title="Understand"
-                text="Learn the fundamentals behind TikTok, content, and personal branding."
+                title="Learn"
+                text="Understand what makes content work."
               />
 
-              <ExperienceCard
+              <MethodCard
                 number="02"
-                title="Practice"
-                text="Turn concepts into practical exercises instead of simply watching lessons."
-              />
-
-              <ExperienceCard
-                number="03"
                 title="Create"
-                text="Build content ideas and systems that fit your goals and audience."
+                text="Turn your expertise into videos."
               />
 
-              <ExperienceCard
-                number="04"
-                title="Improve"
-                text="Develop the confidence to keep testing, learning, and improving."
+              <MethodCard
+                number="03"
+                title="Grow"
+                text="Build visibility and trust."
               />
             </div>
           </div>
@@ -495,45 +444,34 @@ export default function TestimonialPage() {
       ================================================================= */}
 
       <section className="relative z-10 px-5 pb-24 sm:px-8 lg:px-10 lg:pb-32">
-        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[32px] border border-[#25F4EE]/10 bg-gradient-to-br from-[#25F4EE]/[0.06] via-white/[0.025] to-[#FE2C55]/[0.055] p-8 text-center sm:p-12 lg:p-16">
-          <div className="pointer-events-none absolute left-1/2 top-[-100px] h-64 w-[500px] -translate-x-1/2 rounded-full bg-[#25F4EE]/[0.06] blur-[100px]" />
+        <div className="relative mx-auto max-w-5xl overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.035] px-7 py-14 text-center backdrop-blur-xl sm:px-12 sm:py-16">
+          {/* Glow */}
+
+          <div className="pointer-events-none absolute left-1/2 top-[-180px] h-[350px] w-[600px] -translate-x-1/2 rounded-full bg-[#25F4EE]/[0.06] blur-[120px]" />
 
           <div className="relative">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
-              <Sparkles size={23} className="text-[#25F4EE]" />
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-[#25F4EE]/20 to-[#FE2C55]/20">
+              <Sparkles size={20} className="text-[#25F4EE]" />
             </div>
 
-            <p className="mt-6 text-[9px] font-bold uppercase tracking-[0.25em] text-[#25F4EE]">
-              Your Story Could Be Next
-            </p>
-
-            <h2 className="mx-auto mt-3 max-w-2xl text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
-              Ready to build your digital skills?
+            <h2 className="mx-auto mt-6 max-w-2xl text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">
+              Your story could be next.
             </h2>
 
-            <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/40">
-              Start with the training currently available and take the first
-              step toward creating better, more strategic content.
+            <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-white/35">
+              Start building a real estate brand people remember.
             </p>
 
-            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+            <div className="mt-8">
               <Link
                 to="/register"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-black transition hover:-translate-y-1 hover:bg-[#25F4EE]"
+                className="group inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] px-7 py-4 text-sm font-bold text-black shadow-[0_15px_40px_rgba(37,244,238,0.12)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(254,44,85,0.18)]"
               >
-                Register for Training
+                Register Now
                 <ArrowRight
                   size={17}
-                  className="transition-transform group-hover:translate-x-1"
+                  className="transition-transform duration-300 group-hover:translate-x-1"
                 />
-              </Link>
-
-              <Link
-                to="/services"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-white/65 transition hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
-              >
-                View Services
-                <ChevronRight size={16} />
               </Link>
             </div>
           </div>
@@ -545,100 +483,66 @@ export default function TestimonialPage() {
 
 /*
 |--------------------------------------------------------------------------
-| SECTION HEADING
-|--------------------------------------------------------------------------
-*/
-
-function SectionHeading({ eyebrow, title, description }) {
-  return (
-    <div className="max-w-2xl">
-      <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#25F4EE]">
-        {eyebrow}
-      </p>
-
-      <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">
-        {title}
-      </h2>
-
-      <p className="mt-4 text-sm leading-7 text-white/40">{description}</p>
-    </div>
-  );
-}
-
-/*
-|--------------------------------------------------------------------------
-| STAT
-|--------------------------------------------------------------------------
-*/
-
-function Stat({ icon: Icon, value, label }) {
-  return (
-    <div className="flex items-center gap-4 border-white/[0.06] p-6 sm:border-r sm:p-7 last:sm:border-r-0">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.04]">
-        <Icon size={19} className="text-[#25F4EE]" />
-      </div>
-
-      <div>
-        <p className="text-sm font-black text-white">{value}</p>
-
-        <p className="mt-1 text-[10px] leading-4 text-white/30">{label}</p>
-      </div>
-    </div>
-  );
-}
-
-/*
-|--------------------------------------------------------------------------
 | TESTIMONIAL CARD
 |--------------------------------------------------------------------------
 */
 
 function TestimonialCard({ testimonial }) {
   return (
-    <article className="group relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.025] p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[#25F4EE]/15 hover:bg-white/[0.04]">
-      <div className="absolute right-[-50px] top-[-50px] h-40 w-40 rounded-full bg-[#25F4EE]/[0.025] blur-[70px] transition duration-500 group-hover:bg-[#25F4EE]/[0.06]" />
+    <article className="group relative overflow-hidden rounded-[24px] border border-white/[0.08] bg-white/[0.025] p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[#25F4EE]/20 hover:bg-white/[0.04]">
+      {/* Hover glow */}
+
+      <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#25F4EE]/[0.025] blur-[70px] transition duration-500 group-hover:bg-[#25F4EE]/[0.06]" />
 
       <div className="relative">
+        {/* Rating */}
+
         <div className="flex items-center justify-between">
-          <div className="flex gap-1">
+          <div className="flex gap-0.5">
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                size={12}
+                size={11}
                 fill="currentColor"
                 className="text-[#25F4EE]"
               />
             ))}
           </div>
 
-          <Quote size={18} className="text-white/10" />
+          <Quote size={17} className="text-white/10" />
         </div>
+
+        {/* Quote */}
 
         <p className="mt-6 text-sm leading-7 text-white/55">
           “{testimonial.quote}”
         </p>
 
+        {/* Person */}
+
         <div className="mt-7 flex items-center gap-3 border-t border-white/[0.07] pt-5">
           <img
             src={testimonial.image}
             alt={testimonial.name}
-            className="h-11 w-11 rounded-xl object-cover"
+            className="h-10 w-10 rounded-xl object-cover"
           />
 
           <div className="min-w-0">
-            <p className="truncate text-xs font-bold text-white/85">
+            <p className="text-xs font-bold text-white/90">
               {testimonial.name}
             </p>
 
             <p className="mt-1 truncate text-[10px] text-white/30">
-              {testimonial.role} · {testimonial.location}
+              {testimonial.role}
             </p>
           </div>
         </div>
 
-        <div className="mt-5 flex items-center justify-between rounded-xl border border-white/[0.06] bg-black/20 px-3 py-2.5">
+        {/* Result */}
+
+        <div className="mt-5 flex items-center justify-between rounded-lg bg-[#25F4EE]/[0.045] px-3 py-2.5">
           <span className="text-[8px] font-bold uppercase tracking-[0.16em] text-white/25">
-            Outcome
+            Result
           </span>
 
           <span className="text-[10px] font-semibold text-[#25F4EE]/70">
@@ -658,34 +562,40 @@ function TestimonialCard({ testimonial }) {
 
 function VideoCard({ video }) {
   return (
-    <article className="group relative overflow-hidden rounded-[26px] border border-white/[0.08] bg-white/[0.025]">
+    <article className="group relative overflow-hidden rounded-[24px] border border-white/[0.08] bg-white/[0.025]">
       <div className="relative aspect-[16/10] overflow-hidden">
         <img
           src={video.image}
-          alt={video.name}
-          className="h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-105 group-hover:opacity-80"
+          alt={video.title}
+          className="h-full w-full object-cover opacity-70 transition duration-700 group-hover:scale-105 group-hover:opacity-90"
         />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/10 to-black/10" />
+        {/* Dark gradient */}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-black/10" />
+
+        {/* Play */}
 
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-black/45 backdrop-blur-md transition duration-300 group-hover:scale-110 group-hover:border-[#25F4EE]/40 group-hover:bg-[#25F4EE]">
+          <div className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-black/40 backdrop-blur-md transition duration-300 group-hover:scale-110 group-hover:border-[#25F4EE]/50 group-hover:bg-[#25F4EE]">
             <Play
-              size={19}
+              size={18}
               fill="currentColor"
               className="ml-0.5 text-white group-hover:text-black"
             />
           </div>
         </div>
 
+        {/* Bottom */}
+
         <div className="absolute bottom-4 left-4 right-4 flex items-end justify-between">
           <div>
-            <p className="text-sm font-bold">{video.name}</p>
+            <p className="text-sm font-bold">{video.title}</p>
 
-            <p className="mt-1 text-[10px] text-white/50">{video.role}</p>
+            <p className="mt-1 text-[10px] text-white/40">Student experience</p>
           </div>
 
-          <span className="rounded-md bg-black/50 px-2 py-1 text-[9px] font-bold text-white/70 backdrop-blur-md">
+          <span className="rounded-md bg-black/50 px-2 py-1 text-[9px] font-semibold text-white/65 backdrop-blur-md">
             {video.duration}
           </span>
         </div>
@@ -696,25 +606,25 @@ function VideoCard({ video }) {
 
 /*
 |--------------------------------------------------------------------------
-| EXPERIENCE CARD
+| METHOD CARD
 |--------------------------------------------------------------------------
 */
 
-function ExperienceCard({ number, title, text }) {
+function MethodCard({ number, title, text }) {
   return (
-    <div className="group rounded-[22px] border border-white/[0.08] bg-white/[0.025] p-6 transition duration-300 hover:-translate-y-1 hover:border-white/[0.14] hover:bg-white/[0.04]">
+    <div className="group rounded-[22px] border border-white/[0.08] bg-white/[0.025] p-6 transition duration-300 hover:-translate-y-1 hover:border-[#25F4EE]/15 hover:bg-white/[0.04]">
       <div className="flex items-center justify-between">
-        <span className="text-[9px] font-black tracking-[0.2em] text-[#25F4EE]/60">
+        <span className="text-[9px] font-black tracking-[0.18em] text-[#25F4EE]/60">
           {number}
         </span>
 
         <ArrowUpRight
-          size={16}
-          className="text-white/15 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#25F4EE]"
+          size={15}
+          className="text-white/15 transition duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-[#25F4EE]"
         />
       </div>
 
-      <h3 className="mt-6 text-base font-black">{title}</h3>
+      <h3 className="mt-7 text-base font-black">{title}</h3>
 
       <p className="mt-2 text-xs leading-6 text-white/35">{text}</p>
     </div>

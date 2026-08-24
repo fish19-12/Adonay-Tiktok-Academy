@@ -13,210 +13,279 @@ export default function Hero() {
     offset: ["start start", "end start"],
   });
 
-  const scale = useTransform(scrollYProgress, [0, 1], [1.08, 1]);
-  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.75]);
-  const y = useTransform(scrollYProgress, [0, 1], [0, 80]);
+  const imageScale = useTransform(scrollYProgress, [0, 1], [1.05, 1]);
+
+  const imageY = useTransform(scrollYProgress, [0, 1], [0, 70]);
+
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -35]);
+
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
     <section
       ref={ref}
-      className="relative min-h-screen overflow-hidden bg-[#030303]"
+      className="relative min-h-screen overflow-hidden bg-white"
     >
       {/* =====================================================
-          BACKGROUND IMAGE
+          HERO IMAGE
       ===================================================== */}
 
-      <motion.div style={{ scale, opacity, y }} className="absolute inset-0">
+      <motion.div
+        style={{
+          scale: imageScale,
+          y: imageY,
+        }}
+        className="absolute inset-0"
+      >
         <img
           src={heroImage}
           alt="Adonay TikTok Academy"
-          className="h-full w-full object-cover"
+          className="h-full w-full object-cover object-center"
         />
       </motion.div>
 
       {/* =====================================================
-          DARK OVERLAY
+          IMAGE OVERLAY
       ===================================================== */}
 
-      <div className="absolute inset-0 bg-black/65" />
+      <div className="absolute inset-0 bg-black/25" />
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/55 to-[#030303]" />
+      {/* Left readability gradient */}
+
+      <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/35 to-black/5" />
+
+      {/* Bottom fade */}
+
+      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-black/45 to-transparent" />
 
       {/* =====================================================
-          BRAND GLOW
+          SUBTLE BRAND LIGHT
       ===================================================== */}
 
-      <div className="absolute left-[-120px] top-[-120px] h-[360px] w-[360px] rounded-full bg-[#25F4EE]/10 blur-[100px]" />
+      <motion.div
+        animate={{
+          opacity: [0.35, 0.55, 0.35],
+          scale: [1, 1.08, 1],
+        }}
+        transition={{
+          duration: 7,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute -left-32 top-1/4 h-80 w-80 rounded-full bg-[#25F4EE]/15 blur-[110px]"
+      />
 
-      <div className="absolute bottom-[-160px] right-[-120px] h-[420px] w-[420px] rounded-full bg-[#FE2C55]/10 blur-[110px]" />
-
-      {/* =====================================================
-          SUBTLE GRID
-      ===================================================== */}
-
-      <div className="absolute inset-0 opacity-[0.025] bg-[linear-gradient(rgba(255,255,255,0.4)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.4)_1px,transparent_1px)] bg-[size:90px_90px]" />
+      <motion.div
+        animate={{
+          opacity: [0.2, 0.4, 0.2],
+          scale: [1, 1.1, 1],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="pointer-events-none absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-[#FE2C55]/10 blur-[120px]"
+      />
 
       {/* =====================================================
           CONTENT
       ===================================================== */}
 
-      <div className="relative z-10 flex min-h-screen items-center px-5 py-24 sm:px-8">
-        <div className="mx-auto w-full max-w-6xl">
-          <div className="max-w-4xl">
+      <motion.div
+        style={{
+          y: contentY,
+          opacity: contentOpacity,
+        }}
+        className="relative z-10 flex min-h-screen items-center"
+      >
+        <div className="mx-auto w-full max-w-7xl px-5 py-28 sm:px-8 lg:px-12">
+          <div className="max-w-3xl">
             {/* =================================================
-                BRAND LABEL
+                SMALL BRAND LABEL
             ================================================= */}
 
             <motion.div
-              initial={{ opacity: 0, y: -15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-black/30 px-4 py-2.5 backdrop-blur-xl"
+              initial={{
+                opacity: 0,
+                y: 15,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.6,
+              }}
+              className="mb-6 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 backdrop-blur-md"
             >
               <span className="h-2 w-2 rounded-full bg-[#25F4EE] shadow-[0_0_12px_rgba(37,244,238,0.8)]" />
 
-              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/70 sm:text-xs">
-                Adonay TikTok Academy
+              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/85 sm:text-xs">
+                TikTok Academy
               </span>
             </motion.div>
 
             {/* =================================================
-                MAIN HEADLINE
+                MAIN TITLE
             ================================================= */}
 
             <motion.h1
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.7,
-                delay: 0.15,
+              initial={{
+                opacity: 0,
+                y: 30,
               }}
-              className="mt-7 text-4xl font-black leading-[1.08] tracking-tight text-white sm:text-6xl md:text-7xl lg:text-[78px]"
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
+              transition={{
+                duration: 0.75,
+                delay: 0.1,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="max-w-3xl text-[48px] font-extrabold leading-[0.98] tracking-[-0.045em] text-white sm:text-6xl md:text-7xl lg:text-[82px]"
             >
-              Turn Your Real Estate
-              <span className="block">
-                Business Into a{" "}
-                <span className="bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
-                  Digital Brand.
-                </span>
+              Turn your
+              <br />
+              <span className="relative">properties</span> into
+              <br />
+              <span className="bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
+                attention.
               </span>
             </motion.h1>
 
             {/* =================================================
-                DESCRIPTION
+                SHORT DESCRIPTION
             ================================================= */}
 
             <motion.p
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{
+                opacity: 0,
+                y: 20,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
               transition={{
                 duration: 0.6,
-                delay: 0.35,
+                delay: 0.3,
               }}
-              className="mt-6 max-w-2xl text-sm leading-7 text-white/65 sm:text-lg sm:leading-8"
+              className="mt-6 max-w-md text-sm leading-6 text-white/75 sm:text-base sm:leading-7"
             >
-              Learn how to use TikTok and short-form content to attract more
-              clients, showcase properties, build your personal brand, and grow
-              your real estate business.
+              Learn TikTok content, personal branding, and digital marketing
+              built for real estate agents.
             </motion.p>
 
             {/* =================================================
-                SMALL VALUE POINTS
+                CTA
             ================================================= */}
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{
+                opacity: 0,
+                y: 20,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+              }}
               transition={{
                 duration: 0.6,
-                delay: 0.5,
+                delay: 0.45,
               }}
-              className="mt-7 flex flex-wrap gap-x-6 gap-y-3"
+              className="mt-8 flex flex-col gap-3 sm:flex-row"
             >
-              <div className="flex items-center gap-2 text-xs font-medium text-white/60 sm:text-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#25F4EE]" />
-                TikTok Marketing
-              </div>
-
-              <div className="flex items-center gap-2 text-xs font-medium text-white/60 sm:text-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#FE2C55]" />
-                Personal Branding
-              </div>
-
-              <div className="flex items-center gap-2 text-xs font-medium text-white/60 sm:text-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#25F4EE]" />
-                Real Estate Content
-              </div>
-            </motion.div>
-
-            {/* =================================================
-                BUTTONS
-            ================================================= */}
-
-            <motion.div
-              initial={{ opacity: 0, y: 25 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.6,
-                delay: 0.65,
-              }}
-              className="mt-9 flex flex-col gap-3 sm:flex-row"
-            >
-              {/* PRIMARY REGISTER */}
+              {/* REGISTER */}
 
               <Link
                 to="/register"
-                className="group inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] px-7 py-4 text-sm font-bold text-black shadow-[0_12px_35px_rgba(37,244,238,0.15)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_45px_rgba(254,44,85,0.2)]"
+                className="group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-xl bg-white px-7 py-4 text-sm font-bold text-black shadow-[0_15px_45px_rgba(0,0,0,0.2)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_55px_rgba(37,244,238,0.2)]"
               >
-                Register for the Academy
-                <ArrowRight
-                  size={18}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
+                {/* Animated gradient */}
+
+                <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] transition-transform duration-500 group-hover:translate-x-0" />
+
+                <span className="relative z-10">Register Now</span>
+
+                <span className="relative z-10 flex h-6 w-6 items-center justify-center rounded-full bg-black/10 transition-transform duration-300 group-hover:translate-x-1">
+                  <ArrowRight size={15} />
+                </span>
               </Link>
 
-              {/* SECONDARY BUTTON */}
+              {/* ABOUT */}
 
               <Link
                 to="/about"
-                className="group inline-flex items-center justify-center gap-3 rounded-xl border border-white/15 bg-white/[0.06] px-7 py-4 text-sm font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:border-[#25F4EE]/40 hover:bg-white/[0.09]"
+                className="group inline-flex items-center justify-center gap-3 rounded-xl border border-white/20 bg-black/15 px-6 py-4 text-sm font-semibold text-white backdrop-blur-md transition-all duration-300 hover:border-white/35 hover:bg-white/10"
               >
-                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/15 bg-white/5">
-                  <Play
-                    size={11}
-                    className="ml-0.5 fill-current text-[#25F4EE]"
-                  />
+                <span className="flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10">
+                  <Play size={10} className="ml-0.5 fill-white" />
                 </span>
-                Discover the Academy
+                Discover Academy
               </Link>
-            </motion.div>
-
-            {/* =================================================
-                TRUST MESSAGE
-            ================================================= */}
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{
-                duration: 0.7,
-                delay: 0.9,
-              }}
-              className="mt-8 flex items-center gap-3 text-xs text-white/40"
-            >
-              <div className="h-px w-8 bg-gradient-to-r from-[#25F4EE] to-transparent" />
-
-              <span>Learn. Create. Grow. Go Viral.</span>
             </motion.div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* =====================================================
-          BOTTOM FADE
+          SMALL BOTTOM BRAND ELEMENT
       ===================================================== */}
 
-      <div className="absolute bottom-0 left-0 h-32 w-full bg-gradient-to-t from-[#030303] to-transparent" />
+      <motion.div
+        initial={{
+          opacity: 0,
+        }}
+        animate={{
+          opacity: 1,
+        }}
+        transition={{
+          delay: 1,
+          duration: 0.8,
+        }}
+        className="absolute bottom-7 left-5 z-20 flex items-center gap-3 sm:left-8 lg:left-12"
+      >
+        <div className="h-px w-10 bg-gradient-to-r from-[#25F4EE] to-white/20" />
+
+        <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-white/50">
+          Real Estate × TikTok
+        </span>
+      </motion.div>
+
+      {/* =====================================================
+          SCROLL INDICATOR
+      ===================================================== */}
+
+      <motion.div
+        initial={{
+          opacity: 0,
+        }}
+        animate={{
+          opacity: 1,
+        }}
+        transition={{
+          delay: 1.2,
+        }}
+        className="absolute bottom-7 right-5 z-20 hidden items-center gap-3 sm:right-8 sm:flex lg:right-12"
+      >
+        <span className="text-[9px] font-medium uppercase tracking-[0.2em] text-white/40">
+          Scroll
+        </span>
+
+        <motion.div
+          animate={{
+            height: [20, 34, 20],
+          }}
+          transition={{
+            duration: 1.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="w-px bg-gradient-to-b from-[#25F4EE] to-transparent"
+        />
+      </motion.div>
     </section>
   );
 }

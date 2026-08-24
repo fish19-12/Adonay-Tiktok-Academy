@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-
 import { Mail, MapPin, Building2 } from "lucide-react";
 
 export default function Footer() {
@@ -21,12 +20,12 @@ export default function Footer() {
           MAIN FOOTER
       ===================================================== */}
 
-      <div className="relative z-10 mx-auto max-w-7xl px-5 pb-10 pt-16 sm:px-8">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 pb-8 pt-12 sm:px-8">
         {/* ===================================================
-            BRAND SECTION
+            BRAND + CONTACT
         =================================================== */}
 
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_0.6fr]">
+        <div className="grid gap-10 lg:grid-cols-[1.4fr_0.6fr]">
           {/* =================================================
               BRAND
           ================================================= */}
@@ -34,29 +33,30 @@ export default function Footer() {
           <div>
             {/* Brand badge */}
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3.5 py-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.035] px-3 py-1.5">
               <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-[#25F4EE] to-[#FE2C55] text-black">
                 <Building2 size={13} />
               </span>
 
-              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-white/65">
+              <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-white/65">
                 Adonay TikTok Academy
               </span>
             </div>
 
-            {/* Main title */}
+            {/* =================================================
+                SMALLER BRAND TITLE
+            ================================================= */}
 
-            <h2 className="mt-6 text-4xl font-black uppercase tracking-tight sm:text-5xl lg:text-6xl">
-              <span className="text-white">Adonay</span>
-
-              <span className="mt-1 block bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
+            <h2 className="mt-5 text-2xl font-extrabold leading-tight tracking-[-0.025em] sm:text-3xl lg:text-4xl">
+              <span className="text-white">Adonay</span>{" "}
+              <span className="bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
                 TikTok Academy
               </span>
             </h2>
 
             {/* Description */}
 
-            <p className="mt-6 max-w-2xl text-sm leading-7 text-white/50 sm:text-base">
+            <p className="mt-4 max-w-xl text-xs leading-6 text-white/45 sm:text-sm">
               A modern learning platform helping creators, entrepreneurs,
               professionals, and agents build their personal brand, create
               engaging content, and grow their online presence.
@@ -64,12 +64,12 @@ export default function Footer() {
 
             {/* Tagline */}
 
-            <div className="mt-7 flex flex-wrap items-center gap-2 text-[10px] font-bold uppercase tracking-[0.22em]">
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-[9px] font-bold uppercase tracking-[0.2em]">
               <span className="text-[#25F4EE]">Learn</span>
 
               <span className="text-white/20">•</span>
 
-              <span className="text-white/70">Create</span>
+              <span className="text-white/60">Create</span>
 
               <span className="text-white/20">•</span>
 
@@ -77,7 +77,7 @@ export default function Footer() {
 
               <span className="text-white/20">•</span>
 
-              <span className="text-white/70">Go Viral</span>
+              <span className="text-white/60">Go Viral</span>
             </div>
           </div>
 
@@ -86,33 +86,33 @@ export default function Footer() {
           ================================================= */}
 
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/35">
+            <p className="text-[9px] font-bold uppercase tracking-[0.22em] text-white/35">
               Get In Touch
             </p>
 
-            <h3 className="mt-3 text-xl font-bold text-white">Contact Us</h3>
+            <h3 className="mt-2 text-lg font-bold text-white">Contact Us</h3>
 
-            <p className="mt-3 text-sm leading-6 text-white/45">
+            <p className="mt-2 text-xs leading-5 text-white/40">
               Have a question about Adonay TikTok Academy? Send us a message and
               our team will get back to you.
             </p>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-5 space-y-2.5">
               {/* =================================================
                   LOCATION
               ================================================= */}
 
-              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#25F4EE]/10">
-                  <MapPin size={18} className="text-[#25F4EE]" />
+              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#25F4EE]/10">
+                  <MapPin size={16} className="text-[#25F4EE]" />
                 </div>
 
                 <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/30">
+                  <p className="text-[8px] font-bold uppercase tracking-[0.15em] text-white/30">
                     Location
                   </p>
 
-                  <p className="mt-1 text-sm text-white/70">
+                  <p className="mt-0.5 text-xs text-white/65">
                     Addis Ababa, Ethiopia
                   </p>
                 </div>
@@ -124,18 +124,18 @@ export default function Footer() {
 
               <a
                 href="mailto:contact@adonaytiktokacademy.com"
-                className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-4 transition-all duration-300 hover:border-[#FE2C55]/30 hover:bg-[#FE2C55]/[0.04]"
+                className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.025] p-3 transition-all duration-300 hover:border-[#FE2C55]/30 hover:bg-[#FE2C55]/[0.04]"
               >
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FE2C55]/10">
-                  <Mail size={18} className="text-[#FE2C55]" />
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FE2C55]/10">
+                  <Mail size={16} className="text-[#FE2C55]" />
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/30">
+                  <p className="text-[8px] font-bold uppercase tracking-[0.15em] text-white/30">
                     Email
                   </p>
 
-                  <p className="mt-1 break-all text-sm text-white/70 transition group-hover:text-white">
+                  <p className="mt-0.5 break-all text-xs text-white/65 transition group-hover:text-white">
                     contact@adonaytiktokacademy.com
                   </p>
                 </div>
@@ -148,18 +148,18 @@ export default function Footer() {
             DIVIDER
         ===================================================== */}
 
-        <div className="mt-14 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="mt-10 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
         {/* =====================================================
             BOTTOM
         ===================================================== */}
 
-        <div className="flex flex-col items-center justify-between gap-4 pt-6 text-center sm:flex-row sm:text-left">
+        <div className="flex flex-col items-center justify-between gap-3 pt-5 text-center sm:flex-row sm:text-left">
           {/* COPYRIGHT */}
 
-          <p className="text-[11px] text-white/35">
+          <p className="text-[10px] text-white/30">
             © {currentYear}{" "}
-            <span className="font-semibold text-white/65">
+            <span className="font-semibold text-white/55">
               Adonay TikTok Academy
             </span>
             . All rights reserved.
@@ -167,7 +167,7 @@ export default function Footer() {
 
           {/* LEGAL */}
 
-          <div className="flex items-center gap-4 text-[10px] font-medium uppercase tracking-[0.14em] text-white/30">
+          <div className="flex items-center gap-4 text-[9px] font-medium uppercase tracking-[0.14em] text-white/25">
             <Link to="/privacy" className="transition hover:text-[#25F4EE]">
               Privacy
             </Link>
