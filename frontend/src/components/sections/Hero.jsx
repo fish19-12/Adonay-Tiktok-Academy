@@ -1,132 +1,66 @@
-import { motion, useScroll, useTransform } from "framer-motion";
-
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-
-import { useEffect, useRef, useState } from "react";
-
 import { ArrowRight, Play } from "lucide-react";
 
 import heroImage from "../../assets/images/hero.jpg";
 
 export default function Hero() {
-  const ref = useRef(null);
-
-  /*
-  |--------------------------------------------------------------------------
-  | MOBILE DETECTION
-  |--------------------------------------------------------------------------
-  |
-  | Parallax is intentionally disabled on mobile.
-  | Mobile browsers constantly resize the viewport because of the
-  | address bar, which can make scroll-based transforms feel broken.
-  |
-  */
-
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-
-    const handleChange = () => {
-      setIsMobile(mediaQuery.matches);
-    };
-
-    handleChange();
-
-    mediaQuery.addEventListener("change", handleChange);
-
-    return () => {
-      mediaQuery.removeEventListener("change", handleChange);
-    };
-  }, []);
-
-  /*
-  |--------------------------------------------------------------------------
-  | DESKTOP SCROLL ANIMATION
-  |--------------------------------------------------------------------------
-  */
-
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
-  });
-
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1.06, 1]);
-
-  const imageY = useTransform(scrollYProgress, [0, 1], [0, 55]);
-
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -25]);
-
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-
   return (
     <section
-      ref={ref}
       className="
         relative
         isolate
+        w-full
         min-h-[100svh]
         overflow-hidden
-        bg-[#030303]
+        bg-[#030712]
         text-white
       "
     >
-      {/* =========================================================
-          BACKGROUND IMAGE
-      ========================================================= */}
+      {/* =====================================================
+          HERO IMAGE
+      ===================================================== */}
 
-      <motion.div
-        className="
-          pointer-events-none
-          absolute
-          inset-0
-          z-0
-          will-change-transform
-        "
-        style={{
-          scale: isMobile ? 1.01 : imageScale,
-          y: isMobile ? 0 : imageY,
-        }}
-      >
+      <div className="absolute inset-0 -z-10">
         <img
           src={heroImage}
           alt="Adonay TikTok Academy"
-          draggable="false"
           className="
             h-full
             w-full
-            select-none
             object-cover
-            object-[65%_center]
-            sm:object-center
+            object-center
           "
+          loading="eager"
+          fetchPriority="high"
+          decoding="async"
         />
-      </motion.div>
+      </div>
 
-      {/* =========================================================
-          IMAGE DARKENING
-      ========================================================= */}
+      {/* =====================================================
+          DARK OVERLAY
+      ===================================================== */}
 
       <div
         className="
           pointer-events-none
           absolute
           inset-0
-          z-[1]
+          -z-10
           bg-black/25
         "
       />
 
-      {/* =========================================================
+      {/* =====================================================
           LEFT GRADIENT
-      ========================================================= */}
+      ===================================================== */}
 
       <div
         className="
           pointer-events-none
           absolute
           inset-0
-          z-[1]
+          -z-10
           bg-gradient-to-r
           from-black/80
           via-black/45
@@ -134,27 +68,9 @@ export default function Hero() {
         "
       />
 
-      {/* =========================================================
-          MOBILE EXTRA READABILITY
-      ========================================================= */}
-
-      <div
-        className="
-          pointer-events-none
-          absolute
-          inset-0
-          z-[1]
-          bg-gradient-to-b
-          from-black/20
-          via-transparent
-          to-black/65
-          md:hidden
-        "
-      />
-
-      {/* =========================================================
-          BOTTOM FADE
-      ========================================================= */}
+      {/* =====================================================
+          BOTTOM GRADIENT
+      ===================================================== */}
 
       <div
         className="
@@ -162,112 +78,85 @@ export default function Hero() {
           absolute
           inset-x-0
           bottom-0
-          z-[2]
-          h-40
+          -z-10
+          h-48
           bg-gradient-to-t
-          from-black/70
+          from-[#030712]
           to-transparent
         "
       />
 
-      {/* =========================================================
+      {/* =====================================================
           CYAN LIGHT
-      ========================================================= */}
+      ===================================================== */}
 
       <motion.div
-        animate={
-          isMobile
-            ? {
-                opacity: 0.28,
-                scale: 1,
-              }
-            : {
-                opacity: [0.25, 0.45, 0.25],
-                scale: [1, 1.08, 1],
-              }
-        }
-        transition={
-          isMobile
-            ? undefined
-            : {
-                duration: 7,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }
-        }
+        aria-hidden="true"
+        animate={{
+          opacity: [0.2, 0.4, 0.2],
+          scale: [1, 1.06, 1],
+        }}
+        transition={{
+          duration: 7,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
         className="
           pointer-events-none
           absolute
-          -left-40
-          top-[20%]
-          z-[2]
+          -left-32
+          top-1/4
+          -z-10
           h-72
           w-72
           rounded-full
           bg-[#25F4EE]/15
-          blur-[110px]
-          sm:h-80
-          sm:w-80
+          blur-[100px]
         "
       />
 
-      {/* =========================================================
-          PINK LIGHT
-      ========================================================= */}
+      {/* =====================================================
+          RED LIGHT
+      ===================================================== */}
 
       <motion.div
-        animate={
-          isMobile
-            ? {
-                opacity: 0.2,
-                scale: 1,
-              }
-            : {
-                opacity: [0.15, 0.3, 0.15],
-                scale: [1, 1.08, 1],
-              }
-        }
-        transition={
-          isMobile
-            ? undefined
-            : {
-                duration: 8,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }
-        }
+        aria-hidden="true"
+        animate={{
+          opacity: [0.15, 0.3, 0.15],
+          scale: [1, 1.08, 1],
+        }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
         className="
           pointer-events-none
           absolute
-          -bottom-40
-          -right-40
-          z-[2]
+          -right-32
+          bottom-0
+          -z-10
           h-80
           w-80
           rounded-full
           bg-[#FE2C55]/10
-          blur-[120px]
-          sm:h-96
-          sm:w-96
+          blur-[110px]
         "
       />
 
-      {/* =========================================================
+      {/* =====================================================
           CONTENT
-      ========================================================= */}
+      ===================================================== */}
 
-      <motion.div
+      <div
         className="
           relative
           z-10
           flex
           min-h-[100svh]
+          w-full
           items-center
         "
-        style={{
-          y: isMobile ? 0 : contentY,
-          opacity: isMobile ? 1 : contentOpacity,
-        }}
       >
         <div
           className="
@@ -278,17 +167,12 @@ export default function Hero() {
             pb-24
             pt-28
             sm:px-8
-            sm:py-28
+            sm:pb-28
+            sm:pt-32
             lg:px-12
-            lg:py-32
           "
         >
-          <div
-            className="
-              max-w-3xl
-              md:max-w-3xl
-            "
-          >
+          <div className="max-w-3xl">
             {/* =================================================
                 BRAND LABEL
             ================================================= */}
@@ -307,52 +191,52 @@ export default function Hero() {
               }}
               className="
                 inline-flex
+                max-w-full
                 items-center
                 gap-2.5
                 rounded-full
                 border
-                border-white/15
+                border-white/20
                 bg-black/20
-                px-3
+                px-3.5
                 py-2
-                backdrop-blur-xl
-                sm:px-3.5
+                backdrop-blur-md
               "
             >
               <span
                 className="
-                  h-1.5
-                  w-1.5
+                  h-2
+                  w-2
+                  shrink-0
                   rounded-full
                   bg-[#25F4EE]
-                  shadow-[0_0_12px_rgba(37,244,238,0.9)]
-                  sm:h-2
-                  sm:w-2
+                  shadow-[0_0_12px_rgba(37,244,238,0.8)]
                 "
               />
 
               <span
                 className="
+                  truncate
                   text-[9px]
                   font-semibold
                   uppercase
-                  tracking-[0.18em]
-                  text-white/80
+                  tracking-[0.16em]
+                  text-white/85
                   sm:text-xs
                 "
               >
-                Adonay TikTok Academy
+                TikTok Academy
               </span>
             </motion.div>
 
             {/* =================================================
-                MAIN TITLE
+                HEADLINE
             ================================================= */}
 
             <motion.h1
               initial={{
                 opacity: 0,
-                y: 25,
+                y: 20,
               }}
               animate={{
                 opacity: 1,
@@ -360,30 +244,27 @@ export default function Hero() {
               }}
               transition={{
                 duration: 0.7,
-                delay: 0.1,
+                delay: 0.08,
                 ease: [0.22, 1, 0.36, 1],
               }}
               className="
                 mt-6
                 max-w-3xl
-                text-[42px]
+                text-[46px]
                 font-extrabold
                 leading-[0.98]
                 tracking-[-0.045em]
                 text-white
-
-                sm:mt-7
                 sm:text-6xl
-
                 md:text-7xl
-
                 lg:text-[82px]
               "
             >
               Turn your
               <br />
-              <span>properties</span> into
+              <span>properties</span>
               <br />
+              into{" "}
               <span
                 className="
                   bg-gradient-to-r
@@ -413,23 +294,19 @@ export default function Hero() {
               }}
               transition={{
                 duration: 0.55,
-                delay: 0.28,
+                delay: 0.22,
               }}
               className="
                 mt-5
-                max-w-[360px]
-                text-[13px]
+                max-w-md
+                text-sm
                 leading-6
-                text-white/70
-
-                sm:mt-6
-                sm:max-w-md
+                text-white/75
                 sm:text-base
                 sm:leading-7
               "
             >
-              Learn TikTok content, personal branding, and digital marketing
-              built for real estate agents.
+              TikTok content and personal branding built for real estate agents.
             </motion.p>
 
             {/* =================================================
@@ -439,7 +316,7 @@ export default function Hero() {
             <motion.div
               initial={{
                 opacity: 0,
-                y: 18,
+                y: 15,
               }}
               animate={{
                 opacity: 1,
@@ -447,15 +324,15 @@ export default function Hero() {
               }}
               transition={{
                 duration: 0.55,
-                delay: 0.4,
+                delay: 0.34,
               }}
               className="
                 mt-7
                 flex
+                w-full
                 flex-col
                 gap-3
-
-                sm:mt-8
+                sm:w-auto
                 sm:flex-row
               "
             >
@@ -465,55 +342,34 @@ export default function Hero() {
                 to="/register"
                 className="
                   group
-                  relative
                   inline-flex
                   min-h-[52px]
                   w-full
                   items-center
                   justify-center
                   gap-3
-                  overflow-hidden
                   rounded-xl
                   bg-white
                   px-6
+                  py-3.5
                   text-sm
                   font-bold
                   text-black
-                  shadow-[0_15px_45px_rgba(0,0,0,0.25)]
+                  shadow-[0_15px_45px_rgba(0,0,0,0.2)]
                   transition-all
                   duration-300
-
                   hover:-translate-y-1
-                  hover:shadow-[0_20px_55px_rgba(37,244,238,0.2)]
-
+                  hover:bg-[#25F4EE]
                   sm:w-auto
-                  sm:px-7
                 "
               >
-                <span
-                  className="
-                    absolute
-                    inset-0
-                    -translate-x-full
-                    bg-gradient-to-r
-                    from-[#25F4EE]
-                    via-white
-                    to-[#FE2C55]
-                    transition-transform
-                    duration-500
-                    group-hover:translate-x-0
-                  "
-                />
-
-                <span className="relative z-10">Register Now</span>
+                <span>Register Now</span>
 
                 <span
                   className="
-                    relative
-                    z-10
                     flex
-                    h-6
-                    w-6
+                    h-7
+                    w-7
                     items-center
                     justify-center
                     rounded-full
@@ -527,7 +383,7 @@ export default function Hero() {
                 </span>
               </Link>
 
-              {/* ABOUT */}
+              {/* DISCOVER */}
 
               <Link
                 to="/about"
@@ -544,16 +400,15 @@ export default function Hero() {
                   border-white/20
                   bg-black/20
                   px-6
+                  py-3.5
                   text-sm
                   font-semibold
                   text-white
-                  backdrop-blur-xl
+                  backdrop-blur-md
                   transition-all
                   duration-300
-
                   hover:border-white/35
                   hover:bg-white/10
-
                   sm:w-auto
                 "
               >
@@ -568,72 +423,21 @@ export default function Hero() {
                     border
                     border-white/20
                     bg-white/10
-                    transition-transform
-                    duration-300
-                    group-hover:scale-105
                   "
                 >
                   <Play size={10} className="ml-0.5 fill-white" />
                 </span>
-                Discover Academy
+
+                <span>Discover Academy</span>
               </Link>
-            </motion.div>
-
-            {/* =================================================
-                MOBILE BRAND MESSAGE
-            ================================================= */}
-
-            <motion.div
-              initial={{
-                opacity: 0,
-              }}
-              animate={{
-                opacity: 1,
-              }}
-              transition={{
-                delay: 0.8,
-                duration: 0.6,
-              }}
-              className="
-                mt-7
-                flex
-                items-center
-                gap-3
-                sm:mt-9
-              "
-            >
-              <div
-                className="
-                  h-px
-                  w-8
-                  bg-gradient-to-r
-                  from-[#25F4EE]
-                  to-transparent
-                  sm:w-10
-                "
-              />
-
-              <span
-                className="
-                  text-[8px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.18em]
-                  text-white/45
-                  sm:text-[9px]
-                  sm:tracking-[0.2em]
-                "
-              >
-                Real Estate × TikTok
-              </span>
             </motion.div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
-      {/* =========================================================
-          DESKTOP SCROLL INDICATOR
-      ========================================================= */}
+      {/* =====================================================
+          BOTTOM BRAND
+      ===================================================== */}
 
       <motion.div
         initial={{
@@ -643,21 +447,63 @@ export default function Hero() {
           opacity: 1,
         }}
         transition={{
-          delay: 1.2,
-          duration: 0.8,
+          delay: 0.8,
+          duration: 0.6,
         }}
         className="
           absolute
-          bottom-7
+          bottom-5
+          left-5
+          z-20
+          flex
+          items-center
+          gap-3
+          sm:bottom-7
+          sm:left-8
+          lg:left-12
+        "
+      >
+        <div
+          className="
+            h-px
+            w-8
+            bg-gradient-to-r
+            from-[#25F4EE]
+            to-white/20
+            sm:w-10
+          "
+        />
+
+        <span
+          className="
+            text-[8px]
+            font-semibold
+            uppercase
+            tracking-[0.16em]
+            text-white/50
+            sm:text-[9px]
+            sm:tracking-[0.2em]
+          "
+        >
+          Real Estate × TikTok
+        </span>
+      </motion.div>
+
+      {/* =====================================================
+          SCROLL INDICATOR
+      ===================================================== */}
+
+      <div
+        className="
+          absolute
+          bottom-6
           right-5
           z-20
           hidden
           items-center
           gap-3
-
           sm:flex
           sm:right-8
-
           lg:right-12
         "
       >
@@ -675,7 +521,7 @@ export default function Hero() {
 
         <motion.div
           animate={{
-            height: [20, 34, 20],
+            height: [20, 32, 20],
           }}
           transition={{
             duration: 1.8,
@@ -689,7 +535,7 @@ export default function Hero() {
             to-transparent
           "
         />
-      </motion.div>
+      </div>
     </section>
   );
 }

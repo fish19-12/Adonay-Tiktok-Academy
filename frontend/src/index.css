@@ -2,20 +2,150 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Example: using Tailwind default utilities or arbitrary values */
-body {
-  background-color: #0f172a; /* use hex since no config file */
-  color: #f8fafc;
-  font-family: "Inter", sans-serif;
+/* ============================================================
+   GLOBAL RESET
+============================================================ */
+
+html {
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  background: #030712;
+
+  /*
+    Helps Safari/iPhone handle viewport changes correctly.
+  */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /*
+    Prevent Safari from creating unexpected horizontal scrolling.
+  */
+  overscroll-behavior-x: none;
 }
 
-/* Buttons */
+body {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  margin: 0;
+
+  background: #030712;
+  color: #f8fafc;
+
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+
+  overflow-x: hidden;
+
+  /*
+    Safari mobile rendering improvements.
+  */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   APP STRUCTURE
+============================================================ */
+
+.app-shell {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 100svh;
+
+  display: flex;
+  flex-direction: column;
+
+  overflow-x: hidden;
+
+  background: #030712;
+  color: #f8fafc;
+}
+
+.app-main {
+  position: relative;
+
+  width: 100%;
+  min-width: 0;
+
+  flex: 1 0 auto;
+
+  overflow-x: clip;
+}
+
+/* ============================================================
+   IMAGES
+============================================================ */
+
+img {
+  max-width: 100%;
+}
+
+img,
+video {
+  display: block;
+}
+
+/*
+  Prevent Safari from showing strange image selection/drag behavior.
+*/
+img {
+  -webkit-user-drag: none;
+}
+
+/* ============================================================
+   LINKS
+============================================================ */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ============================================================
+   BUTTONS
+============================================================ */
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+}
+
+/* ============================================================
+   CUSTOM BUTTON
+============================================================ */
+
 .btn {
-  @apply px-6 py-3 rounded-xl font-semibold transition hover:opacity-90;
+  @apply rounded-xl px-6 py-3 font-semibold transition;
+}
+
+.btn:hover {
+  opacity: 0.9;
 }
 
 .btn-accent {
-  background-color: #f97316; /* hex value */
+  background-color: #f97316;
   color: #f8fafc;
 }
 
@@ -23,23 +153,16 @@ body {
   border: 1px solid #f8fafc;
   color: #f8fafc;
 }
-@keyframes stitchMove {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -1000;
-  }
-}
 
-.animate-stitch {
-  animation: stitchMove 20s linear infinite;
-}
+/* ============================================================
+   STITCH ANIMATION
+============================================================ */
 
 @keyframes stitchMove {
   from {
     stroke-dashoffset: 0;
   }
+
   to {
     stroke-dashoffset: -2000;
   }
@@ -49,25 +172,37 @@ body {
   animation: stitchMove 25s linear infinite;
 }
 
-/* Floating particles */
+/* ============================================================
+   FLOATING PARTICLES
+============================================================ */
+
 .particle {
   position: absolute;
+
   width: 3px;
   height: 3px;
-  background: gold;
+
   border-radius: 50%;
-  animation: float 8s infinite ease-in-out;
+
+  background: #f59e0b;
+
   opacity: 0.4;
+
+  animation: float 8s infinite ease-in-out;
+
+  pointer-events: none;
 }
 
 .particle:nth-child(1) {
   top: 20%;
   left: 30%;
 }
+
 .particle:nth-child(2) {
   top: 60%;
   left: 70%;
 }
+
 .particle:nth-child(3) {
   top: 40%;
   left: 50%;
@@ -75,25 +210,83 @@ body {
 
 @keyframes float {
   0% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
+
   50% {
-    transform: translateY(-20px);
+    transform: translate3d(0, -20px, 0);
   }
+
   100% {
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
-/* Magnetic glow buttons */
+/* ============================================================
+   MAGNETIC BUTTON
+============================================================ */
+
 .magnetic-btn {
-  transition: all 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease,
+    color 0.3s ease;
+
   box-shadow: 0 0 0 rgba(255, 215, 0, 0);
 }
 
-.magnetic-btn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
-  background-color: #ffd700;
-  color: black;
+@media (hover: hover) and (pointer: fine) {
+  .magnetic-btn:hover {
+    transform: scale(1.05);
+
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.45);
+
+    background-color: #ffd700;
+    color: #000000;
+  }
+}
+
+/* ============================================================
+   MOBILE SAFARI SAFETY
+============================================================ */
+
+/*
+  Prevent accidental horizontal overflow from transformed
+  Framer Motion elements.
+*/
+
+@supports (overflow: clip) {
+  html,
+  body,
+  #root,
+  .app-shell {
+    overflow-x: clip;
+  }
+}
+
+/*
+  Respect iPhone safe-area areas.
+*/
+
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* ============================================================
+   REDUCE MOTION
+============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -1,5 +1,5 @@
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import {
@@ -22,75 +22,110 @@ export default function Navbar() {
 
   const location = useLocation();
 
-  /* =====================================
-     CLOSE MOBILE MENU ON ROUTE CHANGE
-  ===================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | CLOSE MENU WHEN ROUTE CHANGES
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
 
-  /* =====================================
-     LOCK BODY SCROLL WHEN MENU IS OPEN
-  ===================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | MOBILE BODY SCROLL LOCK
+  |
+  | IMPORTANT:
+  | We preserve the previous body overflow value instead of forcing
+  | "auto". This is safer for iOS Safari.
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "auto";
+    const previousOverflow = document.body.style.overflow;
+
+    if (open) {
+      document.body.style.overflow = "hidden";
+      document.body.style.overscrollBehavior = "none";
+    } else {
+      document.body.style.overflow = previousOverflow || "";
+      document.body.style.overscrollBehavior = "";
+    }
 
     return () => {
-      document.body.style.overflow = "auto";
+      document.body.style.overflow = previousOverflow || "";
+      document.body.style.overscrollBehavior = "";
     };
   }, [open]);
 
-  /* =====================================
-     SCROLL EFFECT
-  ===================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | SCROLL EFFECT
+  |--------------------------------------------------------------------------
+  */
 
   useEffect(() => {
-    let lastScroll = window.scrollY;
+    let lastScroll = window.scrollY || 0;
+    let ticking = false;
 
     const handleScroll = () => {
-      const currentScroll = window.scrollY;
+      if (ticking) return;
 
-      setScrolled(currentScroll > 30);
+      window.requestAnimationFrame(() => {
+        const currentScroll = window.scrollY || 0;
 
-      if (currentScroll > lastScroll && currentScroll > 140) {
-        setShowNavbar(false);
-      } else {
-        setShowNavbar(true);
-      }
+        setScrolled(currentScroll > 30);
 
-      lastScroll = currentScroll;
+        if (currentScroll > lastScroll && currentScroll > 140) {
+          setShowNavbar(false);
+        } else {
+          setShowNavbar(true);
+        }
+
+        lastScroll = currentScroll;
+        ticking = false;
+      });
+
+      ticking = true;
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, {
+      passive: true,
+    });
 
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
-  /* =====================================
-     DESKTOP NAVIGATION STYLE
-  ===================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | DESKTOP NAVIGATION
+  |--------------------------------------------------------------------------
+  */
 
   const navLinkClass = ({ isActive }) =>
-    `relative text-[14px] font-medium tracking-wide transition-all duration-300 ${
+    `relative text-[14px] font-medium tracking-wide transition-colors duration-300 ${
       isActive ? "text-white" : "text-white/60 hover:text-white"
     }`;
 
-  /* =====================================
-     MOBILE BOTTOM NAV STYLE
-  ===================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | MOBILE NAVIGATION
+  |--------------------------------------------------------------------------
+  */
 
   const bottomLinkClass = ({ isActive }) =>
-    `flex flex-col items-center gap-1 text-[10px] font-medium transition-all duration-300 ${
+    `flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all duration-300 ${
       isActive ? "scale-105 text-[#25F4EE]" : "text-white/45 hover:text-white"
     }`;
 
-  /* =====================================
-     NAVIGATION INDICATOR
-  ===================================== */
+  /*
+  |--------------------------------------------------------------------------
+  | ACTIVE INDICATOR
+  |--------------------------------------------------------------------------
+  */
 
   const NavIndicator = ({ isActive }) => {
     if (!isActive) return null;
@@ -98,53 +133,96 @@ export default function Navbar() {
     return (
       <motion.span
         layoutId="navbar-indicator"
+        transition={{
+          type: "spring",
+          stiffness: 500,
+          damping: 35,
+        }}
         className="absolute -bottom-1 left-1/2 h-[2px] w-5 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#25F4EE] to-[#FE2C55]"
       />
     );
   };
 
+  /*
+  |--------------------------------------------------------------------------
+  | MOBILE MENU ITEMS
+  |--------------------------------------------------------------------------
+  */
+
+  const mobileItems = [
+    {
+      name: "Home",
+      path: "/",
+    },
+    {
+      name: "Services",
+      path: "/services",
+    },
+    {
+      name: "About",
+      path: "/about",
+    },
+    {
+      name: "Testimonials",
+      path: "/testimonial",
+    },
+    {
+      name: "FAQ",
+      path: "/faq",
+    },
+  ];
+
   return (
     <>
-      {/* =====================================================
+      {/* ============================================================
           DESKTOP NAVBAR
-      ===================================================== */}
+      ============================================================ */}
 
       <motion.nav
+        initial={false}
         animate={{
           y: showNavbar ? 0 : -130,
         }}
         transition={{
-          duration: 0.35,
+          duration: 0.3,
           ease: "easeOut",
         }}
-        className="fixed left-0 top-0 z-50 hidden w-full justify-center px-5 pt-5 md:flex"
+        className="fixed left-0 top-0 z-[100] hidden w-full justify-center px-5 pt-5 md:flex"
+        style={{
+          WebkitTransform: "translateZ(0)",
+          transform: "translateZ(0)",
+        }}
       >
         <div
-          className={`w-full max-w-7xl transition-all duration-500 ${
+          className={`w-full max-w-7xl rounded-2xl border transition-all duration-300 ${
             scrolled
-              ? "rounded-2xl border border-white/[0.08] bg-[#070707]/95 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl"
-              : "rounded-2xl border border-white/[0.06] bg-black/70 backdrop-blur-xl"
+              ? "border-white/[0.08] bg-[#070707]/95 shadow-[0_18px_60px_rgba(0,0,0,0.45)]"
+              : "border-white/[0.06] bg-black/80"
           }`}
+          style={{
+            WebkitBackdropFilter: scrolled ? "blur(20px)" : "blur(12px)",
+            backdropFilter: scrolled ? "blur(20px)" : "blur(12px)",
+            WebkitTransform: "translateZ(0)",
+            transform: "translateZ(0)",
+          }}
         >
           <div className="flex h-[76px] items-center justify-between px-5 xl:px-7">
-            {/* =================================================
-                BRAND / LOGO
-            ================================================= */}
+            {/* BRAND */}
 
-            <Link to="/" className="group flex items-center gap-3.5">
-              {/* Logo */}
-
-              <div className="relative h-12 w-12 overflow-hidden rounded-xl border border-white/10 bg-black shadow-lg">
+            <Link to="/" className="group flex min-w-0 items-center gap-3.5">
+              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black shadow-lg">
                 <img
                   src={logo}
                   alt="Adonay TikTok Academy"
+                  width="48"
+                  height="48"
+                  loading="eager"
+                  decoding="async"
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
 
-                <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-[#25F4EE]/10 transition duration-500 group-hover:ring-[#25F4EE]/30" />
+                <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-[#25F4EE]/10" />
               </div>
-
-              {/* Brand */}
 
               <div className="hidden sm:block">
                 <h1 className="text-[14px] font-bold uppercase tracking-[0.12em] text-white">
@@ -165,13 +243,9 @@ export default function Navbar() {
               </div>
             </Link>
 
-            {/* =================================================
-                CENTER NAVIGATION
-            ================================================= */}
+            {/* CENTER NAVIGATION */}
 
             <div className="hidden items-center gap-9 lg:flex">
-              {/* HOME */}
-
               <NavLink to="/" className={navLinkClass}>
                 {({ isActive }) => (
                   <div className="relative py-2">
@@ -180,8 +254,6 @@ export default function Navbar() {
                   </div>
                 )}
               </NavLink>
-
-              {/* SERVICES */}
 
               <NavLink to="/services" className={navLinkClass}>
                 {({ isActive }) => (
@@ -192,8 +264,6 @@ export default function Navbar() {
                 )}
               </NavLink>
 
-              {/* ABOUT */}
-
               <NavLink to="/about" className={navLinkClass}>
                 {({ isActive }) => (
                   <div className="relative py-2">
@@ -202,8 +272,6 @@ export default function Navbar() {
                   </div>
                 )}
               </NavLink>
-
-              {/* TESTIMONIALS */}
 
               <NavLink to="/testimonial" className={navLinkClass}>
                 {({ isActive }) => (
@@ -215,16 +283,12 @@ export default function Navbar() {
               </NavLink>
             </div>
 
-            {/* =================================================
-                RIGHT SIDE
-            ================================================= */}
+            {/* RIGHT */}
 
             <div className="flex items-center gap-2.5">
-              {/* REGISTER */}
-
               <Link
                 to="/register"
-                className="group relative hidden h-10 items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] px-5 text-[12px] font-bold uppercase tracking-[0.08em] text-black shadow-[0_8px_25px_rgba(37,244,238,0.12)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(254,44,85,0.22)] lg:flex"
+                className="group relative hidden h-10 items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] px-5 text-[12px] font-bold uppercase tracking-[0.08em] text-black shadow-[0_8px_25px_rgba(37,244,238,0.12)] transition-all duration-300 hover:-translate-y-0.5 lg:flex"
               >
                 <span className="relative z-10">Register</span>
 
@@ -240,24 +304,43 @@ export default function Navbar() {
         </div>
       </motion.nav>
 
-      {/* =====================================================
+      {/* ============================================================
           MOBILE TOP NAVBAR
-      ===================================================== */}
+      ============================================================ */}
 
-      <div className="fixed left-0 top-0 z-50 w-full px-4 pt-4 md:hidden">
-        <div className="flex h-[64px] items-center justify-between rounded-2xl border border-white/10 bg-[#050505]/95 px-3.5 shadow-[0_12px_40px_rgba(0,0,0,0.4)] backdrop-blur-2xl">
+      <div
+        className="fixed left-0 top-0 z-[100] w-full px-4 pt-4 md:hidden"
+        style={{
+          paddingTop: "max(1rem, env(safe-area-inset-top))",
+          WebkitTransform: "translateZ(0)",
+          transform: "translateZ(0)",
+        }}
+      >
+        <div
+          className="flex h-[64px] items-center justify-between rounded-2xl border border-white/10 bg-[#050505]/95 px-3.5 shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+          style={{
+            WebkitBackdropFilter: "blur(16px)",
+            backdropFilter: "blur(16px)",
+            WebkitTransform: "translateZ(0)",
+            transform: "translateZ(0)",
+          }}
+        >
           {/* MOBILE BRAND */}
 
-          <Link to="/" className="flex items-center gap-2.5">
-            <div className="h-10 w-10 overflow-hidden rounded-xl border border-white/10 bg-black">
+          <Link to="/" className="flex min-w-0 items-center gap-2.5">
+            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
               <img
                 src={logo}
                 alt="Adonay TikTok Academy"
+                width="40"
+                height="40"
+                loading="eager"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             </div>
 
-            <div>
+            <div className="min-w-0">
               <h2 className="text-[12px] font-bold uppercase tracking-[0.1em] text-white">
                 Adonay
               </h2>
@@ -276,22 +359,23 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* MOBILE MENU BUTTON */}
+          {/* MENU BUTTON */}
 
           <button
             type="button"
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpen((value) => !value)}
             aria-label={open ? "Close menu" : "Open menu"}
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white transition-all duration-300 hover:border-[#25F4EE]/30 hover:text-[#25F4EE]"
+            aria-expanded={open}
+            className="flex h-10 w-10 shrink-0 touch-manipulation items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white transition-colors duration-300 hover:border-[#25F4EE]/30 hover:text-[#25F4EE]"
           >
             {open ? <X size={19} /> : <Menu size={19} />}
           </button>
         </div>
       </div>
 
-      {/* =====================================================
+      {/* ============================================================
           MOBILE FULL SCREEN MENU
-      ===================================================== */}
+      ============================================================ */}
 
       <AnimatePresence>
         {open && (
@@ -306,17 +390,23 @@ export default function Navbar() {
               opacity: 0,
             }}
             transition={{
-              duration: 0.25,
+              duration: 0.2,
             }}
-            className="fixed inset-0 z-40 bg-[#030303] md:hidden"
+            className="fixed inset-0 z-[90] bg-[#030303] md:hidden"
+            style={{
+              WebkitTransform: "translateZ(0)",
+              transform: "translateZ(0)",
+              paddingTop: "env(safe-area-inset-top)",
+              paddingBottom: "env(safe-area-inset-bottom)",
+            }}
           >
-            {/* Background glow */}
+            {/* GLOW */}
 
-            <div className="pointer-events-none absolute -left-24 top-20 h-64 w-64 rounded-full bg-[#25F4EE]/10 blur-[100px]" />
+            <div className="pointer-events-none absolute -left-24 top-20 h-64 w-64 rounded-full bg-[#25F4EE]/10 blur-[80px]" />
 
-            <div className="pointer-events-none absolute -right-24 bottom-20 h-64 w-64 rounded-full bg-[#FE2C55]/10 blur-[100px]" />
+            <div className="pointer-events-none absolute -right-24 bottom-20 h-64 w-64 rounded-full bg-[#FE2C55]/10 blur-[80px]" />
 
-            <div className="relative flex h-full flex-col justify-center px-8">
+            <div className="relative flex h-full flex-col justify-center overflow-y-auto px-8 py-24">
               {/* BRAND HEADER */}
 
               <div className="mb-12">
@@ -337,47 +427,27 @@ export default function Navbar() {
               {/* NAVIGATION */}
 
               <div className="space-y-6">
-                {[
-                  {
-                    name: "Home",
-                    path: "/",
-                  },
-                  {
-                    name: "Services",
-                    path: "/services",
-                  },
-                  {
-                    name: "About",
-                    path: "/about",
-                  },
-                  {
-                    name: "Testimonials",
-                    path: "/testimonial",
-                  },
-                  {
-                    name: "FAQ",
-                    path: "/faq",
-                  },
-                ].map((item, index) => (
+                {mobileItems.map((item, index) => (
                   <motion.div
                     key={item.path}
                     initial={{
                       opacity: 0,
-                      x: -25,
+                      x: -20,
                     }}
                     animate={{
                       opacity: 1,
                       x: 0,
                     }}
                     transition={{
-                      delay: index * 0.07,
+                      delay: index * 0.05,
+                      duration: 0.25,
                     }}
                   >
                     <NavLink
                       to={item.path}
                       onClick={() => setOpen(false)}
                       className={({ isActive }) =>
-                        `group flex items-center justify-between border-b border-white/[0.06] pb-4 text-2xl font-semibold tracking-tight transition ${
+                        `group flex items-center justify-between border-b border-white/[0.06] pb-4 text-2xl font-semibold tracking-tight transition-colors ${
                           isActive
                             ? "text-white"
                             : "text-white/65 hover:text-white"
@@ -411,7 +481,9 @@ export default function Navbar() {
                 className="group relative mt-10 flex h-14 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] text-sm font-bold uppercase tracking-[0.1em] text-black shadow-[0_15px_40px_rgba(37,244,238,0.12)]"
               >
                 <GraduationCap size={18} />
-                Register for Training
+
+                <span>Register for Training</span>
+
                 <ArrowRight
                   size={17}
                   className="transition-transform duration-300 group-hover:translate-x-1"
@@ -422,11 +494,20 @@ export default function Navbar() {
         )}
       </AnimatePresence>
 
-      {/* =====================================================
+      {/* ============================================================
           MOBILE BOTTOM NAVIGATION
-      ===================================================== */}
+      ============================================================ */}
 
-      <div className="fixed bottom-4 left-1/2 z-50 flex w-[92%] max-w-md -translate-x-1/2 items-center justify-around rounded-2xl border border-white/10 bg-[#050505]/95 px-2 py-3 shadow-[0_15px_50px_rgba(0,0,0,0.5)] backdrop-blur-2xl md:hidden">
+      <div
+        className="fixed bottom-4 left-1/2 z-[100] flex w-[92%] max-w-md -translate-x-1/2 items-center justify-around rounded-2xl border border-white/10 bg-[#050505]/95 px-2 py-3 shadow-[0_15px_50px_rgba(0,0,0,0.5)] md:hidden"
+        style={{
+          WebkitBackdropFilter: "blur(16px)",
+          backdropFilter: "blur(16px)",
+          WebkitTransform: "translate3d(-50%, 0, 0)",
+          transform: "translate3d(-50%, 0, 0)",
+          paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
+        }}
+      >
         {/* HOME */}
 
         <NavLink to="/" className={bottomLinkClass}>
@@ -445,7 +526,8 @@ export default function Navbar() {
 
         <Link
           to="/register"
-          className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#25F4EE] to-[#FE2C55] text-black shadow-[0_6px_20px_rgba(37,244,238,0.15)]"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#25F4EE] to-[#FE2C55] text-black shadow-[0_6px_20px_rgba(37,244,238,0.15)]"
+          aria-label="Register for training"
         >
           <GraduationCap size={19} />
         </Link>

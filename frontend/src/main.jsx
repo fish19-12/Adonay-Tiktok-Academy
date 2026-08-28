@@ -1,13 +1,19 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+
 import "./index.css";
 import "./i18n";
+
 import App from "./App.jsx";
 
-createRoot(document.getElementById("root")).render(
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error("Root element #root was not found.");
+}
+
+createRoot(rootElement).render(
   <StrictMode>
-    <div className="min-h-screen bg-primary text-light font-sans">
-      <App />
-    </div>
+    <App />
   </StrictMode>,
 );
