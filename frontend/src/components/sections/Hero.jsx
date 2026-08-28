@@ -1,31 +1,49 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, Play } from "lucide-react";
 
 import heroImage from "../../assets/images/hero.jpg";
 
 export default function Hero() {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <section
       className="
         relative
         isolate
         w-full
-        min-h-[100svh]
+        min-h-screen
         overflow-hidden
         bg-[#030712]
         text-white
+        [contain:layout_paint]
       "
+      style={{
+        minHeight: "100svh",
+      }}
     >
       {/* =====================================================
           HERO IMAGE
+          -----------------------------------------------------
+          Kept simple for better Safari/iPhone performance.
       ===================================================== */}
 
-      <div className="absolute inset-0 -z-10">
+      <div
+        aria-hidden="true"
+        className="
+          absolute
+          inset-0
+          z-0
+          overflow-hidden
+          bg-[#030712]
+        "
+      >
         <img
           src={heroImage}
-          alt="Adonay TikTok Academy"
+          alt=""
           className="
+            block
             h-full
             w-full
             object-cover
@@ -42,29 +60,52 @@ export default function Hero() {
       ===================================================== */}
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           inset-0
-          -z-10
-          bg-black/25
+          z-[1]
+          bg-black/30
         "
       />
 
       {/* =====================================================
-          LEFT GRADIENT
+          LEFT READABILITY GRADIENT
       ===================================================== */}
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           inset-0
-          -z-10
+          z-[2]
           bg-gradient-to-r
           from-black/80
           via-black/45
-          to-black/10
+          to-transparent
+        "
+      />
+
+      {/* =====================================================
+          MOBILE EXTRA READABILITY
+          -----------------------------------------------------
+          Helps text remain readable on smaller screens.
+      ===================================================== */}
+
+      <div
+        aria-hidden="true"
+        className="
+          pointer-events-none
+          absolute
+          inset-0
+          z-[2]
+          bg-gradient-to-b
+          from-black/20
+          via-transparent
+          to-[#030712]/70
+          sm:hidden
         "
       />
 
@@ -73,76 +114,85 @@ export default function Hero() {
       ===================================================== */}
 
       <div
+        aria-hidden="true"
         className="
           pointer-events-none
           absolute
           inset-x-0
           bottom-0
-          -z-10
-          h-48
+          z-[2]
+          h-40
           bg-gradient-to-t
           from-[#030712]
+          via-[#030712]/60
           to-transparent
         "
       />
 
       {/* =====================================================
-          CYAN LIGHT
+          BRAND LIGHT
+          -----------------------------------------------------
+          Disabled on very small screens to reduce Safari
+          GPU/compositing pressure.
       ===================================================== */}
 
-      <motion.div
-        aria-hidden="true"
-        animate={{
-          opacity: [0.2, 0.4, 0.2],
-          scale: [1, 1.06, 1],
-        }}
-        transition={{
-          duration: 7,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="
-          pointer-events-none
-          absolute
-          -left-32
-          top-1/4
-          -z-10
-          h-72
-          w-72
-          rounded-full
-          bg-[#25F4EE]/15
-          blur-[100px]
-        "
-      />
+      {!shouldReduceMotion && (
+        <>
+          <motion.div
+            aria-hidden="true"
+            animate={{
+              opacity: [0.18, 0.28, 0.18],
+              scale: [1, 1.04, 1],
+            }}
+            transition={{
+              duration: 7,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="
+              pointer-events-none
+              absolute
+              -left-32
+              top-1/4
+              z-[3]
+              hidden
+              h-72
+              w-72
+              rounded-full
+              bg-[#25F4EE]/10
+              blur-[80px]
+              sm:block
+            "
+          />
 
-      {/* =====================================================
-          RED LIGHT
-      ===================================================== */}
-
-      <motion.div
-        aria-hidden="true"
-        animate={{
-          opacity: [0.15, 0.3, 0.15],
-          scale: [1, 1.08, 1],
-        }}
-        transition={{
-          duration: 8,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
-        className="
-          pointer-events-none
-          absolute
-          -right-32
-          bottom-0
-          -z-10
-          h-80
-          w-80
-          rounded-full
-          bg-[#FE2C55]/10
-          blur-[110px]
-        "
-      />
+          <motion.div
+            aria-hidden="true"
+            animate={{
+              opacity: [0.12, 0.22, 0.12],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="
+              pointer-events-none
+              absolute
+              -right-32
+              bottom-0
+              z-[3]
+              hidden
+              h-80
+              w-80
+              rounded-full
+              bg-[#FE2C55]/10
+              blur-[90px]
+              sm:block
+            "
+          />
+        </>
+      )}
 
       {/* =====================================================
           CONTENT
@@ -153,10 +203,13 @@ export default function Hero() {
           relative
           z-10
           flex
-          min-h-[100svh]
+          min-h-screen
           w-full
           items-center
         "
+        style={{
+          minHeight: "100svh",
+        }}
       >
         <div
           className="
@@ -178,16 +231,10 @@ export default function Hero() {
             ================================================= */}
 
             <motion.div
-              initial={{
-                opacity: 0,
-                y: 12,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
+              animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
               transition={{
-                duration: 0.55,
+                duration: 0.5,
               }}
               className="
                 inline-flex
@@ -197,10 +244,10 @@ export default function Hero() {
                 rounded-full
                 border
                 border-white/20
-                bg-black/20
+                bg-black/30
                 px-3.5
                 py-2
-                backdrop-blur-md
+                sm:backdrop-blur-md
               "
             >
               <span
@@ -210,7 +257,7 @@ export default function Hero() {
                   shrink-0
                   rounded-full
                   bg-[#25F4EE]
-                  shadow-[0_0_12px_rgba(37,244,238,0.8)]
+                  shadow-[0_0_10px_rgba(37,244,238,0.7)]
                 "
               />
 
@@ -221,7 +268,7 @@ export default function Hero() {
                   font-semibold
                   uppercase
                   tracking-[0.16em]
-                  text-white/85
+                  text-white/90
                   sm:text-xs
                 "
               >
@@ -234,27 +281,22 @@ export default function Hero() {
             ================================================= */}
 
             <motion.h1
-              initial={{
-                opacity: 0,
-                y: 20,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
+              animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
               transition={{
-                duration: 0.7,
-                delay: 0.08,
+                duration: 0.65,
+                delay: shouldReduceMotion ? 0 : 0.08,
                 ease: [0.22, 1, 0.36, 1],
               }}
               className="
                 mt-6
                 max-w-3xl
-                text-[46px]
+                text-[44px]
                 font-extrabold
                 leading-[0.98]
                 tracking-[-0.045em]
                 text-white
+                xs:text-[48px]
                 sm:text-6xl
                 md:text-7xl
                 lg:text-[82px]
@@ -284,17 +326,11 @@ export default function Hero() {
             ================================================= */}
 
             <motion.p
-              initial={{
-                opacity: 0,
-                y: 15,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 15 }}
+              animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
               transition={{
-                duration: 0.55,
-                delay: 0.22,
+                duration: 0.5,
+                delay: shouldReduceMotion ? 0 : 0.2,
               }}
               className="
                 mt-5
@@ -314,17 +350,11 @@ export default function Hero() {
             ================================================= */}
 
             <motion.div
-              initial={{
-                opacity: 0,
-                y: 15,
-              }}
-              animate={{
-                opacity: 1,
-                y: 0,
-              }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 15 }}
+              animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
               transition={{
-                duration: 0.55,
-                delay: 0.34,
+                duration: 0.5,
+                delay: shouldReduceMotion ? 0 : 0.32,
               }}
               className="
                 mt-7
@@ -345,6 +375,7 @@ export default function Hero() {
                   inline-flex
                   min-h-[52px]
                   w-full
+                  touch-manipulation
                   items-center
                   justify-center
                   gap-3
@@ -355,12 +386,13 @@ export default function Hero() {
                   text-sm
                   font-bold
                   text-black
-                  shadow-[0_15px_45px_rgba(0,0,0,0.2)]
-                  transition-all
+                  shadow-[0_12px_35px_rgba(0,0,0,0.25)]
+                  transition-transform
                   duration-300
-                  hover:-translate-y-1
-                  hover:bg-[#25F4EE]
+                  active:scale-[0.98]
                   sm:w-auto
+                  sm:hover:-translate-y-1
+                  sm:hover:bg-[#25F4EE]
                 "
               >
                 <span>Register Now</span>
@@ -392,24 +424,26 @@ export default function Hero() {
                   inline-flex
                   min-h-[52px]
                   w-full
+                  touch-manipulation
                   items-center
                   justify-center
                   gap-3
                   rounded-xl
                   border
                   border-white/20
-                  bg-black/20
+                  bg-black/30
                   px-6
                   py-3.5
                   text-sm
                   font-semibold
                   text-white
-                  backdrop-blur-md
                   transition-all
                   duration-300
-                  hover:border-white/35
-                  hover:bg-white/10
+                  active:scale-[0.98]
                   sm:w-auto
+                  sm:backdrop-blur-md
+                  sm:hover:border-white/35
+                  sm:hover:bg-white/10
                 "
               >
                 <span
@@ -440,15 +474,11 @@ export default function Hero() {
       ===================================================== */}
 
       <motion.div
-        initial={{
-          opacity: 0,
-        }}
-        animate={{
-          opacity: 1,
-        }}
+        initial={shouldReduceMotion ? false : { opacity: 0 }}
+        animate={shouldReduceMotion ? false : { opacity: 1 }}
         transition={{
-          delay: 0.8,
-          duration: 0.6,
+          delay: shouldReduceMotion ? 0 : 0.7,
+          duration: 0.5,
         }}
         className="
           absolute
@@ -456,6 +486,7 @@ export default function Hero() {
           left-5
           z-20
           flex
+          max-w-[70%]
           items-center
           gap-3
           sm:bottom-7
@@ -467,6 +498,7 @@ export default function Hero() {
           className="
             h-px
             w-8
+            shrink-0
             bg-gradient-to-r
             from-[#25F4EE]
             to-white/20
@@ -476,6 +508,7 @@ export default function Hero() {
 
         <span
           className="
+            truncate
             text-[8px]
             font-semibold
             uppercase
@@ -490,7 +523,7 @@ export default function Hero() {
       </motion.div>
 
       {/* =====================================================
-          SCROLL INDICATOR
+          DESKTOP SCROLL INDICATOR
       ===================================================== */}
 
       <div
@@ -520,15 +553,20 @@ export default function Hero() {
         </span>
 
         <motion.div
-          animate={{
-            height: [20, 32, 20],
-          }}
+          animate={
+            shouldReduceMotion
+              ? false
+              : {
+                  height: [20, 32, 20],
+                }
+          }
           transition={{
             duration: 1.8,
             repeat: Infinity,
             ease: "easeInOut",
           }}
           className="
+            h-6
             w-px
             bg-gradient-to-b
             from-[#25F4EE]
