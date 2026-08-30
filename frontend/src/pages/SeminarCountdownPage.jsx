@@ -425,7 +425,7 @@ function LiveState() {
           className="mt-5 inline-flex items-center gap-2 rounded-xl bg-[#25F4EE] px-5 py-3 text-xs font-extrabold text-black transition hover:-translate-y-0.5"
         >
           <Play size={14} fill="currentColor" />
-          Join Live Seminar
+          Join Live Seminars
         </a>
       )}
     </div>
