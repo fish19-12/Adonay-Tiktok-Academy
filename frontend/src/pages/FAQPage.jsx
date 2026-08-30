@@ -180,54 +180,75 @@ export default function FAQPage() {
   };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050505] text-white">
+    <main className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 text-slate-900">
       {/* ====================================================================
           BACKGROUND
       ==================================================================== */}
 
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        <div className="absolute left-[-180px] top-[-180px] h-[500px] w-[500px] rounded-full bg-[#25F4EE]/[0.045] blur-[150px]" />
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {/* Cyan glow */}
+        <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-cyan-300/20 blur-[120px]" />
 
-        <div className="absolute right-[-200px] top-[20%] h-[520px] w-[520px] rounded-full bg-[#FE2C55]/[0.04] blur-[160px]" />
+        {/* Pink glow */}
+        <div className="absolute -right-40 top-[18%] h-[520px] w-[520px] rounded-full bg-pink-300/15 blur-[130px]" />
 
-        <div className="absolute bottom-[-250px] left-[30%] h-[500px] w-[500px] rounded-full bg-violet-500/[0.025] blur-[160px]" />
+        {/* Violet glow */}
+        <div className="absolute bottom-[-220px] left-[30%] h-[520px] w-[520px] rounded-full bg-violet-300/15 blur-[130px]" />
 
+        {/* Center glow */}
+        <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-200/10 blur-[120px]" />
+
+        {/* Subtle grid */}
         <div
-          className="absolute inset-0 opacity-[0.02]"
+          className="absolute inset-0 opacity-[0.035]"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px)",
-            backgroundSize: "70px 70px",
+              "linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)",
+            backgroundSize: "64px 64px",
           }}
         />
       </div>
 
       {/* ====================================================================
+          TOP ACCENT
+      ==================================================================== */}
+
+      <div className="relative z-20 h-1 w-full bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500" />
+
+      {/* ====================================================================
           CONTENT
       ==================================================================== */}
 
-      <div className="relative z-10 mx-auto max-w-7xl px-5 py-20 sm:px-8 sm:py-24 lg:px-10 lg:py-28">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 py-14 sm:px-8 sm:py-20 lg:px-10 lg:py-24">
         {/* ==================================================================
             HERO
         ================================================================== */}
 
         <section className="mx-auto max-w-4xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#25F4EE]/15 bg-[#25F4EE]/[0.045] px-4 py-2">
-            <CircleHelp size={14} className="text-[#25F4EE]" />
+          {/* Label */}
 
-            <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#25F4EE]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white/80 px-3.5 py-2 shadow-sm backdrop-blur-md">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-violet-500 text-white">
+              <CircleHelp size={13} strokeWidth={2.5} />
+            </span>
+
+            <span className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-slate-600">
               Frequently Asked Questions
             </span>
           </div>
 
-          <h1 className="mt-7 text-4xl font-black tracking-[-0.045em] sm:text-5xl lg:text-6xl">
+          {/* Heading */}
+
+          <h1 className="mt-6 text-4xl font-black leading-[1.03] tracking-[-0.045em] text-slate-900 sm:text-5xl lg:text-6xl">
             Everything you need to
-            <span className="block bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-cyan-500 via-violet-500 to-pink-500 bg-clip-text text-transparent">
               know before you start.
             </span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-white/45 sm:text-base">
+          {/* Description */}
+
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-slate-600 sm:text-base">
             Find answers about Adonay TikTok Academy, our training programs,
             registration, learning formats, and what you can expect from the
             academy.
@@ -238,27 +259,29 @@ export default function FAQPage() {
             QUICK STATS
         ================================================================== */}
 
-        <section className="mx-auto mt-12 grid max-w-5xl gap-3 sm:grid-cols-3">
-          <QuickStat
-            icon={GraduationCap}
-            number="01"
-            title="Practical Learning"
-            text="Focused on skills you can apply."
-          />
+        <section className="mx-auto mt-12 max-w-5xl">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <QuickStat
+              icon={GraduationCap}
+              number="01"
+              title="Practical Learning"
+              text="Focused on skills you can apply."
+            />
 
-          <QuickStat
-            icon={Globe2}
-            number="02"
-            title="Local & Diaspora"
-            text="Learning designed beyond borders."
-          />
+            <QuickStat
+              icon={Globe2}
+              number="02"
+              title="Local & Diaspora"
+              text="Learning designed beyond borders."
+            />
 
-          <QuickStat
-            icon={ShieldCheck}
-            number="03"
-            title="Clear Guidance"
-            text="Structured learning and support."
-          />
+            <QuickStat
+              icon={ShieldCheck}
+              number="03"
+              title="Clear Guidance"
+              text="Structured learning and support."
+            />
+          </div>
         </section>
 
         {/* ==================================================================
@@ -268,7 +291,7 @@ export default function FAQPage() {
         <section className="mx-auto mt-12 max-w-4xl">
           <div className="relative">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-5">
-              <Search size={19} className="text-white/30" />
+              <Search size={19} className="text-slate-400" />
             </div>
 
             <input
@@ -276,7 +299,7 @@ export default function FAQPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search your question..."
-              className="h-14 w-full rounded-2xl border border-white/[0.09] bg-white/[0.035] pl-12 pr-12 text-sm text-white outline-none backdrop-blur-xl transition placeholder:text-white/25 focus:border-[#25F4EE]/30 focus:bg-white/[0.05] focus:ring-4 focus:ring-[#25F4EE]/[0.04]"
+              className="h-14 w-full rounded-2xl border border-slate-200 bg-white/85 pl-12 pr-12 text-sm font-medium text-slate-800 shadow-sm outline-none backdrop-blur-xl transition duration-300 placeholder:text-slate-400 hover:border-slate-300 focus:border-cyan-300 focus:bg-white focus:ring-4 focus:ring-cyan-100"
               aria-label="Search frequently asked questions"
             />
 
@@ -284,7 +307,7 @@ export default function FAQPage() {
               <button
                 type="button"
                 onClick={clearSearch}
-                className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-white/30 transition hover:bg-white/[0.06] hover:text-white"
+                className="absolute right-4 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
                 aria-label="Clear search"
               >
                 <X size={16} />
@@ -344,24 +367,28 @@ export default function FAQPage() {
             CONTACT CTA
         ================================================================== */}
 
-        <section className="relative mx-auto mt-20 max-w-5xl overflow-hidden rounded-[32px] border border-[#25F4EE]/10 bg-gradient-to-br from-[#25F4EE]/[0.055] via-white/[0.025] to-[#FE2C55]/[0.055] p-8 sm:p-12 lg:p-14">
-          <div className="pointer-events-none absolute left-1/2 top-[-100px] h-64 w-[500px] -translate-x-1/2 rounded-full bg-[#25F4EE]/[0.055] blur-[110px]" />
+        <section className="relative mx-auto mt-20 max-w-5xl overflow-hidden rounded-[32px] border border-slate-200 bg-gradient-to-br from-cyan-50 via-white to-pink-50 p-8 shadow-[0_25px_80px_rgba(15,23,42,0.08)] sm:p-12 lg:p-14">
+          {/* Decorative glow */}
+
+          <div className="pointer-events-none absolute left-1/2 top-[-110px] h-72 w-[550px] -translate-x-1/2 rounded-full bg-cyan-300/20 blur-[100px]" />
+
+          <div className="pointer-events-none absolute bottom-[-120px] right-[-100px] h-64 w-64 rounded-full bg-pink-300/20 blur-[90px]" />
 
           <div className="relative grid gap-10 lg:grid-cols-[1fr_auto] lg:items-center">
             <div>
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.05]">
-                <MessageCircle size={21} className="text-[#25F4EE]" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-100 to-violet-100 shadow-sm">
+                <MessageCircle size={21} className="text-violet-600" />
               </div>
 
-              <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.25em] text-[#25F4EE]">
+              <p className="mt-6 text-[9px] font-extrabold uppercase tracking-[0.22em] text-violet-600">
                 Still Have Questions?
               </p>
 
-              <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">
+              <h2 className="mt-3 text-2xl font-black tracking-[-0.03em] text-slate-900 sm:text-3xl">
                 Let's talk about your goals.
               </h2>
 
-              <p className="mt-4 max-w-xl text-sm leading-7 text-white/40">
+              <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600">
                 If you cannot find the answer you are looking for, reach out and
                 get the information you need before choosing your training
                 program.
@@ -371,18 +398,18 @@ export default function FAQPage() {
             <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
               <Link
                 to="/register"
-                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-3.5 text-sm font-bold text-black transition hover:-translate-y-0.5 hover:bg-[#25F4EE]"
+                className="group inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 px-6 py-3.5 text-sm font-bold text-white shadow-[0_15px_35px_rgba(99,102,241,0.18)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_45px_rgba(99,102,241,0.25)]"
               >
                 Register for Training
                 <ArrowRight
                   size={17}
-                  className="transition-transform group-hover:translate-x-1"
+                  className="transition-transform duration-300 group-hover:translate-x-1"
                 />
               </Link>
 
               <a
                 href="mailto:info@adonaytiktokacademy.com"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-6 py-3.5 text-sm font-semibold text-white/65 transition hover:border-white/20 hover:bg-white/[0.07] hover:text-white"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700"
               >
                 <Mail size={16} />
                 Contact Academy
@@ -434,46 +461,56 @@ export default function FAQPage() {
 function FAQItem({ faq, index, isOpen, onToggle }) {
   return (
     <article
-      className={`overflow-hidden rounded-2xl border transition-all duration-300 ${
+      className={`group overflow-hidden rounded-2xl border bg-white/80 backdrop-blur-xl transition-all duration-300 ${
         isOpen
-          ? "border-[#25F4EE]/20 bg-[#25F4EE]/[0.035] shadow-[0_15px_50px_rgba(37,244,238,0.035)]"
-          : "border-white/[0.08] bg-white/[0.025] hover:border-white/[0.13] hover:bg-white/[0.035]"
+          ? "border-cyan-200 shadow-[0_18px_55px_rgba(15,23,42,0.08)]"
+          : "border-slate-200 shadow-sm hover:-translate-y-0.5 hover:border-cyan-200 hover:shadow-[0_15px_45px_rgba(15,23,42,0.07)]"
       }`}
     >
+      {/* Question */}
+
       <button
         type="button"
         onClick={onToggle}
         className="flex w-full items-center gap-4 px-5 py-5 text-left sm:px-6"
         aria-expanded={isOpen}
       >
+        {/* Number */}
+
         <span
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[10px] font-black tracking-wider ${
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[10px] font-black tracking-wider transition-all duration-300 ${
             isOpen
-              ? "bg-[#25F4EE]/10 text-[#25F4EE]"
-              : "bg-white/[0.045] text-white/25"
+              ? "bg-gradient-to-br from-cyan-100 to-violet-100 text-violet-600"
+              : "bg-slate-100 text-slate-400 group-hover:bg-cyan-50 group-hover:text-cyan-600"
           }`}
         >
           {String(index + 1).padStart(2, "0")}
         </span>
 
+        {/* Question */}
+
         <span
           className={`flex-1 pr-2 text-sm font-bold leading-6 transition-colors sm:text-[15px] ${
-            isOpen ? "text-white" : "text-white/75"
+            isOpen ? "text-slate-900" : "text-slate-700"
           }`}
         >
           {faq.question}
         </span>
 
+        {/* Arrow */}
+
         <span
           className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all duration-300 ${
             isOpen
-              ? "rotate-180 border-[#25F4EE]/15 bg-[#25F4EE]/10 text-[#25F4EE]"
-              : "border-white/[0.07] bg-white/[0.025] text-white/30"
+              ? "rotate-180 border-cyan-200 bg-cyan-50 text-cyan-600"
+              : "border-slate-200 bg-slate-50 text-slate-400 group-hover:border-cyan-200 group-hover:text-cyan-600"
           }`}
         >
           <ChevronDown size={17} />
         </span>
       </button>
+
+      {/* Answer */}
 
       <div
         className={`grid transition-all duration-300 ${
@@ -481,9 +518,9 @@ function FAQItem({ faq, index, isOpen, onToggle }) {
         }`}
       >
         <div className="overflow-hidden">
-          <div className="border-t border-white/[0.06] px-5 pb-6 pt-5 sm:px-6">
-            <div className="ml-0 border-l border-[#25F4EE]/15 pl-4 sm:ml-[52px]">
-              <p className="max-w-3xl text-sm leading-7 text-white/45">
+          <div className="border-t border-slate-100 px-5 pb-6 pt-5 sm:px-6">
+            <div className="ml-0 border-l-2 border-cyan-200 pl-4 sm:ml-[52px]">
+              <p className="max-w-3xl text-sm leading-7 text-slate-600">
                 {faq.answer}
               </p>
             </div>
@@ -503,10 +540,10 @@ function CategoryButton({ active, children, onClick }) {
     <button
       type="button"
       onClick={onClick}
-      className={`shrink-0 rounded-xl border px-4 py-2.5 text-[10px] font-bold uppercase tracking-[0.12em] transition ${
+      className={`shrink-0 rounded-xl border px-4 py-2.5 text-[10px] font-extrabold uppercase tracking-[0.12em] transition-all duration-300 ${
         active
-          ? "border-[#25F4EE]/20 bg-[#25F4EE]/10 text-[#25F4EE]"
-          : "border-white/[0.07] bg-white/[0.025] text-white/35 hover:border-white/[0.13] hover:bg-white/[0.05] hover:text-white/65"
+          ? "border-transparent bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 text-white shadow-[0_8px_25px_rgba(99,102,241,0.18)]"
+          : "border-slate-200 bg-white/80 text-slate-500 shadow-sm hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700"
       }`}
     >
       {children}
@@ -520,21 +557,23 @@ function CategoryButton({ active, children, onClick }) {
 
 function QuickStat({ icon: Icon, number, title, text }) {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 backdrop-blur-xl">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#25F4EE]/[0.07]">
-        <Icon size={19} className="text-[#25F4EE]" />
+    <div className="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-cyan-200 hover:shadow-[0_15px_40px_rgba(15,23,42,0.07)]">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-100 to-violet-100 transition duration-300 group-hover:scale-105">
+        <Icon size={19} className="text-violet-600" />
       </div>
 
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-[8px] font-black tracking-[0.2em] text-white/15">
+          <span className="text-[8px] font-black tracking-[0.2em] text-slate-300">
             {number}
           </span>
 
-          <p className="truncate text-xs font-bold text-white/75">{title}</p>
+          <p className="truncate text-xs font-extrabold text-slate-800">
+            {title}
+          </p>
         </div>
 
-        <p className="mt-1 text-[11px] text-white/30">{text}</p>
+        <p className="mt-1 text-[11px] text-slate-500">{text}</p>
       </div>
     </div>
   );
@@ -546,14 +585,14 @@ function QuickStat({ icon: Icon, number, title, text }) {
 
 function InfoCard({ icon: Icon, title, text }) {
   return (
-    <div className="rounded-2xl border border-white/[0.07] bg-white/[0.02] p-5">
-      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/[0.04]">
-        <Icon size={16} className="text-[#25F4EE]" />
+    <div className="group rounded-2xl border border-slate-200 bg-white/80 p-5 shadow-sm backdrop-blur-xl transition duration-300 hover:-translate-y-1 hover:border-violet-200 hover:shadow-[0_15px_40px_rgba(15,23,42,0.07)]">
+      <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-100 to-violet-100 transition duration-300 group-hover:scale-105">
+        <Icon size={16} className="text-violet-600" />
       </div>
 
-      <h3 className="mt-4 text-xs font-bold text-white/70">{title}</h3>
+      <h3 className="mt-4 text-xs font-extrabold text-slate-800">{title}</h3>
 
-      <p className="mt-1 text-[11px] leading-5 text-white/30">{text}</p>
+      <p className="mt-1 text-[11px] leading-5 text-slate-500">{text}</p>
     </div>
   );
 }
@@ -564,22 +603,24 @@ function InfoCard({ icon: Icon, title, text }) {
 
 function EmptyState({ search, onClear }) {
   return (
-    <div className="rounded-3xl border border-white/[0.08] bg-white/[0.025] px-6 py-14 text-center">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04]">
-        <Search size={22} className="text-white/25" />
+    <div className="rounded-3xl border border-slate-200 bg-white/80 px-6 py-14 text-center shadow-sm backdrop-blur-xl">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-100 to-violet-100">
+        <Search size={22} className="text-violet-600" />
       </div>
 
-      <h3 className="mt-5 text-lg font-black">No questions found</h3>
+      <h3 className="mt-5 text-lg font-black text-slate-900">
+        No questions found
+      </h3>
 
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-white/35">
+      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
         We could not find an FAQ matching{" "}
-        <span className="text-white/60">"{search}"</span>.
+        <span className="font-semibold text-slate-700">"{search}"</span>.
       </p>
 
       <button
         type="button"
         onClick={onClear}
-        className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-5 py-3 text-xs font-bold text-white/60 transition hover:bg-white/[0.07] hover:text-white"
+        className="mt-6 inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-xs font-bold text-slate-600 shadow-sm transition duration-300 hover:-translate-y-0.5 hover:border-cyan-200 hover:bg-cyan-50 hover:text-cyan-700"
       >
         Clear Search
       </button>

@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Play, Sparkles, CalendarDays } from "lucide-react";
+import { ArrowRight, Play, CalendarDays, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import heroImage from "../../assets/images/hero.jpg";
@@ -11,18 +11,25 @@ export default function Hero() {
   /* ============================================================
      COUNTDOWN
      ------------------------------------------------------------
-     Initial value:
+     CURRENTLY:
      02 Days
      22 Hours
      36 Minutes
 
      The countdown continues automatically.
 
-     When you have the real training date, replace this with:
-     
-     const targetDate = new Date("2026-09-02T...").getTime();
+     IMPORTANT:
+     When you have the REAL webinar date, replace the
+     INITIAL_COUNTDOWN logic with a fixed target date.
 
-     and calculate the remaining time from that date.
+     Example:
+
+     const targetDate = new Date(
+       "2026-09-02T18:00:00"
+     ).getTime();
+
+     Then calculate:
+     const remaining = Math.max(0, targetDate - Date.now());
   ============================================================ */
 
   const INITIAL_COUNTDOWN = (2 * 24 * 60 * 60 + 22 * 60 * 60 + 36 * 60) * 1000;
@@ -242,9 +249,12 @@ export default function Hero() {
       )}
 
       {/* ============================================================
-          TOP-RIGHT COUNTDOWN
+          WEBINAR COUNTDOWN
           ------------------------------------------------------------
-          SMALL + PREMIUM
+          SMALL
+          CLICKABLE
+          PREMIUM
+          MOBILE FRIENDLY
       ============================================================ */}
 
       <motion.div
@@ -279,271 +289,487 @@ export default function Hero() {
           lg:top-28
         "
       >
-        <div
+        <Link
+          to="/webinar"
+          aria-label="View upcoming webinar details"
           className="
-            relative
-            overflow-hidden
+            group
+            block
+            touch-manipulation
             rounded-2xl
-            border
-            border-white/10
-            bg-black/30
-            px-2
-            py-2
-            shadow-[0_12px_35px_rgba(0,0,0,0.25)]
-            backdrop-blur-xl
-            sm:px-2.5
-            sm:py-2.5
+            outline-none
+            focus-visible:ring-2
+            focus-visible:ring-cyan-300/80
+            focus-visible:ring-offset-2
+            focus-visible:ring-offset-black
           "
         >
-          {/* Top gradient line */}
-
           <div
             className="
-              absolute
-              left-0
-              right-0
-              top-0
-              h-[1px]
-              bg-gradient-to-r
-              from-cyan-400
-              via-violet-500
-              to-pink-500
-            "
-          />
-
-          {/* Countdown header */}
-
-          <div
-            className="
-              mb-1.5
-              flex
-              items-center
-              justify-center
-              gap-1.5
+              relative
+              w-[156px]
+              overflow-hidden
+              rounded-2xl
+              border
+              border-white/10
+              bg-black/40
+              p-2
+              shadow-[0_12px_35px_rgba(0,0,0,0.28)]
+              backdrop-blur-xl
+              transition-all
+              duration-300
+              group-hover:border-cyan-300/25
+              group-hover:bg-black/50
+              group-hover:shadow-[0_16px_45px_rgba(0,0,0,0.35)]
+              group-active:scale-[0.98]
+              sm:w-[172px]
+              sm:p-2.5
+              sm:hover:-translate-y-0.5
             "
           >
-            <span
-              className="
-                flex
-                h-4
-                w-4
-                items-center
-                justify-center
-                rounded-full
-                bg-cyan-400/10
-              "
-            >
-              <CalendarDays
-                size={9}
-                className="text-cyan-300"
-                strokeWidth={2.5}
-              />
-            </span>
-
-            <span
-              className="
-                text-[6px]
-                font-bold
-                uppercase
-                tracking-[0.15em]
-                text-white/45
-                sm:text-[7px]
-              "
-            >
-              Next Training
-            </span>
-          </div>
-
-          {/* Countdown numbers */}
-
-          <div className="flex items-center justify-center">
-            {/* DAYS */}
+            {/* ======================================================
+                TOP COLOR LINE
+            ====================================================== */}
 
             <div
+              aria-hidden="true"
               className="
-                flex
-                min-w-[34px]
-                flex-col
-                items-center
-                justify-center
-                rounded-lg
-                px-1
-                py-1
-                sm:min-w-[38px]
-              "
-            >
-              <span
-                className="
-                  text-[15px]
-                  font-black
-                  leading-none
-                  tracking-[-0.03em]
-                  text-white
-                  sm:text-[16px]
-                "
-              >
-                {formatNumber(days)}
-              </span>
-
-              <span
-                className="
-                  mt-1
-                  text-[5px]
-                  font-bold
-                  uppercase
-                  tracking-[0.12em]
-                  text-cyan-300/65
-                "
-              >
-                Days
-              </span>
-            </div>
-
-            {/* SEPARATOR */}
-
-            <span
-              className="
-                mb-3
-                text-[10px]
-                font-bold
-                text-white/20
-              "
-            >
-              :
-            </span>
-
-            {/* HOURS */}
-
-            <div
-              className="
-                flex
-                min-w-[34px]
-                flex-col
-                items-center
-                justify-center
-                rounded-lg
-                px-1
-                py-1
-                sm:min-w-[38px]
-              "
-            >
-              <span
-                className="
-                  text-[15px]
-                  font-black
-                  leading-none
-                  tracking-[-0.03em]
-                  text-white
-                  sm:text-[16px]
-                "
-              >
-                {formatNumber(hours)}
-              </span>
-
-              <span
-                className="
-                  mt-1
-                  text-[5px]
-                  font-bold
-                  uppercase
-                  tracking-[0.12em]
-                  text-violet-300/65
-                "
-              >
-                Hours
-              </span>
-            </div>
-
-            {/* SEPARATOR */}
-
-            <span
-              className="
-                mb-3
-                text-[10px]
-                font-bold
-                text-white/20
-              "
-            >
-              :
-            </span>
-
-            {/* MINUTES */}
-
-            <div
-              className="
-                flex
-                min-w-[34px]
-                flex-col
-                items-center
-                justify-center
-                rounded-lg
-                px-1
-                py-1
-                sm:min-w-[38px]
-              "
-            >
-              <span
-                className="
-                  text-[15px]
-                  font-black
-                  leading-none
-                  tracking-[-0.03em]
-                  text-white
-                  sm:text-[16px]
-                "
-              >
-                {formatNumber(minutes)}
-              </span>
-
-              <span
-                className="
-                  mt-1
-                  text-[5px]
-                  font-bold
-                  uppercase
-                  tracking-[0.12em]
-                  text-pink-300/65
-                "
-              >
-                Minutes
-              </span>
-            </div>
-          </div>
-
-          {/* Small status */}
-
-          <div
-            className="
-              mt-1.5
-              flex
-              items-center
-              justify-center
-              gap-1
-            "
-          >
-            <span
-              className="
-                h-1
-                w-1
-                animate-pulse
-                rounded-full
-                bg-cyan-400
+                absolute
+                left-0
+                right-0
+                top-0
+                h-[2px]
+                bg-gradient-to-r
+                from-cyan-400
+                via-violet-500
+                to-pink-500
               "
             />
 
-            <span
+            {/* ======================================================
+                SOFT COLOR GLOW
+            ====================================================== */}
+
+            <div
+              aria-hidden="true"
               className="
-                text-[5px]
-                font-bold
-                uppercase
-                tracking-[0.14em]
-                text-white/30
+                pointer-events-none
+                absolute
+                -right-8
+                -top-8
+                h-16
+                w-16
+                rounded-full
+                bg-cyan-400/10
+                blur-2xl
+                transition-opacity
+                duration-300
+                group-hover:opacity-100
+              "
+            />
+
+            <div
+              aria-hidden="true"
+              className="
+                pointer-events-none
+                absolute
+                -bottom-8
+                -left-8
+                h-16
+                w-16
+                rounded-full
+                bg-pink-500/10
+                blur-2xl
+              "
+            />
+
+            {/* ======================================================
+                HEADER
+            ====================================================== */}
+
+            <div
+              className="
+                relative
+                mb-1.5
+                flex
+                items-center
+                justify-between
+                gap-2
               "
             >
-              Registration Open
-            </span>
+              <div
+                className="
+                  flex
+                  min-w-0
+                  items-center
+                  gap-1.5
+                "
+              >
+                <span
+                  className="
+                    flex
+                    h-5
+                    w-5
+                    shrink-0
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-gradient-to-br
+                    from-cyan-400/20
+                    to-violet-500/20
+                    ring-1
+                    ring-white/10
+                  "
+                >
+                  <CalendarDays
+                    size={10}
+                    className="text-cyan-300"
+                    strokeWidth={2.5}
+                  />
+                </span>
+
+                <div className="min-w-0">
+                  <div
+                    className="
+                      truncate
+                      text-[6px]
+                      font-bold
+                      uppercase
+                      tracking-[0.16em]
+                      text-cyan-300/80
+                      sm:text-[7px]
+                    "
+                  >
+                    Upcoming Webinar
+                  </div>
+
+                  <div
+                    className="
+                      mt-0.5
+                      truncate
+                      text-[5px]
+                      font-medium
+                      text-white/35
+                      sm:text-[6px]
+                    "
+                  >
+                    Don't miss it
+                  </div>
+                </div>
+              </div>
+
+              <Sparkles
+                size={11}
+                className="
+                  shrink-0
+                  text-pink-300/70
+                  transition-transform
+                  duration-300
+                  group-hover:rotate-12
+                "
+              />
+            </div>
+
+            {/* ======================================================
+                MAIN MESSAGE
+            ====================================================== */}
+
+            <div
+              className="
+                relative
+                mb-1.5
+                text-center
+              "
+            >
+              <span
+                className="
+                  text-[7px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.14em]
+                  text-white/45
+                  sm:text-[8px]
+                "
+              >
+                Webinar starts in
+              </span>
+            </div>
+
+            {/* ======================================================
+                COUNTDOWN
+            ====================================================== */}
+
+            <div
+              className="
+                relative
+                flex
+                items-center
+                justify-center
+                gap-0.5
+              "
+            >
+              {/* DAYS */}
+
+              <div
+                className="
+                  flex
+                  min-w-[39px]
+                  flex-col
+                  items-center
+                  justify-center
+                  rounded-xl
+                  border
+                  border-cyan-300/10
+                  bg-cyan-300/[0.045]
+                  px-1
+                  py-1.5
+                  transition-colors
+                  duration-300
+                  group-hover:border-cyan-300/20
+                  sm:min-w-[43px]
+                "
+              >
+                <span
+                  className="
+                    bg-gradient-to-b
+                    from-white
+                    to-cyan-200
+                    bg-clip-text
+                    text-[16px]
+                    font-black
+                    leading-none
+                    tracking-[-0.04em]
+                    text-transparent
+                    sm:text-[17px]
+                  "
+                >
+                  {formatNumber(days)}
+                </span>
+
+                <span
+                  className="
+                    mt-1
+                    text-[5px]
+                    font-bold
+                    uppercase
+                    tracking-[0.13em]
+                    text-cyan-300/70
+                  "
+                >
+                  Days
+                </span>
+              </div>
+
+              {/* SEPARATOR */}
+
+              <span
+                aria-hidden="true"
+                className="
+                  mb-3
+                  px-0.5
+                  text-[9px]
+                  font-bold
+                  text-white/20
+                "
+              >
+                :
+              </span>
+
+              {/* HOURS */}
+
+              <div
+                className="
+                  flex
+                  min-w-[39px]
+                  flex-col
+                  items-center
+                  justify-center
+                  rounded-xl
+                  border
+                  border-violet-300/10
+                  bg-violet-300/[0.045]
+                  px-1
+                  py-1.5
+                  transition-colors
+                  duration-300
+                  group-hover:border-violet-300/20
+                  sm:min-w-[43px]
+                "
+              >
+                <span
+                  className="
+                    bg-gradient-to-b
+                    from-white
+                    to-violet-200
+                    bg-clip-text
+                    text-[16px]
+                    font-black
+                    leading-none
+                    tracking-[-0.04em]
+                    text-transparent
+                    sm:text-[17px]
+                  "
+                >
+                  {formatNumber(hours)}
+                </span>
+
+                <span
+                  className="
+                    mt-1
+                    text-[5px]
+                    font-bold
+                    uppercase
+                    tracking-[0.13em]
+                    text-violet-300/70
+                  "
+                >
+                  Hours
+                </span>
+              </div>
+
+              {/* SEPARATOR */}
+
+              <span
+                aria-hidden="true"
+                className="
+                  mb-3
+                  px-0.5
+                  text-[9px]
+                  font-bold
+                  text-white/20
+                "
+              >
+                :
+              </span>
+
+              {/* MINUTES */}
+
+              <div
+                className="
+                  flex
+                  min-w-[39px]
+                  flex-col
+                  items-center
+                  justify-center
+                  rounded-xl
+                  border
+                  border-pink-300/10
+                  bg-pink-300/[0.045]
+                  px-1
+                  py-1.5
+                  transition-colors
+                  duration-300
+                  group-hover:border-pink-300/20
+                  sm:min-w-[43px]
+                "
+              >
+                <span
+                  className="
+                    bg-gradient-to-b
+                    from-white
+                    to-pink-200
+                    bg-clip-text
+                    text-[16px]
+                    font-black
+                    leading-none
+                    tracking-[-0.04em]
+                    text-transparent
+                    sm:text-[17px]
+                  "
+                >
+                  {formatNumber(minutes)}
+                </span>
+
+                <span
+                  className="
+                    mt-1
+                    text-[5px]
+                    font-bold
+                    uppercase
+                    tracking-[0.13em]
+                    text-pink-300/70
+                  "
+                >
+                  Minutes
+                </span>
+              </div>
+            </div>
+
+            {/* ======================================================
+                CLICKABLE STATUS
+            ====================================================== */}
+
+            <div
+              className="
+                relative
+                mt-1.5
+                flex
+                items-center
+                justify-center
+                gap-1.5
+              "
+            >
+              <span
+                className="
+                  relative
+                  flex
+                  h-1.5
+                  w-1.5
+                  items-center
+                  justify-center
+                "
+              >
+                <span
+                  className="
+                    absolute
+                    h-1.5
+                    w-1.5
+                    animate-ping
+                    rounded-full
+                    bg-cyan-400/40
+                  "
+                />
+
+                <span
+                  className="
+                    relative
+                    h-1
+                    w-1
+                    rounded-full
+                    bg-cyan-400
+                    shadow-[0_0_8px_rgba(34,211,238,0.7)]
+                  "
+                />
+              </span>
+
+              <span
+                className="
+                  text-[5px]
+                  font-bold
+                  uppercase
+                  tracking-[0.14em]
+                  text-white/40
+                  transition-colors
+                  duration-300
+                  group-hover:text-cyan-200/70
+                "
+              >
+                Tap to view webinar
+              </span>
+
+              <ArrowRight
+                size={8}
+                className="
+                  text-white/25
+                  transition-all
+                  duration-300
+                  group-hover:translate-x-0.5
+                  group-hover:text-cyan-300
+                "
+              />
+            </div>
           </div>
-        </div>
+        </Link>
       </motion.div>
 
       {/* ============================================================
