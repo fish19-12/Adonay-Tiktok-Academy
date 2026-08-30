@@ -764,7 +764,7 @@ export default function Services() {
                 text-slate-500
               "
             >
-              Real Estate Agency Training is currently open for registration.
+              Real Estate Agencys Training is currently open for registration.
               Our TikTok Personal Training and Group Coaching programs will be
               announced when they are ready.
             </p>
