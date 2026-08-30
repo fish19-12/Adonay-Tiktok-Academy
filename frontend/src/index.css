@@ -3,25 +3,43 @@
 @tailwind utilities;
 
 /* ============================================================
+   ADONAY TIKTOK ACADEMY
+   GLOBAL DESIGN SYSTEM
+============================================================ */
+
+:root {
+  --academy-bg: #030712;
+  --academy-surface: #071120;
+  --academy-surface-light: #0b1424;
+
+  --academy-cyan: #25f4ee;
+  --academy-red: #fe2c55;
+
+  --academy-white: #f8fafc;
+  --academy-muted: rgba(248, 250, 252, 0.55);
+  --academy-soft: rgba(248, 250, 252, 0.35);
+
+  color-scheme: dark;
+}
+
+/* ============================================================
    GLOBAL RESET
 ============================================================ */
 
 html {
   width: 100%;
   min-height: 100%;
-  overflow-x: hidden;
-  background: #030712;
 
-  /*
-    Helps Safari/iPhone handle viewport changes correctly.
-  */
+  overflow-x: hidden;
+
+  background: var(--academy-bg);
+
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 
-  /*
-    Prevent Safari from creating unexpected horizontal scrolling.
-  */
   overscroll-behavior-x: none;
+
+  scroll-behavior: smooth;
 }
 
 body {
@@ -30,8 +48,20 @@ body {
   min-height: 100%;
   margin: 0;
 
-  background: #030712;
-  color: #f8fafc;
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(37, 244, 238, 0.035),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 90% 15%,
+      rgba(254, 44, 85, 0.03),
+      transparent 30%
+    ),
+    var(--academy-bg);
+
+  color: var(--academy-white);
 
   font-family:
     "Inter",
@@ -45,17 +75,19 @@ body {
 
   overflow-x: hidden;
 
-  /*
-    Safari mobile rendering improvements.
-  */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
+/* ============================================================
+   ROOT
+============================================================ */
 
 #root {
   width: 100%;
   min-width: 0;
   min-height: 100%;
+
   overflow-x: hidden;
 }
 
@@ -69,14 +101,15 @@ body {
   width: 100%;
   min-width: 0;
   min-height: 100svh;
+  min-height: 100dvh;
 
   display: flex;
   flex-direction: column;
 
   overflow-x: hidden;
 
-  background: #030712;
-  color: #f8fafc;
+  background: var(--academy-bg);
+  color: var(--academy-white);
 }
 
 .app-main {
@@ -91,21 +124,45 @@ body {
 }
 
 /* ============================================================
-   IMAGES
+   SELECTION
 ============================================================ */
 
-img {
-  max-width: 100%;
+::selection {
+  background: rgba(37, 244, 238, 0.25);
+  color: #ffffff;
 }
+
+/* ============================================================
+   SCROLLBAR
+============================================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #030712;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(37, 244, 238, 0.35);
+}
+
+/* ============================================================
+   IMAGES / VIDEO
+============================================================ */
 
 img,
 video {
   display: block;
+  max-width: 100%;
 }
 
-/*
-  Prevent Safari from showing strange image selection/drag behavior.
-*/
 img {
   -webkit-user-drag: none;
 }
@@ -133,25 +190,139 @@ button {
 }
 
 /* ============================================================
-   CUSTOM BUTTON
+   FORM ELEMENTS
+============================================================ */
+
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(255, 255, 255, 0.28);
+}
+
+/* ============================================================
+   ACADEMY BUTTONS
 ============================================================ */
 
 .btn {
-  @apply rounded-xl px-6 py-3 font-semibold transition;
+  @apply inline-flex items-center justify-center rounded-xl px-6 py-3 font-semibold transition-all duration-300;
 }
 
-.btn:hover {
-  opacity: 0.9;
+.btn-primary {
+  background: var(--academy-cyan);
+  color: #000000;
+
+  box-shadow: 0 10px 35px rgba(37, 244, 238, 0.12);
 }
 
-.btn-accent {
-  background-color: #f97316;
-  color: #f8fafc;
+.btn-primary:hover {
+  transform: translateY(-2px);
+
+  background: #ffffff;
+
+  box-shadow: 0 15px 45px rgba(37, 244, 238, 0.18);
+}
+
+.btn-secondary {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+
+  background: rgba(255, 255, 255, 0.04);
+
+  color: rgba(255, 255, 255, 0.8);
+
+  backdrop-filter: blur(12px);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+
+  border-color: rgba(255, 255, 255, 0.22);
+
+  background: rgba(255, 255, 255, 0.07);
+
+  color: #ffffff;
 }
 
 .btn-outline {
-  border: 1px solid #f8fafc;
-  color: #f8fafc;
+  border: 1px solid rgba(37, 244, 238, 0.25);
+
+  color: var(--academy-cyan);
+
+  background: rgba(37, 244, 238, 0.035);
+}
+
+.btn-outline:hover {
+  background: rgba(37, 244, 238, 0.08);
+}
+
+/* ============================================================
+   ACADEMY CARD
+============================================================ */
+
+.academy-card {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.045),
+    rgba(255, 255, 255, 0.015)
+  );
+
+  border-radius: 24px;
+
+  backdrop-filter: blur(18px);
+
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.academy-card:hover {
+  transform: translateY(-4px);
+
+  border-color: rgba(37, 244, 238, 0.16);
+
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.25);
+}
+
+/* ============================================================
+   GRADIENT TEXT
+============================================================ */
+
+.academy-gradient-text {
+  background: linear-gradient(
+    90deg,
+    var(--academy-cyan),
+    #ffffff,
+    var(--academy-red)
+  );
+
+  background-clip: text;
+  -webkit-background-clip: text;
+
+  color: transparent;
+}
+
+/* ============================================================
+   CYAN GLOW
+============================================================ */
+
+.academy-glow-cyan {
+  box-shadow: 0 0 50px rgba(37, 244, 238, 0.08);
+}
+
+/* ============================================================
+   RED GLOW
+============================================================ */
+
+.academy-glow-red {
+  box-shadow: 0 0 50px rgba(254, 44, 85, 0.08);
 }
 
 /* ============================================================
@@ -184,7 +355,7 @@ button {
 
   border-radius: 50%;
 
-  background: #f59e0b;
+  background: var(--academy-cyan);
 
   opacity: 0.4;
 
@@ -233,16 +404,17 @@ button {
     background-color 0.3s ease,
     color 0.3s ease;
 
-  box-shadow: 0 0 0 rgba(255, 215, 0, 0);
+  box-shadow: 0 0 0 rgba(37, 244, 238, 0);
 }
 
 @media (hover: hover) and (pointer: fine) {
   .magnetic-btn:hover {
-    transform: scale(1.05);
+    transform: scale(1.04);
 
-    box-shadow: 0 0 30px rgba(255, 215, 0, 0.45);
+    box-shadow: 0 0 30px rgba(37, 244, 238, 0.25);
 
-    background-color: #ffd700;
+    background-color: var(--academy-cyan);
+
     color: #000000;
   }
 }
@@ -250,11 +422,6 @@ button {
 /* ============================================================
    MOBILE SAFARI SAFETY
 ============================================================ */
-
-/*
-  Prevent accidental horizontal overflow from transformed
-  Framer Motion elements.
-*/
 
 @supports (overflow: clip) {
   html,
@@ -265,9 +432,9 @@ button {
   }
 }
 
-/*
-  Respect iPhone safe-area areas.
-*/
+/* ============================================================
+   SAFE AREA
+============================================================ */
 
 @supports (padding: max(0px)) {
   body {
@@ -277,16 +444,29 @@ button {
 }
 
 /* ============================================================
-   REDUCE MOTION
+   REDUCED MOTION
 ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+
   *,
   *::before,
   *::after {
-    scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================
+   SMALL SCREEN TYPOGRAPHY SAFETY
+============================================================ */
+
+@media (max-width: 380px) {
+  body {
+    font-size: 14px;
   }
 }
