@@ -290,7 +290,7 @@ export default function Hero() {
         "
       >
         <Link
-          to="/webinar"
+          to="/register"
           aria-label="View upcoming webinar details"
           className="
             group
