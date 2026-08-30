@@ -1,19 +1,73 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, Sparkles, CalendarDays } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import heroImage from "../../assets/images/hero.jpg";
 
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
 
+  /* ============================================================
+     COUNTDOWN
+     ------------------------------------------------------------
+     Initial value:
+     02 Days
+     22 Hours
+     36 Minutes
+
+     The countdown continues automatically.
+
+     When you have the real training date, replace this with:
+     
+     const targetDate = new Date("2026-09-02T...").getTime();
+
+     and calculate the remaining time from that date.
+  ============================================================ */
+
+  const INITIAL_COUNTDOWN = (2 * 24 * 60 * 60 + 22 * 60 * 60 + 36 * 60) * 1000;
+
+  const [timeLeft, setTimeLeft] = useState(INITIAL_COUNTDOWN);
+
+  useEffect(() => {
+    const targetTime = Date.now() + INITIAL_COUNTDOWN;
+
+    const updateCountdown = () => {
+      const remaining = Math.max(0, targetTime - Date.now());
+
+      setTimeLeft(remaining);
+    };
+
+    updateCountdown();
+
+    const timer = window.setInterval(updateCountdown, 1000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, []);
+
+  /* ============================================================
+     COUNTDOWN VALUES
+  ============================================================ */
+
+  const totalSeconds = Math.floor(timeLeft / 1000);
+
+  const days = Math.floor(totalSeconds / 86400);
+
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+  const formatNumber = (number) => String(number).padStart(2, "0");
+
   return (
     <section
       className="
         relative
         isolate
-        w-full
         min-h-screen
+        w-full
         overflow-hidden
         bg-[#030712]
         text-white
@@ -23,11 +77,9 @@ export default function Hero() {
         minHeight: "100svh",
       }}
     >
-      {/* =====================================================
+      {/* ============================================================
           HERO IMAGE
-          -----------------------------------------------------
-          Kept simple for better Safari/iPhone performance.
-      ===================================================== */}
+      ============================================================ */}
 
       <div
         aria-hidden="true"
@@ -55,9 +107,9 @@ export default function Hero() {
         />
       </div>
 
-      {/* =====================================================
+      {/* ============================================================
           DARK OVERLAY
-      ===================================================== */}
+      ============================================================ */}
 
       <div
         aria-hidden="true"
@@ -66,13 +118,13 @@ export default function Hero() {
           absolute
           inset-0
           z-[1]
-          bg-black/30
+          bg-black/35
         "
       />
 
-      {/* =====================================================
+      {/* ============================================================
           LEFT READABILITY GRADIENT
-      ===================================================== */}
+      ============================================================ */}
 
       <div
         aria-hidden="true"
@@ -82,17 +134,15 @@ export default function Hero() {
           inset-0
           z-[2]
           bg-gradient-to-r
-          from-black/80
-          via-black/45
+          from-black/85
+          via-black/55
           to-transparent
         "
       />
 
-      {/* =====================================================
-          MOBILE EXTRA READABILITY
-          -----------------------------------------------------
-          Helps text remain readable on smaller screens.
-      ===================================================== */}
+      {/* ============================================================
+          MOBILE READABILITY
+      ============================================================ */}
 
       <div
         aria-hidden="true"
@@ -104,14 +154,14 @@ export default function Hero() {
           bg-gradient-to-b
           from-black/20
           via-transparent
-          to-[#030712]/70
+          to-[#030712]/85
           sm:hidden
         "
       />
 
-      {/* =====================================================
+      {/* ============================================================
           BOTTOM GRADIENT
-      ===================================================== */}
+      ============================================================ */}
 
       <div
         aria-hidden="true"
@@ -121,28 +171,25 @@ export default function Hero() {
           inset-x-0
           bottom-0
           z-[2]
-          h-40
+          h-48
           bg-gradient-to-t
           from-[#030712]
-          via-[#030712]/60
+          via-[#030712]/70
           to-transparent
         "
       />
 
-      {/* =====================================================
-          BRAND LIGHT
-          -----------------------------------------------------
-          Disabled on very small screens to reduce Safari
-          GPU/compositing pressure.
-      ===================================================== */}
+      {/* ============================================================
+          AMBIENT LIGHT
+      ============================================================ */}
 
       {!shouldReduceMotion && (
         <>
           <motion.div
             aria-hidden="true"
             animate={{
-              opacity: [0.18, 0.28, 0.18],
-              scale: [1, 1.04, 1],
+              opacity: [0.12, 0.22, 0.12],
+              scale: [1, 1.05, 1],
             }}
             transition={{
               duration: 7,
@@ -159,7 +206,7 @@ export default function Hero() {
               h-72
               w-72
               rounded-full
-              bg-[#25F4EE]/10
+              bg-cyan-400/10
               blur-[80px]
               sm:block
             "
@@ -168,8 +215,8 @@ export default function Hero() {
           <motion.div
             aria-hidden="true"
             animate={{
-              opacity: [0.12, 0.22, 0.12],
-              scale: [1, 1.05, 1],
+              opacity: [0.1, 0.2, 0.1],
+              scale: [1, 1.06, 1],
             }}
             transition={{
               duration: 8,
@@ -186,7 +233,7 @@ export default function Hero() {
               h-80
               w-80
               rounded-full
-              bg-[#FE2C55]/10
+              bg-pink-500/10
               blur-[90px]
               sm:block
             "
@@ -194,9 +241,314 @@ export default function Hero() {
         </>
       )}
 
-      {/* =====================================================
-          CONTENT
-      ===================================================== */}
+      {/* ============================================================
+          TOP-RIGHT COUNTDOWN
+          ------------------------------------------------------------
+          SMALL + PREMIUM
+      ============================================================ */}
+
+      <motion.div
+        initial={
+          shouldReduceMotion
+            ? false
+            : {
+                opacity: 0,
+                y: -10,
+              }
+        }
+        animate={
+          shouldReduceMotion
+            ? false
+            : {
+                opacity: 1,
+                y: 0,
+              }
+        }
+        transition={{
+          duration: 0.5,
+          delay: shouldReduceMotion ? 0 : 0.45,
+        }}
+        className="
+          absolute
+          right-4
+          top-24
+          z-30
+          sm:right-8
+          sm:top-28
+          lg:right-12
+          lg:top-28
+        "
+      >
+        <div
+          className="
+            relative
+            overflow-hidden
+            rounded-2xl
+            border
+            border-white/10
+            bg-black/30
+            px-2
+            py-2
+            shadow-[0_12px_35px_rgba(0,0,0,0.25)]
+            backdrop-blur-xl
+            sm:px-2.5
+            sm:py-2.5
+          "
+        >
+          {/* Top gradient line */}
+
+          <div
+            className="
+              absolute
+              left-0
+              right-0
+              top-0
+              h-[1px]
+              bg-gradient-to-r
+              from-cyan-400
+              via-violet-500
+              to-pink-500
+            "
+          />
+
+          {/* Countdown header */}
+
+          <div
+            className="
+              mb-1.5
+              flex
+              items-center
+              justify-center
+              gap-1.5
+            "
+          >
+            <span
+              className="
+                flex
+                h-4
+                w-4
+                items-center
+                justify-center
+                rounded-full
+                bg-cyan-400/10
+              "
+            >
+              <CalendarDays
+                size={9}
+                className="text-cyan-300"
+                strokeWidth={2.5}
+              />
+            </span>
+
+            <span
+              className="
+                text-[6px]
+                font-bold
+                uppercase
+                tracking-[0.15em]
+                text-white/45
+                sm:text-[7px]
+              "
+            >
+              Next Training
+            </span>
+          </div>
+
+          {/* Countdown numbers */}
+
+          <div className="flex items-center justify-center">
+            {/* DAYS */}
+
+            <div
+              className="
+                flex
+                min-w-[34px]
+                flex-col
+                items-center
+                justify-center
+                rounded-lg
+                px-1
+                py-1
+                sm:min-w-[38px]
+              "
+            >
+              <span
+                className="
+                  text-[15px]
+                  font-black
+                  leading-none
+                  tracking-[-0.03em]
+                  text-white
+                  sm:text-[16px]
+                "
+              >
+                {formatNumber(days)}
+              </span>
+
+              <span
+                className="
+                  mt-1
+                  text-[5px]
+                  font-bold
+                  uppercase
+                  tracking-[0.12em]
+                  text-cyan-300/65
+                "
+              >
+                Days
+              </span>
+            </div>
+
+            {/* SEPARATOR */}
+
+            <span
+              className="
+                mb-3
+                text-[10px]
+                font-bold
+                text-white/20
+              "
+            >
+              :
+            </span>
+
+            {/* HOURS */}
+
+            <div
+              className="
+                flex
+                min-w-[34px]
+                flex-col
+                items-center
+                justify-center
+                rounded-lg
+                px-1
+                py-1
+                sm:min-w-[38px]
+              "
+            >
+              <span
+                className="
+                  text-[15px]
+                  font-black
+                  leading-none
+                  tracking-[-0.03em]
+                  text-white
+                  sm:text-[16px]
+                "
+              >
+                {formatNumber(hours)}
+              </span>
+
+              <span
+                className="
+                  mt-1
+                  text-[5px]
+                  font-bold
+                  uppercase
+                  tracking-[0.12em]
+                  text-violet-300/65
+                "
+              >
+                Hours
+              </span>
+            </div>
+
+            {/* SEPARATOR */}
+
+            <span
+              className="
+                mb-3
+                text-[10px]
+                font-bold
+                text-white/20
+              "
+            >
+              :
+            </span>
+
+            {/* MINUTES */}
+
+            <div
+              className="
+                flex
+                min-w-[34px]
+                flex-col
+                items-center
+                justify-center
+                rounded-lg
+                px-1
+                py-1
+                sm:min-w-[38px]
+              "
+            >
+              <span
+                className="
+                  text-[15px]
+                  font-black
+                  leading-none
+                  tracking-[-0.03em]
+                  text-white
+                  sm:text-[16px]
+                "
+              >
+                {formatNumber(minutes)}
+              </span>
+
+              <span
+                className="
+                  mt-1
+                  text-[5px]
+                  font-bold
+                  uppercase
+                  tracking-[0.12em]
+                  text-pink-300/65
+                "
+              >
+                Minutes
+              </span>
+            </div>
+          </div>
+
+          {/* Small status */}
+
+          <div
+            className="
+              mt-1.5
+              flex
+              items-center
+              justify-center
+              gap-1
+            "
+          >
+            <span
+              className="
+                h-1
+                w-1
+                animate-pulse
+                rounded-full
+                bg-cyan-400
+              "
+            />
+
+            <span
+              className="
+                text-[5px]
+                font-bold
+                uppercase
+                tracking-[0.14em]
+                text-white/30
+              "
+            >
+              Registration Open
+            </span>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* ============================================================
+          MAIN CONTENT
+      ============================================================ */}
 
       <div
         className="
@@ -217,22 +569,38 @@ export default function Hero() {
             w-full
             max-w-7xl
             px-5
-            pb-24
-            pt-28
+            pb-28
+            pt-32
             sm:px-8
-            sm:pb-28
-            sm:pt-32
+            sm:pb-32
+            sm:pt-36
             lg:px-12
+            lg:pb-28
+            lg:pt-32
           "
         >
           <div className="max-w-3xl">
-            {/* =================================================
+            {/* ======================================================
                 BRAND LABEL
-            ================================================= */}
+            ====================================================== */}
 
             <motion.div
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 12 }}
-              animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 12,
+                    }
+              }
+              animate={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 1,
+                      y: 0,
+                    }
+              }
               transition={{
                 duration: 0.5,
               }}
@@ -256,8 +624,8 @@ export default function Hero() {
                   w-2
                   shrink-0
                   rounded-full
-                  bg-[#25F4EE]
-                  shadow-[0_0_10px_rgba(37,244,238,0.7)]
+                  bg-cyan-400
+                  shadow-[0_0_10px_rgba(34,211,238,0.7)]
                 "
               />
 
@@ -276,13 +644,27 @@ export default function Hero() {
               </span>
             </motion.div>
 
-            {/* =================================================
+            {/* ======================================================
                 HEADLINE
-            ================================================= */}
+            ====================================================== */}
 
             <motion.h1
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
-              animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 20,
+                    }
+              }
+              animate={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 1,
+                      y: 0,
+                    }
+              }
               transition={{
                 duration: 0.65,
                 delay: shouldReduceMotion ? 0 : 0.08,
@@ -310,9 +692,9 @@ export default function Hero() {
               <span
                 className="
                   bg-gradient-to-r
-                  from-[#25F4EE]
+                  from-cyan-300
                   via-white
-                  to-[#FE2C55]
+                  to-pink-400
                   bg-clip-text
                   text-transparent
                 "
@@ -321,13 +703,27 @@ export default function Hero() {
               </span>
             </motion.h1>
 
-            {/* =================================================
+            {/* ======================================================
                 DESCRIPTION
-            ================================================= */}
+            ====================================================== */}
 
             <motion.p
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 15 }}
-              animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 15,
+                    }
+              }
+              animate={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 1,
+                      y: 0,
+                    }
+              }
               transition={{
                 duration: 0.5,
                 delay: shouldReduceMotion ? 0 : 0.2,
@@ -342,16 +738,31 @@ export default function Hero() {
                 sm:leading-7
               "
             >
-              TikTok content and personal branding built for real estate agents.
+              TikTok content and personal branding built for real estate agents
+              who want to turn views into visibility, trust, and growth.
             </motion.p>
 
-            {/* =================================================
+            {/* ======================================================
                 CTA BUTTONS
-            ================================================= */}
+            ====================================================== */}
 
             <motion.div
-              initial={shouldReduceMotion ? false : { opacity: 0, y: 15 }}
-              animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
+              initial={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 0,
+                      y: 15,
+                    }
+              }
+              animate={
+                shouldReduceMotion
+                  ? false
+                  : {
+                      opacity: 1,
+                      y: 0,
+                    }
+              }
               transition={{
                 duration: 0.5,
                 delay: shouldReduceMotion ? 0 : 0.32,
@@ -392,7 +803,7 @@ export default function Hero() {
                   active:scale-[0.98]
                   sm:w-auto
                   sm:hover:-translate-y-1
-                  sm:hover:bg-[#25F4EE]
+                  sm:hover:bg-cyan-300
                 "
               >
                 <span>Register Now</span>
@@ -469,13 +880,25 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* =====================================================
+      {/* ============================================================
           BOTTOM BRAND
-      ===================================================== */}
+      ============================================================ */}
 
       <motion.div
-        initial={shouldReduceMotion ? false : { opacity: 0 }}
-        animate={shouldReduceMotion ? false : { opacity: 1 }}
+        initial={
+          shouldReduceMotion
+            ? false
+            : {
+                opacity: 0,
+              }
+        }
+        animate={
+          shouldReduceMotion
+            ? false
+            : {
+                opacity: 1,
+              }
+        }
         transition={{
           delay: shouldReduceMotion ? 0 : 0.7,
           duration: 0.5,
@@ -500,7 +923,7 @@ export default function Hero() {
             w-8
             shrink-0
             bg-gradient-to-r
-            from-[#25F4EE]
+            from-cyan-300
             to-white/20
             sm:w-10
           "
@@ -522,9 +945,9 @@ export default function Hero() {
         </span>
       </motion.div>
 
-      {/* =====================================================
+      {/* ============================================================
           DESKTOP SCROLL INDICATOR
-      ===================================================== */}
+      ============================================================ */}
 
       <div
         className="
@@ -569,7 +992,7 @@ export default function Hero() {
             h-6
             w-px
             bg-gradient-to-b
-            from-[#25F4EE]
+            from-cyan-300
             to-transparent
           "
         />

@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-
+import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import api from "../services/api";
 
 import {
@@ -8,22 +7,44 @@ import {
   ArrowLeft,
   ArrowRight,
   Building2,
-  CalendarCheck2,
+  CalendarDays,
   Check,
   CheckCircle2,
+  Clock3,
   ExternalLink,
   GraduationCap,
-  Info,
   Link2,
   Loader2,
   Mail,
-  MapPin,
   Phone,
+  Play,
   ShieldCheck,
   Sparkles,
   UserRound,
-  Users,
+  Video,
 } from "lucide-react";
+
+/* =========================================================
+   SEMINAR CONFIGURATION
+   ========================================================= */
+
+const SEMINAR_WEEKDAY = 3; // Wednesday
+const SEMINAR_HOUR = 19; // 7:00 PM
+const SEMINAR_MINUTE = 0;
+
+// Add your actual Zoom / Google Meet / YouTube Live URL here.
+const LIVE_SEMINAR_URL = "";
+
+/*
+ * IMPORTANT:
+ * This key is what makes the student's registration survive
+ * navigation and browser refresh.
+ */
+const REGISTRATION_STORAGE_KEY = "adonay_tiktok_academy_registration";
+
+/* =========================================================
+   INITIAL FORM
+   ========================================================= */
 
 const initialForm = {
   name: "",
@@ -36,16 +57,112 @@ const initialForm = {
   realEstateCompany: "",
 };
 
-export default function RegisterPage() {
-  const navigate = useNavigate();
+/* =========================================================
+   SEMINAR DATE HELPERS
+   ========================================================= */
 
+function getNextWednesday() {
+  const now = new Date();
+  const target = new Date(now);
+
+  let daysUntil = (SEMINAR_WEEKDAY - now.getDay() + 7) % 7;
+
+  /*
+   * If today is Wednesday but the seminar time
+   * has already passed, use next Wednesday.
+   */
+  if (daysUntil === 0) {
+    const seminarToday = new Date(now);
+
+    seminarToday.setHours(SEMINAR_HOUR, SEMINAR_MINUTE, 0, 0);
+
+    if (now >= seminarToday) {
+      daysUntil = 7;
+    }
+  }
+
+  target.setDate(target.getDate() + daysUntil);
+
+  target.setHours(SEMINAR_HOUR, SEMINAR_MINUTE, 0, 0);
+
+  return target;
+}
+
+function getRemaining(target) {
+  const difference = target.getTime() - Date.now();
+
+  if (difference <= 0) {
+    return {
+      total: 0,
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+    };
+  }
+
+  const totalSeconds = Math.floor(difference / 1000);
+
+  return {
+    total: difference,
+
+    days: Math.floor(totalSeconds / 86400),
+
+    hours: Math.floor((totalSeconds % 86400) / 3600),
+
+    minutes: Math.floor((totalSeconds % 3600) / 60),
+
+    seconds: totalSeconds % 60,
+  };
+}
+
+function pad(value) {
+  return String(value).padStart(2, "0");
+}
+
+/* =========================================================
+   MAIN REGISTER PAGE
+   ========================================================= */
+
+export default function RegisterPage() {
   const [form, setForm] = useState(initialForm);
+
   const [submitting, setSubmitting] = useState(false);
+
   const [submitted, setSubmitted] = useState(false);
+
   const [registrationData, setRegistrationData] = useState(null);
+
   const [error, setError] = useState("");
 
+  /*
+   * Restore registration when the student returns
+   * to this page.
+   */
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(REGISTRATION_STORAGE_KEY);
+
+      if (!saved) {
+        return;
+      }
+
+      const parsed = JSON.parse(saved);
+
+      if (parsed && typeof parsed === "object") {
+        setRegistrationData(parsed);
+        setSubmitted(true);
+      }
+    } catch (restoreError) {
+      console.error("Could not restore registration:", restoreError);
+    }
+  }, []);
+
   const hasTikTokAccount = form.hasTikTok === "yes";
+
+  /* =======================================================
+     UPDATE FIELD
+     ======================================================= */
 
   const updateField = (field, value) => {
     setForm((previous) => ({
@@ -57,6 +174,10 @@ export default function RegisterPage() {
       setError("");
     }
   };
+
+  /* =======================================================
+     VALIDATION
+     ======================================================= */
 
   const validateForm = () => {
     if (!form.name.trim()) {
@@ -108,6 +229,10 @@ export default function RegisterPage() {
     return "";
   };
 
+  /* =======================================================
+     SUBMIT
+     ======================================================= */
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -131,7 +256,9 @@ export default function RegisterPage() {
     try {
       const payload = {
         name: form.name.trim(),
+
         phone: form.phone.trim(),
+
         email: form.email.trim().toLowerCase(),
 
         hasTikTok: hasTikTokAccount,
@@ -153,12 +280,23 @@ export default function RegisterPage() {
 
       const data = response?.data;
 
-      setRegistrationData(
-        data?.registration || {
-          ...payload,
-          status: "pending",
-        },
+      const savedRegistration = data?.registration || {
+        ...payload,
+        status: "pending",
+      };
+
+      /*
+       * SAVE THE STUDENT REGISTRATION.
+       *
+       * This is the important part.
+       * React state alone disappears when navigating.
+       */
+      localStorage.setItem(
+        REGISTRATION_STORAGE_KEY,
+        JSON.stringify(savedRegistration),
       );
+
+      setRegistrationData(savedRegistration);
 
       setSubmitted(true);
 
@@ -184,29 +322,37 @@ export default function RegisterPage() {
     }
   };
 
+  /* =======================================================
+     SUCCESS SCREEN
+     ======================================================= */
+
   if (submitted) {
-    return (
-      <SuccessScreen
-        registration={registrationData}
-        onContinue={() => navigate("/seminar-countdown")}
-      />
-    );
+    return <SuccessScreen registration={registrationData} />;
   }
 
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050506] text-white">
-      <Background />
+  /* =======================================================
+     REGISTER FORM
+     ======================================================= */
 
-      {/* HEADER */}
-      <header className="relative z-10 border-b border-white/[0.06] bg-black/10 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
+  return (
+    <main className="relative min-h-screen overflow-hidden bg-[#f6f7ff] text-[#171a35]">
+      <PageBackground />
+
+      {/* =====================================================
+          HEADER
+      ===================================================== */}
+
+      <header className="relative z-20 border-b border-white/70 bg-white/70 backdrop-blur-xl">
+        <div className="mx-auto flex h-[74px] max-w-7xl items-center justify-between px-5 sm:px-8">
           <Link to="/" className="group flex items-center gap-3">
             <BrandMark />
 
-            <div>
-              <p className="text-sm font-bold tracking-tight">Adonay</p>
+            <div className="leading-none">
+              <p className="text-sm font-black tracking-tight text-[#171a35]">
+                Adonay
+              </p>
 
-              <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-white/30">
+              <p className="mt-1 text-[8px] font-extrabold uppercase tracking-[0.2em] text-[#858ba3]">
                 TikTok Academy
               </p>
             </div>
@@ -214,533 +360,298 @@ export default function RegisterPage() {
 
           <Link
             to="/"
-            className="group inline-flex items-center gap-2 rounded-full border border-white/[0.07] bg-white/[0.025] px-3.5 py-2 text-xs font-medium text-white/45 transition hover:border-white/[0.15] hover:bg-white/[0.05] hover:text-white"
+            className="group inline-flex items-center gap-2 rounded-xl border border-[#e1e4f1] bg-white/80 px-3.5 py-2.5 text-[10px] font-extrabold text-[#747a92] shadow-sm transition hover:-translate-y-0.5 hover:border-[#cfcafc] hover:text-[#5849db]"
           >
             <ArrowLeft
-              size={14}
+              size={13}
               className="transition-transform group-hover:-translate-x-0.5"
             />
 
-            <span className="hidden sm:inline">Back to Home</span>
+            <span className="hidden sm:inline">Academy Home</span>
+
+            <span className="sm:hidden">Back</span>
           </Link>
         </div>
       </header>
 
-      {/* CONTENT */}
-      <div className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14 lg:py-16">
-        {/* HERO */}
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="inline-flex items-center gap-2 rounded-full border border-[#25F4EE]/10 bg-[#25F4EE]/[0.045] px-3.5 py-2">
-            <Sparkles size={13} className="text-[#25F4EE]" />
+      {/* =====================================================
+          CONTENT
+      ===================================================== */}
 
-            <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#25F4EE]/80">
-              Academy Registration
-            </span>
+      <section className="relative z-10 mx-auto max-w-7xl px-5 pb-16 pt-8 sm:px-8 sm:pt-12">
+        <div className="grid items-start gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+          {/* =================================================
+              LEFT SIDE
+          ================================================= */}
+
+          <div className="lg:sticky lg:top-8">
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#ded9ff] bg-white/80 px-3.5 py-2 shadow-sm">
+              <Sparkles size={13} className="text-[#6856e9]" />
+
+              <span className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-[#6254d5]">
+                Academy Registration
+              </span>
+            </div>
+
+            <h1 className="mt-5 max-w-xl text-4xl font-black leading-[1.02] tracking-[-0.055em] text-[#171a35] sm:text-5xl">
+              Start your
+              <span className="block bg-gradient-to-r from-[#5547e7] via-[#874ff4] to-[#12bddd] bg-clip-text text-transparent">
+                TikTok journey.
+              </span>
+            </h1>
+
+            <p className="mt-4 max-w-lg text-sm leading-6 text-[#7c8299]">
+              Register for Adonay TikTok Academy and get access to the weekly
+              live training session.
+            </p>
+
+            {/* LIVE SEMINAR PREVIEW */}
+
+            <SeminarPreview />
           </div>
 
-          <h1 className="mt-6 text-4xl font-black tracking-[-0.045em] sm:text-5xl lg:text-6xl">
-            Build your TikTok presence.
-            <span className="mt-1 block bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
-              Grow your real estate brand.
-            </span>
-          </h1>
+          {/* =================================================
+              FORM
+          ================================================= */}
 
-          <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-white/40 sm:text-base">
-            Learn practical TikTok growth, content and personal branding
-            strategies designed for real estate professionals.
-          </p>
-        </div>
+          <div className="relative">
+            <div className="absolute -inset-1 rounded-[30px] bg-gradient-to-r from-[#6654e9]/10 via-[#a451f3]/10 to-[#10c8e3]/10 blur-xl" />
 
-        {/* LIVE SEMINAR NOTICE */}
-        <div className="mx-auto mt-9 max-w-4xl">
-          <div className="relative overflow-hidden rounded-2xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-5 shadow-2xl backdrop-blur-2xl sm:p-6">
-            <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-[#25F4EE]/10 blur-[70px]" />
+            <div className="relative overflow-hidden rounded-[28px] border border-white bg-white/95 shadow-[0_25px_80px_rgba(55,61,120,0.12)]">
+              <div className="h-1.5 bg-gradient-to-r from-[#5547e7] via-[#8b4ff2] to-[#12c8e6]" />
 
-            <div className="relative flex items-start gap-4">
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.06]">
-                <CalendarCheck2 size={19} className="text-[#25F4EE]" />
-              </div>
+              <div className="p-5 sm:p-7 lg:p-8">
+                {/* FORM HEADER */}
 
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="text-sm font-bold">Live Academy Seminar</p>
-
-                  <span className="rounded-full border border-[#25F4EE]/15 bg-[#25F4EE]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.15em] text-[#25F4EE]">
-                    Every Wednesday
-                  </span>
-                </div>
-
-                <p className="mt-1.5 text-xs leading-5 text-white/35">
-                  Registered participants will receive access details and can
-                  follow the live seminar countdown after completing
-                  registration.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* MAIN GRID */}
-        <div className="mx-auto mt-8 grid max-w-6xl gap-7 lg:grid-cols-[0.68fr_1.32fr]">
-          {/* LEFT */}
-          <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
-            <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 backdrop-blur-xl">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.06]">
-                <GraduationCap size={19} className="text-[#25F4EE]" />
-              </div>
-
-              <h2 className="mt-5 text-lg font-bold">What you'll learn</h2>
-
-              <p className="mt-2 text-sm leading-6 text-white/35">
-                A practical training experience designed for real estate
-                professionals who want to build a stronger presence on TikTok.
-              </p>
-
-              <div className="mt-6 space-y-3">
-                {[
-                  "TikTok content strategy",
-                  "Real estate video ideas",
-                  "Personal branding",
-                  "Audience growth",
-                  "Short-form content",
-                  "Live seminar guidance",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center gap-3 text-sm text-white/55"
-                  >
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#25F4EE]/[0.08]">
-                      <Check size={11} className="text-[#25F4EE]" />
-                    </span>
-
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.018] p-5">
-              <div className="flex items-start gap-3">
-                <ShieldCheck
-                  size={18}
-                  className="mt-0.5 shrink-0 text-[#25F4EE]"
-                />
-
-                <div>
-                  <p className="text-sm font-bold">
-                    Your information stays private
+                <div className="mb-7">
+                  <p className="text-[9px] font-extrabold uppercase tracking-[0.22em] text-[#999eb2]">
+                    Step 1
                   </p>
 
-                  <p className="mt-1.5 text-xs leading-5 text-white/30">
-                    Your details are used only for registration and academy
-                    communication.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* FORM */}
-          <section className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-2xl backdrop-blur-2xl">
-            <div className="border-b border-white/[0.06] px-5 py-6 sm:px-8">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="text-[9px] font-bold uppercase tracking-[0.25em] text-[#25F4EE]">
-                    Registration form
-                  </p>
-
-                  <h2 className="mt-2 text-2xl font-black tracking-tight sm:text-3xl">
-                    Reserve your place
+                  <h2 className="mt-2 text-2xl font-black tracking-[-0.04em] text-[#191c35]">
+                    Create your registration
                   </h2>
 
-                  <p className="mt-2 text-sm text-white/30">
-                    Complete your details and get ready for the live academy
-                    experience.
+                  <p className="mt-1.5 text-xs leading-5 text-[#8a8fa4]">
+                    Enter your details below. It only takes a minute.
                   </p>
                 </div>
 
-                <div className="hidden h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04] sm:flex">
-                  <CalendarCheck2 size={20} className="text-white/40" />
-                </div>
-              </div>
-            </div>
+                {/* ERROR */}
 
-            <div className="p-5 sm:p-8">
-              {error && (
-                <div
-                  role="alert"
-                  className="mb-7 flex items-start gap-3 rounded-xl border border-[#FE2C55]/20 bg-[#FE2C55]/[0.06] p-4"
-                >
-                  <AlertCircle
-                    size={18}
-                    className="mt-0.5 shrink-0 text-[#FE2C55]"
+                {error && (
+                  <div className="mb-6 flex items-start gap-3 rounded-2xl border border-red-100 bg-red-50 p-4">
+                    <AlertCircle
+                      size={17}
+                      className="mt-0.5 shrink-0 text-red-500"
+                    />
+
+                    <p className="text-xs font-semibold leading-5 text-red-600">
+                      {error}
+                    </p>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* BASIC INFORMATION */}
+
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    <InputField
+                      label="Full name"
+                      icon={UserRound}
+                      value={form.name}
+                      onChange={(value) => updateField("name", value)}
+                      placeholder="Your full name"
+                      required
+                    />
+
+                    <InputField
+                      label="Phone number"
+                      icon={Phone}
+                      type="tel"
+                      value={form.phone}
+                      onChange={(value) => updateField("phone", value)}
+                      placeholder="+251 ..."
+                      required
+                    />
+                  </div>
+
+                  <InputField
+                    label="Email address"
+                    icon={Mail}
+                    type="email"
+                    value={form.email}
+                    onChange={(value) => updateField("email", value)}
+                    placeholder="you@example.com"
+                    required
                   />
 
-                  <p className="text-sm leading-6 text-white/65">{error}</p>
-                </div>
-              )}
+                  <InputField
+                    label="Real estate company / agency"
+                    icon={Building2}
+                    value={form.realEstateCompany}
+                    onChange={(value) =>
+                      updateField("realEstateCompany", value)
+                    }
+                    placeholder="Company or agency name"
+                    required
+                  />
 
-              <form onSubmit={handleSubmit} className="space-y-8">
-                {/* PERSONAL */}
-                <FormSection
-                  icon={UserRound}
-                  title="Personal details"
-                  description="How we can reach you"
-                >
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <Field label="Full name" required>
-                      <input
-                        type="text"
-                        value={form.name}
-                        onChange={(event) =>
-                          updateField("name", event.target.value)
-                        }
-                        placeholder="Your full name"
-                        autoComplete="name"
-                        className={inputClass}
-                      />
-                    </Field>
+                  {/* TIKTOK */}
 
-                    <Field label="Phone number" required>
-                      <InputWithIcon icon={Phone}>
-                        <input
-                          type="tel"
-                          value={form.phone}
-                          onChange={(event) =>
-                            updateField("phone", event.target.value)
-                          }
-                          placeholder="+251 9..."
-                          autoComplete="tel"
-                          className={inputClassWithIcon}
-                        />
-                      </InputWithIcon>
-                    </Field>
+                  <div>
+                    <label className="mb-2.5 block text-[10px] font-extrabold uppercase tracking-[0.16em] text-[#656b82]">
+                      Do you have a TikTok account?
+                    </label>
 
-                    <div className="sm:col-span-2">
-                      <Field label="Email address" required>
-                        <InputWithIcon icon={Mail}>
-                          <input
-                            type="email"
-                            value={form.email}
-                            onChange={(event) =>
-                              updateField("email", event.target.value)
-                            }
-                            placeholder="you@example.com"
-                            autoComplete="email"
-                            className={inputClassWithIcon}
-                          />
-                        </InputWithIcon>
-                      </Field>
-                    </div>
-                  </div>
-                </FormSection>
-
-                {/* PROFESSIONAL */}
-                <FormSection
-                  icon={Building2}
-                  title="Professional details"
-                  description="Tell us about your real estate business"
-                >
-                  <Field label="Real estate company or agency" required>
-                    <input
-                      type="text"
-                      value={form.realEstateCompany}
-                      onChange={(event) =>
-                        updateField("realEstateCompany", event.target.value)
-                      }
-                      placeholder="Company or agency name"
-                      className={inputClass}
-                    />
-                  </Field>
-                </FormSection>
-
-                {/* TIKTOK */}
-                <FormSection
-                  title="TikTok profile"
-                  description="Tell us about your current TikTok presence"
-                >
-                  <Field label="Do you have a TikTok account?" required>
-                    <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="grid grid-cols-2 gap-3">
                       <ChoiceButton
                         active={form.hasTikTok === "yes"}
                         onClick={() => updateField("hasTikTok", "yes")}
-                      >
-                        <div>
-                          <p className="font-semibold text-white">
-                            Yes, I have an account
-                          </p>
-
-                          <p className="mt-1 text-[11px] font-normal text-white/30">
-                            I'll provide my profile
-                          </p>
-                        </div>
-                      </ChoiceButton>
+                        title="Yes"
+                        description="I have TikTok"
+                      />
 
                       <ChoiceButton
                         active={form.hasTikTok === "no"}
-                        onClick={() => {
-                          setForm((previous) => ({
-                            ...previous,
-                            hasTikTok: "no",
-                            tiktokUsername: "",
-                            tiktokProfileLink: "",
-                            followers: "",
-                          }));
-
-                          setError("");
-                        }}
-                      >
-                        <div>
-                          <p className="font-semibold text-white">
-                            No, not yet
-                          </p>
-
-                          <p className="mt-1 text-[11px] font-normal text-white/30">
-                            I'll create one with guidance
-                          </p>
-                        </div>
-                      </ChoiceButton>
+                        onClick={() => updateField("hasTikTok", "no")}
+                        title="No"
+                        description="I don't have TikTok"
+                      />
                     </div>
-                  </Field>
+                  </div>
+
+                  {/* TIKTOK DETAILS */}
 
                   {hasTikTokAccount && (
-                    <div className="mt-6 space-y-5">
-                      <Field label="TikTok username" required>
-                        <div className="relative">
-                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-medium text-white/25">
-                            @
-                          </span>
-
-                          <input
-                            type="text"
-                            value={form.tiktokUsername}
-                            onChange={(event) =>
-                              updateField(
-                                "tiktokUsername",
-                                event.target.value.replace(/^@/, "").trim(),
-                              )
-                            }
-                            placeholder="yourusername"
-                            autoCapitalize="none"
-                            autoCorrect="off"
-                            className={`${inputClass} pl-10`}
-                          />
+                    <div className="space-y-5 rounded-2xl border border-[#e5e2ff] bg-[#faf9ff] p-4 sm:p-5">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#ece9ff]">
+                          <Sparkles size={14} className="text-[#6254dc]" />
                         </div>
-                      </Field>
 
-                      <Field label="TikTok profile link" required>
-                        <InputWithIcon icon={Link2} rightIcon={ExternalLink}>
-                          <input
-                            type="url"
-                            value={form.tiktokProfileLink}
-                            onChange={(event) =>
-                              updateField(
-                                "tiktokProfileLink",
-                                event.target.value,
-                              )
-                            }
-                            placeholder="https://www.tiktok.com/@yourusername"
-                            className={inputClassWithIcon}
-                          />
-                        </InputWithIcon>
+                        <div>
+                          <p className="text-[10px] font-black text-[#45495f]">
+                            TikTok profile
+                          </p>
 
-                        <p className="mt-2 text-[11px] leading-5 text-white/25">
-                          Open your TikTok profile → Share Profile → Copy Link.
-                        </p>
-                      </Field>
+                          <p className="text-[9px] text-[#979caf]">
+                            Tell us about your current account
+                          </p>
+                        </div>
+                      </div>
 
-                      <Field
-                        label="TikTok followers"
+                      <InputField
+                        label="TikTok username"
+                        icon={UserRound}
+                        value={form.tiktokUsername}
+                        onChange={(value) =>
+                          updateField("tiktokUsername", value)
+                        }
+                        placeholder="@yourusername"
                         required
-                        hint="Enter the exact number shown on your profile."
-                      >
-                        <div className="relative">
-                          <Users
-                            size={17}
-                            className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25"
-                          />
-
-                          <input
-                            type="number"
-                            inputMode="numeric"
-                            min="0"
-                            step="1"
-                            value={form.followers}
-                            onChange={(event) => {
-                              const value = event.target.value;
-
-                              if (value === "" || /^\d+$/.test(value)) {
-                                updateField("followers", value);
-                              }
-                            }}
-                            placeholder="e.g. 12500"
-                            className={`${inputClass} pl-11`}
-                          />
-                        </div>
-
-                        <div className="mt-2 flex items-center gap-2 text-[11px] text-white/25">
-                          <Info size={13} />
-
-                          <span>
-                            Example:{" "}
-                            <strong className="text-white/45">12,500</strong>
-                          </span>
-                        </div>
-                      </Field>
-                    </div>
-                  )}
-
-                  {form.hasTikTok === "no" && (
-                    <div className="mt-5 flex items-start gap-3 rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-4">
-                      <Info
-                        size={17}
-                        className="mt-0.5 shrink-0 text-[#25F4EE]"
                       />
 
-                      <p className="text-xs leading-5 text-white/40">
-                        No problem. You can register without a TikTok account.
-                        We'll help you create and develop one during the
-                        training.
-                      </p>
+                      <InputField
+                        label="TikTok profile link"
+                        icon={Link2}
+                        type="url"
+                        value={form.tiktokProfileLink}
+                        onChange={(value) =>
+                          updateField("tiktokProfileLink", value)
+                        }
+                        placeholder="https://www.tiktok.com/@..."
+                        required
+                      />
+
+                      <InputField
+                        label="Follower count"
+                        icon={UsersIcon}
+                        type="number"
+                        min="0"
+                        value={form.followers}
+                        onChange={(value) => updateField("followers", value)}
+                        placeholder="0"
+                        required
+                      />
                     </div>
                   )}
-                </FormSection>
 
-                {/* TRAINING INFO */}
-                <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FE2C55]/10">
-                      <MapPin size={17} className="text-[#FE2C55]" />
+                  {/* AGREEMENT */}
+
+                  <div className="flex items-start gap-3 rounded-2xl border border-[#e7e9f2] bg-[#fafbfe] p-4">
+                    <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-[#ece9ff]">
+                      <ShieldCheck size={13} className="text-[#6052dc]" />
                     </div>
 
-                    <div>
-                      <p className="text-sm font-bold">Face-to-face training</p>
-
-                      <p className="mt-1.5 text-xs leading-5 text-white/30">
-                        Confirmed participants will receive the training
-                        location and schedule after approval.
-                      </p>
-                    </div>
+                    <p className="text-[10px] leading-5 text-[#858a9f]">
+                      By submitting this form, you confirm that your information
+                      is accurate and agree to be contacted about your academy
+                      registration.
+                    </p>
                   </div>
-                </div>
 
-                {/* LIVE SEMINAR */}
-                <div className="rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-5">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#25F4EE]/10">
-                      <Sparkles size={17} className="text-[#25F4EE]" />
-                    </div>
+                  {/* SUBMIT */}
 
-                    <div>
-                      <p className="text-sm font-bold">
-                        Wednesday Live Seminar
-                      </p>
-
-                      <p className="mt-1.5 text-xs leading-5 text-white/30">
-                        After registration, you'll be taken to your live seminar
-                        countdown page so you can easily track the time
-                        remaining until Wednesday's session.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* SUBMIT */}
-                <div>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#7ffdf9] px-6 py-4 text-sm font-extrabold text-black shadow-[0_10px_35px_rgba(37,244,238,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(37,244,238,0.16)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="group flex w-full items-center justify-center gap-2.5 rounded-2xl bg-gradient-to-r from-[#5547e7] via-[#704ce9] to-[#8250ee] px-5 py-4 text-xs font-black text-white shadow-lg shadow-purple-200 transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-purple-200 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
                   >
-                    <span className="absolute inset-0 bg-white/20 opacity-0 transition group-hover:opacity-100" />
-
-                    <span className="relative flex items-center gap-2.5">
-                      {submitting ? (
-                        <>
-                          <Loader2 size={17} className="animate-spin" />
-                          Sending registration...
-                        </>
-                      ) : (
-                        <>
-                          Complete Registration
-                          <ArrowRight
-                            size={17}
-                            className="transition-transform group-hover:translate-x-1"
-                          />
-                        </>
-                      )}
-                    </span>
+                    {submitting ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        Completing registration...
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 size={16} />
+                        Complete Registration
+                        <ArrowRight
+                          size={14}
+                          className="transition-transform group-hover:translate-x-0.5"
+                        />
+                      </>
+                    )}
                   </button>
 
-                  <p className="mx-auto mt-4 max-w-lg text-center text-[10px] leading-5 text-white/20">
-                    By registering, you confirm that your information is
-                    accurate and agree to be contacted about your academy
-                    registration and live seminar.
+                  <p className="text-center text-[9px] font-medium text-[#a2a6b8]">
+                    After registration, your weekly Wednesday seminar countdown
+                    will remain available on this page.
                   </p>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
-          </section>
+          </div>
         </div>
-      </div>
+      </section>
     </main>
   );
 }
 
 /* =========================================================
    SUCCESS SCREEN
-========================================================= */
+   ========================================================= */
 
-function SuccessScreen({ registration, onContinue }) {
-  const studentName = registration?.name?.trim() || "there";
-
-  const firstName = studentName.split(/\s+/)[0] || studentName;
-
-  const phone = registration?.phone || "";
-  const email = registration?.email || "";
-
-  const [seconds, setSeconds] = useState(6);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSeconds((current) => {
-        if (current <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
-
-        return current - 1;
-      });
-    }, 1000);
-
-    const timeout = setTimeout(() => {
-      onContinue();
-    }, 6000);
-
-    return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
-    };
-  }, [onContinue]);
+function SuccessScreen({ registration }) {
+  const firstName = registration?.name?.trim()?.split(/\s+/)[0] || "there";
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#050506] px-4 py-6 text-white sm:px-6 sm:py-10">
-      <Background />
+    <main className="relative min-h-screen overflow-hidden bg-[#f5f7ff] px-4 py-6 text-[#171a35] sm:px-6 sm:py-8">
+      <PageBackground />
 
-      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-48px)] max-w-2xl items-center justify-center">
+      <div className="relative z-10 mx-auto flex min-h-[calc(100vh-48px)] max-w-[1000px] items-center justify-center">
         <div className="w-full">
           {/* BRAND */}
-          <div className="mb-5 flex justify-center">
-            <Link
-              to="/"
-              className="flex items-center gap-3 opacity-80 transition hover:opacity-100"
-            >
+
+          <div className="mb-6 flex justify-center">
+            <Link to="/" className="group flex items-center gap-3">
               <BrandMark />
 
-              <div className="text-left">
-                <p className="text-sm font-bold">Adonay</p>
+              <div className="leading-none">
+                <p className="text-sm font-black text-[#171a35]">Adonay</p>
 
-                <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-white/30">
+                <p className="mt-1 text-[8px] font-extrabold uppercase tracking-[0.2em] text-[#8b90a4]">
                   TikTok Academy
                 </p>
               </div>
@@ -748,139 +659,90 @@ function SuccessScreen({ registration, onContinue }) {
           </div>
 
           {/* SUCCESS CARD */}
-          <div className="relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-white/[0.035] shadow-[0_30px_100px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
-            <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[240px] w-[400px] -translate-x-1/2 rounded-full bg-[#25F4EE]/10 blur-[100px]" />
 
-            <div className="relative p-6 sm:p-9">
-              {/* ICON */}
-              <div className="flex justify-center">
-                <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-[22px] border border-[#25F4EE]/20 bg-[#25F4EE]/[0.08] shadow-[0_0_45px_rgba(37,244,238,0.08)]">
-                  <CheckCircle2
-                    size={37}
-                    strokeWidth={2}
-                    className="text-[#25F4EE]"
-                  />
+          <div className="relative overflow-hidden rounded-[30px] border border-white bg-white/95 shadow-[0_30px_100px_rgba(55,61,120,0.14)] backdrop-blur-xl">
+            <div className="h-1.5 bg-gradient-to-r from-[#5547e7] via-[#9250f5] to-[#10c9e7]" />
 
-                  <span className="absolute -right-1 -top-1 text-lg">🎉</span>
-                </div>
-              </div>
+            <div className="p-5 sm:p-8 lg:p-10">
+              {/* SUCCESS HEADER */}
 
-              {/* HEADING */}
-              <div className="mt-6 text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-[#25F4EE]/10 bg-[#25F4EE]/[0.045] px-3 py-1.5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#25F4EE]" />
+              <div className="text-center">
+                <div className="relative mx-auto flex h-[72px] w-[72px] items-center justify-center rounded-[24px] bg-gradient-to-br from-[#5547e7] to-[#16c9df] text-white shadow-xl shadow-purple-100">
+                  <Check size={32} strokeWidth={3} />
 
-                  <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#25F4EE]">
-                    Registration received
+                  <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-[#f3aa35] text-white shadow-sm">
+                    <Sparkles size={10} />
                   </span>
                 </div>
 
-                <h1 className="mt-4 text-3xl font-black tracking-[-0.04em] sm:text-4xl">
-                  You're on the list,
-                  <span className="block bg-gradient-to-r from-[#25F4EE] via-white to-[#FE2C55] bg-clip-text text-transparent">
-                    {firstName}! 👋
+                <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#e9fbf5] px-3 py-1.5">
+                  <span className="h-1.5 w-1.5 rounded-full bg-[#20b486]" />
+
+                  <span className="text-[8px] font-extrabold uppercase tracking-[0.18em] text-[#188e69]">
+                    Registration successful
                   </span>
+                </div>
+
+                <h1 className="mt-4 text-3xl font-black tracking-[-0.05em] text-[#171a35] sm:text-4xl">
+                  Welcome, {firstName}! 🎉
                 </h1>
 
-                <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/35">
-                  Your registration has been successfully received. Our team
-                  will review it and contact you with the next steps.
+                <p className="mx-auto mt-3 max-w-xl text-xs leading-5 text-[#80869b] sm:text-sm">
+                  You're registered for the Adonay TikTok Academy live seminar.
+                  Your next Wednesday session is shown below.
                 </p>
               </div>
 
-              {/* STATUS */}
-              <div className="mt-7 rounded-2xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-4 sm:p-5">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#25F4EE]/10">
-                    <Sparkles size={18} className="text-[#25F4EE]" />
-                  </div>
+              {/* COUNTDOWN */}
 
-                  <div>
-                    <p className="text-sm font-bold">
-                      Your application is under review
-                    </p>
+              <RegisteredCountdown />
 
-                    <p className="mt-1.5 text-xs leading-5 text-white/40">
-                      Registration is complete, but your place is not yet
-                      officially approved. Our team will contact you on{" "}
-                      <span className="font-semibold text-white/65">
-                        {phone}
-                      </span>{" "}
-                      to confirm your registration.
-                    </p>
-                  </div>
-                </div>
+              {/* STUDENT DETAILS */}
 
-                <div className="mt-4 flex items-center gap-2 border-t border-white/[0.06] pt-4">
-                  <Mail size={14} className="shrink-0 text-[#25F4EE]" />
-
-                  <p className="text-[11px] leading-5 text-white/35">
-                    A confirmation email has been sent to{" "}
-                    <span className="font-semibold text-white/55">{email}</span>
-                    .
-                  </p>
-                </div>
-              </div>
-
-              {/* SEMINAR TRANSITION */}
-              <div className="mt-4 rounded-2xl border border-white/[0.07] bg-black/20 p-5">
-                <div className="text-center">
-                  <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.05]">
-                    <CalendarCheck2 size={19} className="text-[#25F4EE]" />
-                  </div>
-
-                  <p className="mt-4 text-sm font-bold">
-                    Your Wednesday Live Seminar is next
-                  </p>
-
-                  <p className="mx-auto mt-1.5 max-w-sm text-xs leading-5 text-white/30">
-                    We're taking you to your dedicated live seminar countdown
-                    page.
-                  </p>
-
-                  <div className="mt-4">
-                    <span className="text-2xl font-black text-[#25F4EE]">
-                      {seconds}
-                    </span>
-
-                    <span className="ml-2 text-xs text-white/25">seconds</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* JOURNEY */}
-              <div className="mt-5">
-                <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.2em] text-white/25">
-                  Your journey
-                </p>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <StatusItem number="01" label="Registered" active />
-
-                  <StatusItem number="02" label="Team review" />
-
-                  <StatusItem number="03" label="Approved" />
-                </div>
-              </div>
-
-              {/* BUTTON */}
-              <button
-                type="button"
-                onClick={onContinue}
-                className="group mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#7ffdf9] px-5 py-3.5 text-sm font-extrabold text-black transition-all hover:-translate-y-0.5 hover:shadow-[0_15px_40px_rgba(37,244,238,0.12)]"
-              >
-                Open Live Seminar Countdown
-                <ArrowRight
-                  size={16}
-                  className="transition-transform group-hover:translate-x-1"
+              <div className="mt-7 grid gap-3 sm:grid-cols-2">
+                <DetailItem
+                  icon={UserRound}
+                  label="Student"
+                  value={registration?.name || "Registered student"}
                 />
-              </button>
 
-              <p className="mt-5 text-center text-[9px] font-medium uppercase tracking-[0.16em] text-white/15">
-                Thank you for choosing Adonay TikTok Academy
-              </p>
+                <DetailItem
+                  icon={Mail}
+                  label="Email"
+                  value={registration?.email || "Email registered"}
+                />
+              </div>
+
+              {/* ACTIONS */}
+
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/seminar-countdown"
+                  className="group flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#5547e7] to-[#7950ee] px-5 py-3.5 text-[10px] font-black text-white shadow-lg shadow-purple-100 transition hover:-translate-y-0.5"
+                >
+                  <Clock3 size={14} />
+                  Open Full Countdown
+                  <ArrowRight
+                    size={13}
+                    className="transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
+
+                <Link
+                  to="/"
+                  className="flex items-center justify-center gap-2 rounded-xl border border-[#e2e5ef] bg-white px-5 py-3.5 text-[10px] font-black text-[#70768b] transition hover:border-[#cfcafc] hover:text-[#5547e7]"
+                >
+                  <ArrowLeft size={13} />
+                  Academy Home
+                </Link>
+              </div>
             </div>
           </div>
+
+          <p className="mt-5 text-center text-[9px] font-bold text-[#a0a5b8]">
+            Keep this page saved — your Wednesday live seminar countdown is
+            always available here.
+          </p>
         </div>
       </div>
     </main>
@@ -888,45 +750,289 @@ function SuccessScreen({ registration, onContinue }) {
 }
 
 /* =========================================================
-   MINI INFO
-========================================================= */
+   REGISTERED COUNTDOWN
+   ========================================================= */
 
-function MiniInfo({ icon: Icon, value }) {
+function RegisteredCountdown() {
+  const [targetDate, setTargetDate] = useState(getNextWednesday);
+
+  const [remaining, setRemaining] = useState(() => getRemaining(targetDate));
+
+  const [isLive, setIsLive] = useState(false);
+
+  useEffect(() => {
+    const update = () => {
+      const next = getRemaining(targetDate);
+
+      setRemaining(next);
+
+      if (next.total <= 0) {
+        setIsLive(true);
+      }
+    };
+
+    update();
+
+    const timer = setInterval(update, 1000);
+
+    return () => clearInterval(timer);
+  }, [targetDate]);
+
+  useEffect(() => {
+    if (!isLive) return;
+
+    /*
+     * Keep the seminar in the live state for 60 seconds,
+     * then prepare the next Wednesday.
+     */
+    const timer = setTimeout(() => {
+      const next = getNextWednesday();
+
+      setTargetDate(next);
+      setRemaining(getRemaining(next));
+      setIsLive(false);
+    }, 60000);
+
+    return () => clearTimeout(timer);
+  }, [isLive]);
+
+  const dateText = useMemo(
+    () =>
+      targetDate.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+      }),
+    [targetDate],
+  );
+
+  const timeText = useMemo(
+    () =>
+      targetDate.toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true,
+      }),
+    [targetDate],
+  );
+
   return (
-    <div className="flex min-w-0 items-center gap-2.5 rounded-xl bg-white/[0.025] px-3 py-2.5">
-      <Icon size={14} className="shrink-0 text-white/25" />
+    <div className="relative mt-8 overflow-hidden rounded-[25px] border border-[#e2e0ff] bg-gradient-to-br from-[#f8f7ff] via-white to-[#effcff] p-5 sm:p-6">
+      {/* Decorative glow */}
 
-      <span className="truncate text-[11px] text-white/45">{value}</span>
+      <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-[#8b5cf6]/10 blur-3xl" />
+
+      <div className="pointer-events-none absolute -bottom-20 -left-20 h-48 w-48 rounded-full bg-[#22d3ee]/10 blur-3xl" />
+
+      <div className="relative">
+        {/* SESSION INFO */}
+
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#e8e5ff] to-[#e4f9ff]">
+              <CalendarDays size={19} className="text-[#5d50df]" />
+            </div>
+
+            <div>
+              <p className="text-[8px] font-extrabold uppercase tracking-[0.2em] text-[#9b9fb1]">
+                Your next live session
+              </p>
+
+              <p className="mt-1 text-xs font-black text-[#34384f] sm:text-sm">
+                {dateText}
+              </p>
+            </div>
+          </div>
+
+          <div className="inline-flex items-center gap-2 self-start rounded-full border border-[#dce8f8] bg-white px-3 py-2">
+            <Clock3 size={13} className="text-[#159bc1]" />
+
+            <span className="text-[9px] font-extrabold text-[#5d667c]">
+              {timeText}
+            </span>
+          </div>
+        </div>
+
+        {/* COUNTDOWN */}
+
+        {isLive ? (
+          <div className="py-8 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#5547e7] to-[#12c8df] text-white shadow-lg shadow-purple-100">
+              <Play size={21} fill="currentColor" className="ml-0.5" />
+            </div>
+
+            <h2 className="mt-4 text-xl font-black text-[#191c35]">
+              Your seminar is live!
+            </h2>
+
+            <p className="mt-2 text-xs text-[#858a9e]">
+              Join the live academy session now.
+            </p>
+
+            {LIVE_SEMINAR_URL && (
+              <a
+                href={LIVE_SEMINAR_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-[#5547e7] px-5 py-3 text-[10px] font-black text-white"
+              >
+                <Play size={13} fill="currentColor" />
+                Join Live
+              </a>
+            )}
+          </div>
+        ) : (
+          <>
+            <p className="mt-7 text-center text-[8px] font-extrabold uppercase tracking-[0.27em] text-[#a0a4b6]">
+              Countdown to your live class
+            </p>
+
+            <div className="mt-4 grid grid-cols-4 gap-2.5 sm:gap-3.5">
+              <CountdownBox value={remaining.days} label="Days" tone="purple" />
+
+              <CountdownBox value={remaining.hours} label="Hours" tone="blue" />
+
+              <CountdownBox
+                value={remaining.minutes}
+                label="Minutes"
+                tone="cyan"
+              />
+
+              <CountdownBox
+                value={remaining.seconds}
+                label="Seconds"
+                tone="orange"
+              />
+            </div>
+          </>
+        )}
+
+        {/* LIVE ACCESS */}
+
+        <div className="mt-5 flex items-center justify-center gap-2 border-t border-[#e9e9f4] pt-4">
+          <Video size={13} className="text-[#6254dc]" />
+
+          <span className="text-[9px] font-bold text-[#83889c]">
+            Live online training • Every Wednesday
+          </span>
+        </div>
+      </div>
     </div>
   );
 }
 
 /* =========================================================
-   STATUS ITEM
-========================================================= */
+   SEMINAR PREVIEW
+   ========================================================= */
 
-function StatusItem({ number, label, active = false }) {
+function SeminarPreview() {
+  const targetDate = getNextWednesday();
+
+  const dateText = targetDate.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  });
+
+  const timeText = targetDate.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return (
+    <div className="mt-7 max-w-[500px] overflow-hidden rounded-[23px] border border-white bg-white/85 shadow-lg shadow-indigo-100/40 backdrop-blur-xl">
+      <div className="h-1 bg-gradient-to-r from-[#5547e7] via-[#9350f4] to-[#10c8e5]" />
+
+      <div className="p-4 sm:p-5">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#efedff]">
+              <Video size={17} className="text-[#5b4de0]" />
+            </div>
+
+            <div>
+              <p className="text-[9px] font-extrabold uppercase tracking-[0.17em] text-[#9a9eb0]">
+                Weekly live seminar
+              </p>
+
+              <p className="mt-1 text-xs font-black text-[#34384d]">
+                {dateText}
+              </p>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <p className="text-[8px] font-extrabold uppercase tracking-[0.15em] text-[#a0a4b6]">
+              Time
+            </p>
+
+            <p className="mt-1 text-[10px] font-black text-[#159bbd]">
+              {timeText}
+            </p>
+          </div>
+        </div>
+
+        <div className="mt-4 flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#f6f4ff] to-[#f1fcff] px-3 py-2.5">
+          <CheckCircle2 size={14} className="text-[#22a984]" />
+
+          <span className="text-[9px] font-bold text-[#73788d]">
+            Registration includes access to the live Wednesday session.
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   COUNTDOWN BOX
+   ========================================================= */
+
+function CountdownBox({ value, label, tone }) {
+  const themes = {
+    purple: {
+      box: "border-[#dfdcff] bg-gradient-to-b from-[#f4f2ff] to-white",
+      number: "text-[#5b4dde]",
+      line: "bg-[#6654e9]",
+    },
+
+    blue: {
+      box: "border-[#d7eaff] bg-gradient-to-b from-[#f1f8ff] to-white",
+      number: "text-[#2688d4]",
+      line: "bg-[#329ff0]",
+    },
+
+    cyan: {
+      box: "border-[#d3f1f5] bg-gradient-to-b from-[#effcff] to-white",
+      number: "text-[#119bb5]",
+      line: "bg-[#17bfd8]",
+    },
+
+    orange: {
+      box: "border-[#f8e4ca] bg-gradient-to-b from-[#fff8ee] to-white",
+      number: "text-[#db8b28]",
+      line: "bg-[#f1a13a]",
+    },
+  };
+
+  const theme = themes[tone] || themes.purple;
+
   return (
     <div
-      className={`rounded-xl border p-3 text-center transition ${
-        active
-          ? "border-[#25F4EE]/15 bg-[#25F4EE]/[0.045]"
-          : "border-white/[0.06] bg-white/[0.02]"
-      }`}
+      className={`relative overflow-hidden rounded-2xl border px-2 py-4 text-center shadow-sm sm:py-5 ${theme.box}`}
     >
       <div
-        className={`text-[9px] font-black ${
-          active ? "text-[#25F4EE]" : "text-white/20"
-        }`}
+        className={`absolute left-1/2 top-0 h-1 w-8 -translate-x-1/2 rounded-b-full ${theme.line}`}
+      />
+
+      <div
+        className={`text-2xl font-black tracking-[-0.07em] sm:text-4xl lg:text-5xl ${theme.number}`}
       >
-        {number}
+        {pad(value)}
       </div>
 
-      <p
-        className={`mt-1 text-[9px] font-semibold ${
-          active ? "text-white/65" : "text-white/20"
-        }`}
-      >
+      <p className="mt-1 text-[7px] font-extrabold uppercase tracking-[0.15em] text-[#999dae] sm:text-[8px]">
         {label}
       </p>
     </div>
@@ -934,159 +1040,175 @@ function StatusItem({ number, label, active = false }) {
 }
 
 /* =========================================================
-   BACKGROUND
-========================================================= */
+   INPUT FIELD
+   ========================================================= */
 
-function Background() {
-  return (
-    <div className="pointer-events-none fixed inset-0 overflow-hidden">
-      <div className="absolute left-[-180px] top-[-180px] h-[500px] w-[500px] rounded-full bg-[#25F4EE]/[0.045] blur-[140px]" />
-
-      <div className="absolute bottom-[-220px] right-[-180px] h-[520px] w-[520px] rounded-full bg-[#FE2C55]/[0.04] blur-[150px]" />
-
-      <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage:
-            "linear-gradient(rgba(255,255,255,.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.5) 1px, transparent 1px)",
-          backgroundSize: "70px 70px",
-        }}
-      />
-    </div>
-  );
-}
-
-/* =========================================================
-   BRAND MARK
-========================================================= */
-
-function BrandMark() {
-  return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#25F4EE] to-[#FE2C55] text-black shadow-lg shadow-[#25F4EE]/5">
-      <Building2 size={19} />
-    </div>
-  );
-}
-
-/* =========================================================
-   FORM SECTION
-========================================================= */
-
-function FormSection({ icon: Icon, title, description, children }) {
+function InputField({
+  label,
+  icon: Icon,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  required = false,
+  min,
+}) {
   return (
     <div>
-      <div className="mb-5 flex items-start gap-3">
-        {Icon && (
-          <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white/[0.05]">
-            <Icon size={16} className="text-[#25F4EE]" />
-          </div>
-        )}
+      <label className="mb-2 block text-[9px] font-extrabold uppercase tracking-[0.16em] text-[#686e84]">
+        {label}
+      </label>
 
-        <div>
-          <h3 className="text-sm font-bold">{title}</h3>
-
-          <p className="mt-1 text-xs text-white/25">{description}</p>
-        </div>
-      </div>
-
-      {children}
-    </div>
-  );
-}
-
-/* =========================================================
-   FIELD
-========================================================= */
-
-function Field({ label, required = false, hint, children }) {
-  return (
-    <div>
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <label className="text-xs font-semibold text-white/55">
-          {label}
-
-          {required && <span className="ml-1 text-[#FE2C55]">*</span>}
-        </label>
-
-        {hint && (
-          <span className="hidden text-[10px] text-white/20 sm:block">
-            {hint}
-          </span>
-        )}
-      </div>
-
-      {children}
-
-      {hint && (
-        <p className="mt-2 text-[10px] leading-4 text-white/20 sm:hidden">
-          {hint}
-        </p>
-      )}
-    </div>
-  );
-}
-
-/* =========================================================
-   INPUT WITH ICON
-========================================================= */
-
-function InputWithIcon({ icon: Icon, rightIcon: RightIcon, children }) {
-  return (
-    <div className="relative">
-      <Icon
-        size={16}
-        className="absolute left-4 top-1/2 z-10 -translate-y-1/2 text-white/25"
-      />
-
-      {children}
-
-      {RightIcon && (
-        <RightIcon
-          size={15}
-          className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-white/20"
+      <div className="relative">
+        <Icon
+          size={16}
+          className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#a4a8b9]"
         />
-      )}
+
+        <input
+          type={type}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder={placeholder}
+          required={required}
+          min={min}
+          className="w-full rounded-xl border border-[#e1e4ef] bg-[#fbfcff] py-3.5 pl-10 pr-4 text-sm font-medium text-[#252941] outline-none transition placeholder:text-[#b1b5c4] hover:border-[#d0d3e4] focus:border-[#7968e8] focus:bg-white focus:ring-4 focus:ring-[#7968e8]/[0.08]"
+        />
+      </div>
     </div>
   );
 }
 
 /* =========================================================
    CHOICE BUTTON
-========================================================= */
+   ========================================================= */
 
-function ChoiceButton({ active, onClick, children }) {
+function ChoiceButton({ active, onClick, title, description }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      aria-pressed={active}
-      className={`group flex min-h-[68px] items-center justify-between rounded-xl border px-4 py-3 text-left transition-all duration-200 ${
+      className={`relative rounded-xl border p-3.5 text-left transition ${
         active
-          ? "border-[#25F4EE]/25 bg-[#25F4EE]/[0.06] shadow-[0_0_0_1px_rgba(37,244,238,0.03)]"
-          : "border-white/[0.07] bg-white/[0.02] hover:border-white/[0.14] hover:bg-white/[0.04]"
+          ? "border-[#cfc9ff] bg-[#f5f3ff] shadow-sm"
+          : "border-[#e1e4ef] bg-[#fbfcff] hover:border-[#d1d4e3] hover:bg-white"
       }`}
     >
-      <span>{children}</span>
+      <div className="flex items-center justify-between">
+        <div>
+          <p
+            className={`text-xs font-black ${
+              active ? "text-[#5547d9]" : "text-[#44495e]"
+            }`}
+          >
+            {title}
+          </p>
 
-      <span
-        className={`ml-4 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
-          active
-            ? "border-[#25F4EE] bg-[#25F4EE] text-black"
-            : "border-white/15 text-transparent"
-        }`}
-      >
-        <Check size={11} />
-      </span>
+          <p className="mt-1 text-[9px] font-medium text-[#999dae]">
+            {description}
+          </p>
+        </div>
+
+        <span
+          className={`flex h-5 w-5 items-center justify-center rounded-full border ${
+            active
+              ? "border-[#6857e2] bg-[#6857e2] text-white"
+              : "border-[#d5d8e4] bg-white text-transparent"
+          }`}
+        >
+          <Check size={11} />
+        </span>
+      </div>
     </button>
   );
 }
 
 /* =========================================================
-   INPUT STYLES
-========================================================= */
+   DETAIL ITEM
+   ========================================================= */
 
-const inputClass =
-  "w-full rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3.5 text-sm text-white outline-none placeholder:text-white/20 transition-all duration-200 hover:border-white/[0.14] focus:border-[#25F4EE]/35 focus:bg-white/[0.04] focus:ring-4 focus:ring-[#25F4EE]/[0.04]";
+function DetailItem({ icon: Icon, label, value }) {
+  return (
+    <div className="flex min-w-0 items-center gap-3 rounded-xl border border-[#e7e9f2] bg-[#fafbfe] p-3.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#efedff]">
+        <Icon size={15} className="text-[#6254dc]" />
+      </div>
 
-const inputClassWithIcon =
-  "w-full rounded-xl border border-white/[0.08] bg-white/[0.025] py-3.5 pl-11 pr-11 text-sm text-white outline-none placeholder:text-white/20 transition-all duration-200 hover:border-white/[0.14] focus:border-[#25F4EE]/35 focus:bg-white/[0.04] focus:ring-4 focus:ring-[#25F4EE]/[0.04]";
+      <div className="min-w-0">
+        <p className="text-[8px] font-extrabold uppercase tracking-[0.16em] text-[#a0a4b5]">
+          {label}
+        </p>
+
+        <p className="mt-1 truncate text-[10px] font-black text-[#4c5064]">
+          {value}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   USERS ICON
+   ========================================================= */
+
+function UsersIcon(props) {
+  return (
+    <svg
+      {...props}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+    </svg>
+  );
+}
+
+/* =========================================================
+   BRAND MARK
+   ========================================================= */
+
+function BrandMark() {
+  return (
+    <div className="relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-[13px] bg-gradient-to-br from-[#5547e7] via-[#784ef0] to-[#12c9e7] text-white shadow-lg shadow-purple-100 transition group-hover:scale-105">
+      <div className="absolute inset-0 bg-white/10" />
+
+      <GraduationCap size={20} strokeWidth={2.5} className="relative" />
+    </div>
+  );
+}
+
+/* =========================================================
+   PAGE BACKGROUND
+   ========================================================= */
+
+function PageBackground() {
+  return (
+    <div className="pointer-events-none fixed inset-0 overflow-hidden">
+      <div className="absolute -left-40 -top-40 h-[520px] w-[520px] rounded-full bg-[#8b5cf6]/10 blur-[130px]" />
+
+      <div className="absolute -right-40 top-20 h-[460px] w-[460px] rounded-full bg-[#22d3ee]/10 blur-[130px]" />
+
+      <div className="absolute bottom-[-220px] left-[15%] h-[500px] w-[500px] rounded-full bg-[#ec4899]/[0.06] blur-[140px]" />
+
+      <div className="absolute bottom-[-180px] right-[10%] h-[400px] w-[400px] rounded-full bg-[#f59e0b]/[0.06] blur-[130px]" />
+
+      <div
+        className="absolute inset-0 opacity-[0.025]"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(80,70,160,.45) 1px, transparent 1px), linear-gradient(90deg, rgba(80,70,160,.45) 1px, transparent 1px)",
+          backgroundSize: "70px 70px",
+        }}
+      />
+
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.65),rgba(246,247,255,0.15)_55%,transparent_80%)]" />
+    </div>
+  );
+}

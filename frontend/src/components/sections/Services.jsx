@@ -17,6 +17,8 @@ import {
   ChevronRight,
   ShieldCheck,
   Layers3,
+  Play,
+  Star,
 } from "lucide-react";
 
 /*
@@ -34,7 +36,6 @@ const services = [
     description:
       "A practical TikTok and digital content training program built specifically for real estate agents and agencies who want to attract attention, build trust, and generate more opportunities through short-form content.",
     icon: Building2,
-    accent: "cyan",
     available: true,
     audience: "Real estate agents & agencies",
     formats: ["In-person training"],
@@ -58,7 +59,6 @@ const services = [
     description:
       "One-to-one TikTok training for individuals who want to build their personal brand, create better content, grow their audience, and use TikTok with a clear strategy.",
     icon: UserRound,
-    accent: "pink",
     available: false,
     audience: "Individuals & personal brands",
     formats: ["Online", "In-person"],
@@ -82,7 +82,6 @@ const services = [
     description:
       "A collaborative coaching experience for people who want structured guidance, practical training, accountability, and a community of learners working toward stronger digital presence and content skills.",
     icon: Users,
-    accent: "purple",
     available: false,
     audience: "Local & diaspora students",
     formats: ["Online", "In-person"],
@@ -112,13 +111,14 @@ export default function Services() {
       className="
         relative
         w-full
-        min-w-0
-        overflow-x-clip
-        overflow-y-visible
-        bg-[#050505]
+        overflow-hidden
+        bg-gradient-to-br
+        from-slate-50
+        via-white
+        to-cyan-50/50
         py-20
-        text-white
-        sm:py-28
+        text-slate-900
+        sm:py-24
         lg:py-32
       "
     >
@@ -127,94 +127,71 @@ export default function Services() {
       ================================================================= */}
 
       <div
-        className="
-          pointer-events-none
-          absolute
-          inset-0
-          overflow-hidden
-          select-none
-        "
+        className="pointer-events-none absolute inset-0 overflow-hidden"
         aria-hidden="true"
       >
-        {/* Desktop / tablet glow */}
+        {/* Cyan glow */}
 
         <div
           className="
             absolute
-            left-[-180px]
-            top-[-160px]
-            hidden
+            -left-40
+            -top-40
             h-[420px]
             w-[420px]
             rounded-full
-            bg-[#25F4EE]/[0.045]
-            blur-[130px]
-            sm:block
+            bg-cyan-300/20
+            blur-3xl
           "
         />
+
+        {/* Pink glow */}
 
         <div
           className="
             absolute
-            right-[-180px]
+            -right-40
             top-[30%]
-            hidden
             h-[420px]
             w-[420px]
             rounded-full
-            bg-[#FE2C55]/[0.045]
-            blur-[140px]
-            sm:block
+            bg-pink-300/20
+            blur-3xl
           "
         />
+
+        {/* Violet glow */}
 
         <div
           className="
             absolute
-            bottom-[-220px]
+            bottom-[-180px]
             left-[35%]
-            hidden
-            h-[500px]
-            w-[500px]
+            h-[420px]
+            w-[420px]
             rounded-full
-            bg-violet-500/[0.025]
-            blur-[150px]
-            lg:block
+            bg-violet-300/15
+            blur-3xl
           "
         />
 
-        {/* Mobile-friendly subtle background */}
+        {/* Subtle grid */}
 
         <div
-          className="
-            absolute
-            left-1/2
-            top-[-120px]
-            h-[260px]
-            w-[260px]
-            -translate-x-1/2
-            rounded-full
-            bg-[#25F4EE]/[0.025]
-            blur-[90px]
-            sm:hidden
-          "
-        />
-
-        {/* Grid */}
-
-        <div
-          className="
-            absolute
-            inset-0
-            opacity-[0.018]
-          "
+          className="absolute inset-0 opacity-[0.025]"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px)",
-            backgroundSize: "70px 70px",
+              "linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)",
+            backgroundSize: "45px 45px",
           }}
         />
       </div>
+
+      {/* ================================================================
+          TOP ACCENT
+      ================================================================= */}
+
+      <div className="absolute left-0 right-0 top-0 h-1 bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500" />
 
       {/* ================================================================
           CONTENT
@@ -226,76 +203,97 @@ export default function Services() {
           z-10
           mx-auto
           w-full
-          min-w-0
           max-w-7xl
-          px-4
+          px-5
           sm:px-8
           lg:px-10
         "
       >
-        {/* ============================================================== 
-            SECTION HEADER
-        ============================================================== */}
+        {/* ================================================================
+            HERO HEADER
+        ================================================================= */}
 
-        <div className="mx-auto w-full max-w-3xl text-center">
+        <div className="mx-auto max-w-4xl text-center">
+          {/* Badge */}
+
           <div
             className="
               inline-flex
-              max-w-full
               items-center
               gap-2
               rounded-full
               border
-              border-[#25F4EE]/15
-              bg-[#25F4EE]/[0.045]
+              border-cyan-200
+              bg-white/80
               px-4
               py-2
+              shadow-sm
+              backdrop-blur-md
             "
           >
-            <Sparkles size={14} className="shrink-0 text-[#25F4EE]" />
+            <span
+              className="
+                flex
+                h-6
+                w-6
+                items-center
+                justify-center
+                rounded-full
+                bg-gradient-to-br
+                from-cyan-400
+                to-violet-500
+                text-white
+              "
+            >
+              <Sparkles size={12} />
+            </span>
 
             <span
               className="
-                truncate
-                text-[10px]
-                font-bold
+                text-[9px]
+                font-extrabold
                 uppercase
                 tracking-[0.2em]
-                text-[#25F4EE]
-                sm:tracking-[0.25em]
+                text-slate-600
+                sm:text-[10px]
               "
             >
               What We Offer
             </span>
           </div>
 
+          {/* Heading */}
+
           <h1
             className="
               mt-7
-              break-words
               text-4xl
               font-black
-              leading-[1.05]
-              tracking-[-0.04em]
+              leading-[1.03]
+              tracking-[-0.05em]
+              text-slate-900
               sm:text-5xl
-              lg:text-6xl
+              md:text-6xl
+              lg:text-7xl
             "
           >
-            Training built for
+            Learn skills that
             <span
               className="
                 block
                 bg-gradient-to-r
-                from-[#25F4EE]
-                via-white
-                to-[#FE2C55]
+                from-cyan-500
+                via-violet-500
+                to-pink-500
                 bg-clip-text
                 text-transparent
               "
             >
-              real growth.
+              create real growth.
             </span>
           </h1>
+
+          {/* Description */}
 
           <p
             className="
@@ -304,32 +302,48 @@ export default function Services() {
               max-w-2xl
               text-sm
               leading-7
-              text-white/45
+              text-slate-500
               sm:text-base
             "
           >
-            From specialized real estate training to personal TikTok coaching
-            and future group programs, our services are designed to turn content
-            into a practical skill you can actually use.
+            Practical training designed to help you understand TikTok, create
+            stronger content, build your personal brand, and turn your digital
+            presence into a valuable skill.
           </p>
+
+          {/* Small tags */}
+
+          <div className="mt-7 flex flex-wrap justify-center gap-2">
+            <MiniTag icon={Video} text="Content" color="cyan" />
+
+            <MiniTag icon={UserRound} text="Personal Brand" color="violet" />
+
+            <MiniTag icon={Users} text="Community" color="pink" />
+
+            <MiniTag
+              icon={GraduationCap}
+              text="Practical Learning"
+              color="amber"
+            />
+          </div>
         </div>
 
-        {/* ============================================================== 
-            AVAILABILITY SUMMARY
-        ============================================================== */}
+        {/* ================================================================
+            AVAILABILITY
+        ================================================================= */}
 
-        <div className="mx-auto mt-12 w-full max-w-5xl">
+        <div className="mx-auto mt-12 max-w-5xl sm:mt-14">
           <div
             className="
               grid
-              w-full
-              min-w-0
               overflow-hidden
-              rounded-[24px]
+              rounded-3xl
               border
-              border-white/[0.08]
-              bg-white/[0.025]
-              sm:grid-cols-3
+              border-slate-200
+              bg-white/80
+              shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+              backdrop-blur-xl
+              md:grid-cols-3
             "
           >
             <AvailabilityItem
@@ -353,53 +367,102 @@ export default function Services() {
           </div>
         </div>
 
-        {/* ============================================================== 
-            SERVICES
-        ============================================================== */}
+        {/* ================================================================
+            SECTION TITLE
+        ================================================================= */}
 
-        <div className="mt-14 w-full min-w-0 space-y-5 sm:mt-16 sm:space-y-6">
+        <div className="mb-7 mt-16 flex items-end justify-between gap-5 sm:mt-20">
+          <div>
+            <p
+              className="
+                text-[9px]
+                font-extrabold
+                uppercase
+                tracking-[0.2em]
+                text-violet-500
+              "
+            >
+              Our Programs
+            </p>
+
+            <h2
+              className="
+                mt-2
+                text-2xl
+                font-black
+                tracking-tight
+                text-slate-900
+                sm:text-3xl
+              "
+            >
+              Choose your path.
+            </h2>
+          </div>
+
+          <div className="hidden items-center gap-2 sm:flex">
+            <Star size={14} className="fill-amber-400 text-amber-400" />
+
+            <span className="text-xs font-semibold text-slate-400">
+              Practical • Modern • Focused
+            </span>
+          </div>
+        </div>
+
+        {/* ================================================================
+            SERVICE CARDS
+        ================================================================= */}
+
+        <div className="space-y-6">
           {services.map((service, index) => (
             <ServiceCard key={service.id} service={service} index={index} />
           ))}
         </div>
 
-        {/* ============================================================== 
+        {/* ================================================================
             LOCAL + DIASPORA
-        ============================================================== */}
+        ================================================================= */}
 
         <div
           className="
             relative
             mt-8
-            w-full
-            min-w-0
             overflow-hidden
-            rounded-[28px]
+            rounded-[30px]
             border
-            border-white/[0.08]
-            bg-gradient-to-br
-            from-white/[0.045]
-            to-white/[0.015]
-            p-5
+            border-slate-200
+            bg-white/80
+            shadow-[0_20px_60px_rgba(15,23,42,0.06)]
+            backdrop-blur-xl
             sm:mt-10
-            sm:rounded-[30px]
-            sm:p-8
-            lg:p-10
           "
         >
+          {/* Decorative gradient */}
+
           <div
             className="
               pointer-events-none
               absolute
-              right-0
-              top-0
-              hidden
-              h-48
-              w-48
+              -right-20
+              -top-20
+              h-64
+              w-64
               rounded-full
-              bg-[#25F4EE]/[0.04]
-              blur-[90px]
-              sm:block
+              bg-cyan-200/30
+              blur-3xl
+            "
+          />
+
+          <div
+            className="
+              pointer-events-none
+              absolute
+              -bottom-24
+              -left-20
+              h-56
+              w-56
+              rounded-full
+              bg-pink-200/20
+              blur-3xl
             "
           />
 
@@ -407,39 +470,41 @@ export default function Services() {
             className="
               relative
               grid
-              min-w-0
-              gap-7
+              gap-8
+              p-6
+              sm:p-8
               lg:grid-cols-[1fr_auto]
               lg:items-center
+              lg:p-10
             "
           >
-            <div className="min-w-0">
-              <div className="flex min-w-0 items-center gap-3">
+            <div>
+              <div className="flex items-center gap-3">
                 <div
                   className="
                     flex
-                    h-11
-                    w-11
+                    h-12
+                    w-12
                     shrink-0
                     items-center
                     justify-center
-                    rounded-xl
-                    bg-[#25F4EE]/10
+                    rounded-2xl
+                    bg-gradient-to-br
+                    from-cyan-100
+                    to-violet-100
                   "
                 >
-                  <Globe2 size={21} className="text-[#25F4EE]" />
+                  <Globe2 size={21} className="text-cyan-600" />
                 </div>
 
-                <div className="min-w-0">
+                <div>
                   <p
                     className="
                       text-[9px]
-                      font-bold
+                      font-extrabold
                       uppercase
-                      tracking-[0.18em]
-                      text-[#25F4EE]
-                      sm:text-[10px]
-                      sm:tracking-[0.22em]
+                      tracking-[0.2em]
+                      text-cyan-600
                     "
                   >
                     Built Beyond Borders
@@ -448,9 +513,10 @@ export default function Services() {
                   <h2
                     className="
                       mt-1
-                      break-words
-                      text-lg
+                      text-xl
                       font-black
+                      tracking-tight
+                      text-slate-900
                       sm:text-2xl
                     "
                   >
@@ -465,51 +531,40 @@ export default function Services() {
                   max-w-2xl
                   text-sm
                   leading-7
-                  text-white/45
+                  text-slate-500
                 "
               >
                 Our upcoming personal and group programs are being designed for
                 students both locally and in the diaspora. Depending on the
-                program and the student's preference, training can be delivered
-                online or in person.
+                program and your preference, training can be delivered online or
+                in person.
               </p>
             </div>
 
-            <div
-              className="
-                grid
-                w-full
-                grid-cols-2
-                gap-3
-                sm:flex
-                sm:w-auto
-              "
-            >
-              <FormatBadge icon={Monitor} label="Online" />
+            <div className="grid grid-cols-2 gap-3 sm:flex">
+              <FormatBadge icon={Monitor} label="Online" color="cyan" />
 
-              <FormatBadge icon={MapPin} label="In-person" />
+              <FormatBadge icon={MapPin} label="In-person" color="violet" />
             </div>
           </div>
         </div>
 
-        {/* ============================================================== 
-            WHY OUR TRAINING
-        ============================================================== */}
+        {/* ================================================================
+            APPROACH
+        ================================================================= */}
 
-        <div className="mt-16 sm:mt-20">
+        <div className="mt-20 sm:mt-24">
           <div className="mx-auto max-w-2xl text-center">
             <p
               className="
                 text-[9px]
-                font-bold
+                font-extrabold
                 uppercase
                 tracking-[0.22em]
-                text-[#FE2C55]
-                sm:text-[10px]
-                sm:tracking-[0.25em]
+                text-pink-500
               "
             >
-              The Approach
+              The Academy Approach
             </p>
 
             <h2
@@ -517,12 +572,24 @@ export default function Services() {
                 mt-3
                 text-3xl
                 font-black
-                leading-tight
-                tracking-tight
+                tracking-[-0.03em]
+                text-slate-900
                 sm:text-4xl
               "
             >
-              More than just information.
+              More than information.
+              <span
+                className="
+                  block
+                  bg-gradient-to-r
+                  from-cyan-500
+                  to-violet-500
+                  bg-clip-text
+                  text-transparent
+                "
+              >
+                Learn by doing.
+              </span>
             </h2>
 
             <p
@@ -530,23 +597,21 @@ export default function Services() {
                 mt-4
                 text-sm
                 leading-7
-                text-white/40
+                text-slate-500
               "
             >
-              Our goal is to make learning practical, understandable, and useful
-              in the real world.
+              We focus on practical knowledge that can move from the classroom
+              directly into the real world.
             </p>
           </div>
 
           <div
             className="
-              mt-8
+              mt-10
               grid
-              gap-3
-              sm:mt-10
+              gap-4
               sm:grid-cols-2
               lg:grid-cols-4
-              lg:gap-4
             "
           >
             <ValueCard
@@ -554,6 +619,7 @@ export default function Services() {
               number="01"
               title="Practical"
               text="Learn strategies you can actually apply."
+              gradient="cyan"
             />
 
             <ValueCard
@@ -561,13 +627,15 @@ export default function Services() {
               number="02"
               title="Structured"
               text="Follow a clear learning path instead of random information."
+              gradient="violet"
             />
 
             <ValueCard
               icon={Video}
               number="03"
               title="Content-focused"
-              text="Build stronger content and a more effective digital presence."
+              text="Build stronger content and a better digital presence."
+              gradient="pink"
             />
 
             <ValueCard
@@ -575,50 +643,51 @@ export default function Services() {
               number="04"
               title="Supportive"
               text="Get guidance designed around your goals and level."
+              gradient="amber"
             />
           </div>
         </div>
 
-        {/* ============================================================== 
-            BOTTOM CTA
-        ============================================================== */}
+        {/* ================================================================
+            CTA
+        ================================================================= */}
 
         <div
           className="
             relative
-            mt-16
-            w-full
-            min-w-0
+            mt-20
             overflow-hidden
-            rounded-[28px]
+            rounded-[32px]
             border
-            border-[#25F4EE]/10
+            border-slate-200
             bg-gradient-to-br
-            from-[#25F4EE]/[0.055]
-            via-white/[0.025]
-            to-[#FE2C55]/[0.055]
-            p-6
+            from-cyan-50
+            via-white
+            to-pink-50
+            px-6
+            py-10
             text-center
-            sm:mt-20
-            sm:rounded-[32px]
-            sm:p-12
-            lg:p-16
+            shadow-[0_25px_70px_rgba(15,23,42,0.07)]
+            sm:mt-24
+            sm:px-10
+            sm:py-14
+            lg:py-16
           "
         >
+          {/* Glow */}
+
           <div
             className="
               pointer-events-none
               absolute
               left-1/2
               top-0
-              hidden
               h-48
               w-96
               -translate-x-1/2
               rounded-full
-              bg-[#25F4EE]/[0.06]
-              blur-[100px]
-              sm:block
+              bg-cyan-300/20
+              blur-3xl
             "
           />
 
@@ -632,27 +701,28 @@ export default function Services() {
                 items-center
                 justify-center
                 rounded-2xl
-                border
-                border-white/10
-                bg-white/[0.05]
+                bg-gradient-to-br
+                from-cyan-400
+                to-violet-500
+                text-white
+                shadow-lg
+                shadow-cyan-200
               "
             >
-              <CalendarDays size={24} className="text-[#25F4EE]" />
+              <CalendarDays size={24} />
             </div>
 
             <p
               className="
                 mt-6
                 text-[9px]
-                font-bold
+                font-extrabold
                 uppercase
                 tracking-[0.22em]
-                text-[#25F4EE]
-                sm:text-[10px]
-                sm:tracking-[0.25em]
+                text-cyan-600
               "
             >
-              Start With What Is Available
+              Start Your Journey
             </p>
 
             <h2
@@ -660,15 +730,28 @@ export default function Services() {
                 mx-auto
                 mt-3
                 max-w-2xl
-                break-words
                 text-3xl
                 font-black
                 leading-tight
-                tracking-tight
+                tracking-[-0.035em]
+                text-slate-900
                 sm:text-4xl
               "
             >
-              Ready to develop your skills?
+              Ready to turn your skills
+              <span
+                className="
+                  block
+                  bg-gradient-to-r
+                  from-cyan-500
+                  via-violet-500
+                  to-pink-500
+                  bg-clip-text
+                  text-transparent
+                "
+              >
+                into real growth?
+              </span>
             </h2>
 
             <p
@@ -678,7 +761,7 @@ export default function Services() {
                 max-w-xl
                 text-sm
                 leading-7
-                text-white/45
+                text-slate-500
               "
             >
               Real Estate Agency Training is currently open for registration.
@@ -701,22 +784,26 @@ export default function Services() {
                 className="
                   group
                   inline-flex
-                  min-h-[50px]
+                  min-h-[52px]
                   w-full
                   items-center
                   justify-center
                   gap-2
                   rounded-xl
-                  bg-white
-                  px-6
+                  bg-gradient-to-r
+                  from-cyan-500
+                  to-violet-500
+                  px-7
                   py-3.5
                   text-sm
                   font-bold
-                  text-black
-                  transition
+                  text-white
+                  shadow-lg
+                  shadow-cyan-200/50
+                  transition-all
                   duration-300
-                  hover:-translate-y-0.5
-                  hover:bg-[#25F4EE]
+                  hover:-translate-y-1
+                  hover:shadow-xl
                   sm:w-auto
                 "
               >
@@ -735,25 +822,26 @@ export default function Services() {
                 to="/"
                 className="
                   inline-flex
-                  min-h-[50px]
+                  min-h-[52px]
                   w-full
                   items-center
                   justify-center
                   gap-2
                   rounded-xl
                   border
-                  border-white/10
-                  bg-white/[0.04]
-                  px-6
+                  border-slate-200
+                  bg-white
+                  px-7
                   py-3.5
                   text-sm
                   font-semibold
-                  text-white/70
-                  transition
+                  text-slate-700
+                  shadow-sm
+                  transition-all
                   duration-300
-                  hover:border-white/20
-                  hover:bg-white/[0.07]
-                  hover:text-white
+                  hover:-translate-y-0.5
+                  hover:border-violet-200
+                  hover:text-violet-600
                   sm:w-auto
                 "
               >
@@ -783,25 +871,23 @@ function ServiceCard({ service, index }) {
       className={`
         group
         relative
-        w-full
-        min-w-0
         overflow-hidden
-        rounded-[26px]
+        rounded-[28px]
         border
-        p-5
+        bg-white/85
+        shadow-[0_18px_55px_rgba(15,23,42,0.055)]
+        backdrop-blur-xl
         transition-all
         duration-300
-        sm:rounded-[30px]
-        sm:p-8
-        lg:p-10
+        hover:-translate-y-1
         ${
           isAvailable
-            ? "border-[#25F4EE]/20 bg-gradient-to-br from-[#25F4EE]/[0.055] via-white/[0.025] to-white/[0.015] shadow-[0_15px_50px_rgba(37,244,238,0.035)]"
-            : "border-white/[0.08] bg-white/[0.025] hover:border-white/[0.14] hover:bg-white/[0.035]"
+            ? "border-cyan-200 hover:border-cyan-300 hover:shadow-[0_25px_70px_rgba(6,182,212,0.10)]"
+            : "border-slate-200 hover:border-violet-200 hover:shadow-[0_25px_70px_rgba(139,92,246,0.08)]"
         }
       `}
     >
-      {/* Glow */}
+      {/* Decorative corner */}
 
       <div
         className={`
@@ -809,25 +895,27 @@ function ServiceCard({ service, index }) {
           absolute
           -right-24
           -top-24
-          hidden
-          h-72
-          w-72
+          h-64
+          w-64
           rounded-full
-          blur-[100px]
-          sm:block
-          ${isAvailable ? "bg-[#25F4EE]/[0.07]" : "bg-[#FE2C55]/[0.035]"}
+          blur-3xl
+          transition-opacity
+          duration-500
+          group-hover:opacity-80
+          ${isAvailable ? "bg-cyan-200/35" : "bg-violet-200/25"}
         `}
-        aria-hidden="true"
       />
 
       <div
         className="
           relative
           grid
-          min-w-0
-          gap-7
-          lg:grid-cols-[1.1fr_0.9fr]
-          lg:gap-12
+          gap-8
+          p-5
+          sm:p-8
+          lg:grid-cols-[1.05fr_0.95fr]
+          lg:gap-10
+          lg:p-10
         "
       >
         {/* ============================================================
@@ -835,7 +923,9 @@ function ServiceCard({ service, index }) {
         ============================================================ */}
 
         <div className="min-w-0">
-          <div className="flex min-w-0 flex-wrap items-center gap-3">
+          {/* Top row */}
+
+          <div className="flex items-center gap-3">
             <div
               className={`
                 flex
@@ -845,31 +935,30 @@ function ServiceCard({ service, index }) {
                 items-center
                 justify-center
                 rounded-2xl
-                ${isAvailable ? "bg-[#25F4EE]/10" : "bg-white/[0.05]"}
+                ${
+                  isAvailable
+                    ? "bg-cyan-50 text-cyan-600"
+                    : "bg-violet-50 text-violet-500"
+                }
               `}
             >
-              <Icon
-                size={22}
-                className={isAvailable ? "text-[#25F4EE]" : "text-white/60"}
-              />
+              <Icon size={22} />
             </div>
 
             <span
               className={`
-                max-w-[calc(100%-60px)]
                 rounded-full
                 border
                 px-3
                 py-1.5
                 text-[9px]
-                font-bold
+                font-extrabold
                 uppercase
                 tracking-[0.16em]
-                sm:tracking-[0.2em]
                 ${
                   isAvailable
-                    ? "border-[#25F4EE]/20 bg-[#25F4EE]/[0.06] text-[#25F4EE]"
-                    : "border-white/10 bg-white/[0.04] text-white/40"
+                    ? "border-cyan-200 bg-cyan-50 text-cyan-600"
+                    : "border-violet-200 bg-violet-50 text-violet-500"
                 }
               `}
             >
@@ -879,25 +968,26 @@ function ServiceCard({ service, index }) {
             <span
               className="
                 ml-auto
-                shrink-0
-                text-xs
-                font-bold
-                text-white/20
+                text-[10px]
+                font-black
+                tracking-[0.2em]
+                text-slate-200
               "
             >
               0{index + 1}
             </span>
           </div>
 
+          {/* Title */}
+
           <h2
             className="
               mt-6
-              break-words
               text-2xl
               font-black
               leading-tight
-              tracking-tight
-              sm:mt-7
+              tracking-[-0.035em]
+              text-slate-900
               sm:text-3xl
               lg:text-4xl
             "
@@ -905,23 +995,24 @@ function ServiceCard({ service, index }) {
             {service.title}
           </h2>
 
+          {/* Description */}
+
           <p
             className="
               mt-4
               max-w-2xl
-              break-words
               text-sm
               leading-7
-              text-white/45
+              text-slate-500
               sm:text-base
             "
           >
             {service.description}
           </p>
 
-          {/* Audience */}
+          {/* Information */}
 
-          <div className="mt-6 flex min-w-0 flex-wrap gap-2">
+          <div className="mt-6 flex flex-wrap gap-2">
             <InfoPill icon={Users} text={service.audience} />
 
             {service.formats.map((format) => (
@@ -942,22 +1033,26 @@ function ServiceCard({ service, index }) {
                 className="
                   group/button
                   inline-flex
-                  min-h-[48px]
+                  min-h-[50px]
                   w-full
                   items-center
                   justify-center
                   gap-2
                   rounded-xl
-                  bg-[#25F4EE]
-                  px-5
+                  bg-gradient-to-r
+                  from-cyan-500
+                  to-violet-500
+                  px-6
                   py-3.5
                   text-sm
                   font-bold
-                  text-black
-                  transition
+                  text-white
+                  shadow-md
+                  shadow-cyan-200/40
+                  transition-all
                   duration-300
                   hover:-translate-y-0.5
-                  hover:bg-white
+                  hover:shadow-lg
                   sm:w-auto
                 "
               >
@@ -976,7 +1071,7 @@ function ServiceCard({ service, index }) {
               <span
                 className="
                   inline-flex
-                  min-h-[48px]
+                  min-h-[50px]
                   w-full
                   cursor-default
                   items-center
@@ -984,13 +1079,13 @@ function ServiceCard({ service, index }) {
                   gap-2
                   rounded-xl
                   border
-                  border-white/10
-                  bg-white/[0.04]
-                  px-5
+                  border-slate-200
+                  bg-slate-50
+                  px-6
                   py-3.5
                   text-sm
                   font-bold
-                  text-white/40
+                  text-slate-400
                   sm:w-auto
                 "
               >
@@ -1010,28 +1105,34 @@ function ServiceCard({ service, index }) {
             min-w-0
             rounded-2xl
             border
-            border-white/[0.07]
-            bg-black/20
-            p-4
+            border-slate-200
+            bg-slate-50/80
+            p-5
             sm:p-6
           "
         >
-          <div className="flex min-w-0 items-center justify-between gap-4">
-            <div className="min-w-0">
+          <div className="flex items-center justify-between gap-4">
+            <div>
               <p
                 className="
                   text-[9px]
-                  font-bold
+                  font-extrabold
                   uppercase
-                  tracking-[0.16em]
-                  text-white/25
-                  sm:tracking-[0.2em]
+                  tracking-[0.18em]
+                  text-slate-400
                 "
               >
                 What You'll Learn
               </p>
 
-              <p className="mt-1 text-sm font-bold text-white/80">
+              <p
+                className="
+                  mt-1
+                  text-sm
+                  font-extrabold
+                  text-slate-800
+                "
+              >
                 Training highlights
               </p>
             </div>
@@ -1039,25 +1140,34 @@ function ServiceCard({ service, index }) {
             <div
               className={`
                 flex
-                h-9
-                w-9
+                h-10
+                w-10
                 shrink-0
                 items-center
                 justify-center
-                rounded-lg
-                ${isAvailable ? "bg-[#25F4EE]/10" : "bg-white/[0.05]"}
+                rounded-xl
+                ${
+                  isAvailable
+                    ? "bg-cyan-100 text-cyan-600"
+                    : "bg-violet-100 text-violet-500"
+                }
               `}
             >
-              <GraduationCap
-                size={17}
-                className={isAvailable ? "text-[#25F4EE]" : "text-white/40"}
-              />
+              <GraduationCap size={18} />
             </div>
           </div>
 
           <div className="mt-5 space-y-3">
             {service.features.map((feature) => (
-              <div key={feature} className="flex min-w-0 items-start gap-3">
+              <div
+                key={feature}
+                className="
+                  flex
+                  min-w-0
+                  items-start
+                  gap-3
+                "
+              >
                 <span
                   className={`
                     mt-0.5
@@ -1068,22 +1178,22 @@ function ServiceCard({ service, index }) {
                     items-center
                     justify-center
                     rounded-full
-                    ${isAvailable ? "bg-[#25F4EE]/10" : "bg-white/[0.05]"}
+                    ${isAvailable ? "bg-cyan-100" : "bg-violet-100"}
                   `}
                 >
                   <Check
                     size={12}
-                    className={isAvailable ? "text-[#25F4EE]" : "text-white/40"}
+                    className={
+                      isAvailable ? "text-cyan-600" : "text-violet-500"
+                    }
                   />
                 </span>
 
                 <span
                   className="
-                    min-w-0
-                    break-words
                     text-sm
                     leading-5
-                    text-white/50
+                    text-slate-500
                   "
                 >
                   {feature}
@@ -1111,9 +1221,15 @@ function AvailabilityItem({ icon: Icon, title, text, active = false }) {
         min-w-0
         items-center
         gap-4
+        border-b
+        border-slate-100
         p-5
+        last:border-b-0
+        md:border-b-0
+        md:border-r
+        md:last:border-r-0
         sm:p-6
-        ${active ? "bg-[#25F4EE]/[0.045]" : ""}
+        ${active ? "bg-gradient-to-br from-cyan-50 to-white" : "bg-white/50"}
       `}
     >
       <div
@@ -1125,30 +1241,36 @@ function AvailabilityItem({ icon: Icon, title, text, active = false }) {
           items-center
           justify-center
           rounded-xl
-          ${active ? "bg-[#25F4EE]/10" : "bg-white/[0.04]"}
+          ${
+            active ? "bg-cyan-100 text-cyan-600" : "bg-slate-100 text-slate-400"
+          }
         `}
       >
-        <Icon
-          size={17}
-          className={active ? "text-[#25F4EE]" : "text-white/35"}
-        />
+        <Icon size={17} />
       </div>
 
       <div className="min-w-0">
         <p
           className={`
             text-[9px]
-            font-bold
+            font-extrabold
             uppercase
-            tracking-[0.14em]
-            sm:tracking-[0.18em]
-            ${active ? "text-[#25F4EE]" : "text-white/30"}
+            tracking-[0.15em]
+            ${active ? "text-cyan-600" : "text-slate-400"}
           `}
         >
           {title}
         </p>
 
-        <p className="mt-1 break-words text-xs font-semibold text-white/60">
+        <p
+          className="
+            mt-1
+            break-words
+            text-xs
+            font-bold
+            text-slate-700
+          "
+        >
           {text}
         </p>
       </div>
@@ -1171,20 +1293,58 @@ function InfoPill({ icon: Icon, text }) {
         min-w-0
         items-center
         gap-2
-        rounded-lg
+        rounded-xl
         border
-        border-white/[0.08]
-        bg-black/20
+        border-slate-200
+        bg-white
         px-3
         py-2
         text-[10px]
-        font-semibold
-        text-white/40
+        font-bold
+        text-slate-500
+        shadow-sm
       "
     >
-      <Icon size={13} className="shrink-0" />
+      <Icon size={13} className="shrink-0 text-slate-400" />
 
       <span className="break-words">{text}</span>
+    </span>
+  );
+}
+
+/*
+|--------------------------------------------------------------------------
+| MINI TAG
+|--------------------------------------------------------------------------
+*/
+
+function MiniTag({ icon: Icon, text, color }) {
+  const styles = {
+    cyan: "bg-cyan-50 text-cyan-700 ring-cyan-100",
+    violet: "bg-violet-50 text-violet-700 ring-violet-100",
+    pink: "bg-pink-50 text-pink-700 ring-pink-100",
+    amber: "bg-amber-50 text-amber-700 ring-amber-100",
+  };
+
+  return (
+    <span
+      className={`
+        inline-flex
+        items-center
+        gap-1.5
+        rounded-full
+        px-3
+        py-1.5
+        text-[9px]
+        font-extrabold
+        uppercase
+        tracking-[0.1em]
+        ring-1
+        ${styles[color]}
+      `}
+    >
+      <Icon size={12} />
+      {text}
     </span>
   );
 }
@@ -1195,10 +1355,15 @@ function InfoPill({ icon: Icon, text }) {
 |--------------------------------------------------------------------------
 */
 
-function FormatBadge({ icon: Icon, label }) {
+function FormatBadge({ icon: Icon, label, color = "cyan" }) {
+  const styles = {
+    cyan: "bg-cyan-50 text-cyan-600 border-cyan-100",
+    violet: "bg-violet-50 text-violet-600 border-violet-100",
+  };
+
   return (
     <div
-      className="
+      className={`
         flex
         min-h-[82px]
         min-w-0
@@ -1207,20 +1372,24 @@ function FormatBadge({ icon: Icon, label }) {
         items-center
         justify-center
         gap-2
-        rounded-xl
+        rounded-2xl
         border
-        border-white/[0.08]
-        bg-black/20
-        px-3
+        px-4
         py-4
-        sm:min-w-[100px]
+        ${styles[color]}
+        sm:min-w-[105px]
         sm:flex-none
-        sm:px-4
-      "
+      `}
     >
-      <Icon size={18} className="text-[#25F4EE]" />
+      <Icon size={19} />
 
-      <span className="text-center text-[10px] font-bold text-white/50">
+      <span
+        className="
+          text-center
+          text-[10px]
+          font-extrabold
+        "
+      >
         {label}
       </span>
     </div>
@@ -1233,61 +1402,81 @@ function FormatBadge({ icon: Icon, label }) {
 |--------------------------------------------------------------------------
 */
 
-function ValueCard({ icon: Icon, number, title, text }) {
+function ValueCard({ icon: Icon, number, title, text, gradient }) {
+  const iconStyles = {
+    cyan: "bg-cyan-50 text-cyan-600",
+    violet: "bg-violet-50 text-violet-600",
+    pink: "bg-pink-50 text-pink-600",
+    amber: "bg-amber-50 text-amber-600",
+  };
+
+  const numberStyles = {
+    cyan: "text-cyan-200",
+    violet: "text-violet-200",
+    pink: "text-pink-200",
+    amber: "text-amber-200",
+  };
+
   return (
     <div
       className="
         group
-        min-w-0
         rounded-2xl
         border
-        border-white/[0.08]
-        bg-white/[0.025]
+        border-slate-200
+        bg-white/80
         p-5
-        transition
+        shadow-sm
+        transition-all
         duration-300
         hover:-translate-y-1
-        hover:border-white/[0.14]
-        hover:bg-white/[0.04]
+        hover:shadow-xl
       "
     >
       <div className="flex items-center justify-between">
         <div
-          className="
+          className={`
             flex
             h-10
             w-10
-            shrink-0
             items-center
             justify-center
             rounded-xl
-            bg-white/[0.04]
-          "
+            ${iconStyles[gradient]}
+          `}
         >
-          <Icon size={18} className="text-[#25F4EE]" />
+          <Icon size={18} />
         </div>
 
         <span
-          className="
+          className={`
             text-[10px]
             font-black
             tracking-[0.2em]
-            text-white/15
-          "
+            ${numberStyles[gradient]}
+          `}
         >
           {number}
         </span>
       </div>
 
-      <h3 className="mt-5 text-sm font-bold">{title}</h3>
+      <h3
+        className="
+          mt-5
+          text-sm
+          font-extrabold
+          text-slate-900
+        "
+      >
+        {title}
+      </h3>
 
       <p
         className="
           mt-2
-          break-words
           text-xs
           leading-5
-          text-white/35
+          text-slate-500
         "
       >
         {text}

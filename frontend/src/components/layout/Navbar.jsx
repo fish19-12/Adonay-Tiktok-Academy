@@ -11,6 +11,7 @@ import {
   Info,
   ArrowRight,
   GraduationCap,
+  Sparkles,
 } from "lucide-react";
 
 import logo from "../../assets/images/logo.jpg";
@@ -18,55 +19,50 @@ import logo from "../../assets/images/logo.jpg";
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [showNavbar, setShowNavbar] = useState(true);
 
   const location = useLocation();
 
-  /*
-  |--------------------------------------------------------------------------
-  | CLOSE MENU WHEN ROUTE CHANGES
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     CLOSE MOBILE MENU WHEN ROUTE CHANGES
+  ============================================================ */
 
   useEffect(() => {
     setOpen(false);
   }, [location.pathname]);
 
-  /*
-  |--------------------------------------------------------------------------
-  | MOBILE BODY SCROLL LOCK
-  |
-  | IMPORTANT:
-  | We preserve the previous body overflow value instead of forcing
-  | "auto". This is safer for iOS Safari.
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     MOBILE BODY SCROLL LOCK
+  ============================================================ */
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
+    const previousOverscroll = document.body.style.overscrollBehavior;
 
     if (open) {
       document.body.style.overflow = "hidden";
       document.body.style.overscrollBehavior = "none";
     } else {
       document.body.style.overflow = previousOverflow || "";
-      document.body.style.overscrollBehavior = "";
+      document.body.style.overscrollBehavior = previousOverscroll || "";
     }
 
     return () => {
       document.body.style.overflow = previousOverflow || "";
-      document.body.style.overscrollBehavior = "";
+      document.body.style.overscrollBehavior = previousOverscroll || "";
     };
   }, [open]);
 
-  /*
-  |--------------------------------------------------------------------------
-  | SCROLL EFFECT
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     SCROLL EFFECT
+
+     IMPORTANT:
+     Navbar NEVER hides while scrolling.
+
+     We only detect scrolling so the navbar can become slightly
+     more solid and add a stronger shadow.
+  ============================================================ */
 
   useEffect(() => {
-    let lastScroll = window.scrollY || 0;
     let ticking = false;
 
     const handleScroll = () => {
@@ -75,15 +71,8 @@ export default function Navbar() {
       window.requestAnimationFrame(() => {
         const currentScroll = window.scrollY || 0;
 
-        setScrolled(currentScroll > 30);
+        setScrolled(currentScroll > 25);
 
-        if (currentScroll > lastScroll && currentScroll > 140) {
-          setShowNavbar(false);
-        } else {
-          setShowNavbar(true);
-        }
-
-        lastScroll = currentScroll;
         ticking = false;
       });
 
@@ -99,33 +88,29 @@ export default function Navbar() {
     };
   }, []);
 
-  /*
-  |--------------------------------------------------------------------------
-  | DESKTOP NAVIGATION
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     DESKTOP NAV LINK STYLE
+  ============================================================ */
 
   const navLinkClass = ({ isActive }) =>
-    `relative text-[14px] font-medium tracking-wide transition-colors duration-300 ${
-      isActive ? "text-white" : "text-white/60 hover:text-white"
+    `group relative flex items-center text-[13px] font-semibold tracking-wide transition-all duration-300 ${
+      isActive ? "text-slate-900" : "text-slate-500 hover:text-slate-900"
     }`;
 
-  /*
-  |--------------------------------------------------------------------------
-  | MOBILE NAVIGATION
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     MOBILE BOTTOM NAV STYLE
+  ============================================================ */
 
   const bottomLinkClass = ({ isActive }) =>
-    `flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all duration-300 ${
-      isActive ? "scale-105 text-[#25F4EE]" : "text-white/45 hover:text-white"
+    `flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 text-[9px] font-bold transition-all duration-300 ${
+      isActive
+        ? "scale-105 text-violet-600"
+        : "text-slate-400 hover:text-slate-700"
     }`;
 
-  /*
-  |--------------------------------------------------------------------------
-  | ACTIVE INDICATOR
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     DESKTOP ACTIVE INDICATOR
+  ============================================================ */
 
   const NavIndicator = ({ isActive }) => {
     if (!isActive) return null;
@@ -138,18 +123,16 @@ export default function Navbar() {
           stiffness: 500,
           damping: 35,
         }}
-        className="absolute -bottom-1 left-1/2 h-[2px] w-5 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#25F4EE] to-[#FE2C55]"
+        className="absolute -bottom-2 left-1/2 h-1 w-5 -translate-x-1/2 rounded-full bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500"
       />
     );
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | MOBILE MENU ITEMS
-  |--------------------------------------------------------------------------
-  */
+  /* ============================================================
+     DESKTOP NAVIGATION ITEMS
+  ============================================================ */
 
-  const mobileItems = [
+  const desktopItems = [
     {
       name: "Home",
       path: "/",
@@ -166,9 +149,42 @@ export default function Navbar() {
       name: "Testimonials",
       path: "/testimonial",
     },
+  ];
+
+  /* ============================================================
+     MOBILE NAVIGATION ITEMS
+  ============================================================ */
+
+  const mobileItems = [
+    {
+      name: "Home",
+      path: "/",
+      icon: Home,
+      description: "Discover the academy",
+    },
+    {
+      name: "Services",
+      path: "/services",
+      icon: Images,
+      description: "Explore what we offer",
+    },
+    {
+      name: "About",
+      path: "/about",
+      icon: Info,
+      description: "Learn about us",
+    },
+    {
+      name: "Testimonials",
+      path: "/testimonial",
+      icon: Star,
+      description: "See student experiences",
+    },
     {
       name: "FAQ",
       path: "/faq",
+      icon: Sparkles,
+      description: "Get answers",
     },
   ];
 
@@ -176,136 +192,144 @@ export default function Navbar() {
     <>
       {/* ============================================================
           DESKTOP NAVBAR
+
+          ALWAYS FIXED
+          NEVER DISAPPEARS ON SCROLL
       ============================================================ */}
 
-      <motion.nav
-        initial={false}
-        animate={{
-          y: showNavbar ? 0 : -130,
-        }}
-        transition={{
-          duration: 0.3,
-          ease: "easeOut",
-        }}
-        className="fixed left-0 top-0 z-[100] hidden w-full justify-center px-5 pt-5 md:flex"
+      <nav
+        className="fixed left-0 top-0 z-[100] hidden w-full justify-center px-5 pt-4 md:flex"
         style={{
           WebkitTransform: "translateZ(0)",
           transform: "translateZ(0)",
         }}
       >
         <div
-          className={`w-full max-w-7xl rounded-2xl border transition-all duration-300 ${
+          className={`w-full max-w-7xl overflow-hidden rounded-2xl border transition-all duration-500 ${
             scrolled
-              ? "border-white/[0.08] bg-[#070707]/95 shadow-[0_18px_60px_rgba(0,0,0,0.45)]"
-              : "border-white/[0.06] bg-black/80"
+              ? "border-slate-200/90 bg-white/98 shadow-[0_18px_55px_rgba(15,23,42,0.14)]"
+              : "border-white/80 bg-white/90 shadow-[0_10px_35px_rgba(15,23,42,0.07)]"
           }`}
           style={{
-            WebkitBackdropFilter: scrolled ? "blur(20px)" : "blur(12px)",
-            backdropFilter: scrolled ? "blur(20px)" : "blur(12px)",
+            WebkitBackdropFilter: "blur(20px)",
+            backdropFilter: "blur(20px)",
             WebkitTransform: "translateZ(0)",
             transform: "translateZ(0)",
           }}
         >
-          <div className="flex h-[76px] items-center justify-between px-5 xl:px-7">
-            {/* BRAND */}
+          {/* TOP COLOR ACCENT */}
 
-            <Link to="/" className="group flex min-w-0 items-center gap-3.5">
-              <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black shadow-lg">
+          <div className="h-[2px] w-full bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500" />
+
+          <div className="flex h-[70px] items-center justify-between px-5 xl:px-7">
+            {/* ==================================================
+                BRAND
+            ================================================== */}
+
+            <Link to="/" className="group flex min-w-0 items-center gap-3">
+              <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-0.5 group-hover:shadow-md">
                 <img
                   src={logo}
                   alt="Adonay TikTok Academy"
-                  width="48"
-                  height="48"
+                  width="44"
+                  height="44"
                   loading="eager"
                   decoding="async"
                   className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
 
-                <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-[#25F4EE]/10" />
+                <div className="pointer-events-none absolute inset-0 rounded-xl ring-1 ring-inset ring-cyan-400/20" />
               </div>
 
               <div className="hidden sm:block">
-                <h1 className="text-[14px] font-bold uppercase tracking-[0.12em] text-white">
+                <h1 className="text-[13px] font-black uppercase tracking-[0.12em] text-slate-900">
                   Adonay
                 </h1>
 
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[9px] font-semibold uppercase tracking-[0.25em] text-[#25F4EE]">
+                <div className="mt-0.5 flex items-center gap-1.5">
+                  <span className="text-[8px] font-extrabold uppercase tracking-[0.22em] text-cyan-600">
                     TikTok
                   </span>
 
-                  <span className="text-[9px] text-white/30">/</span>
+                  <span className="text-[8px] font-bold text-slate-300">/</span>
 
-                  <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#FE2C55]">
+                  <span className="text-[8px] font-extrabold uppercase tracking-[0.18em] text-pink-500">
                     Academy
                   </span>
                 </div>
               </div>
             </Link>
 
-            {/* CENTER NAVIGATION */}
+            {/* ==================================================
+                DESKTOP NAVIGATION
+            ================================================== */}
 
-            <div className="hidden items-center gap-9 lg:flex">
-              <NavLink to="/" className={navLinkClass}>
-                {({ isActive }) => (
-                  <div className="relative py-2">
-                    Home
-                    <NavIndicator isActive={isActive} />
-                  </div>
-                )}
-              </NavLink>
+            <div className="hidden items-center gap-8 lg:flex">
+              {desktopItems.map((item) => (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={navLinkClass}
+                >
+                  {({ isActive }) => (
+                    <div className="relative py-2">
+                      {item.name}
 
-              <NavLink to="/services" className={navLinkClass}>
-                {({ isActive }) => (
-                  <div className="relative py-2">
-                    Services
-                    <NavIndicator isActive={isActive} />
-                  </div>
-                )}
-              </NavLink>
-
-              <NavLink to="/about" className={navLinkClass}>
-                {({ isActive }) => (
-                  <div className="relative py-2">
-                    About
-                    <NavIndicator isActive={isActive} />
-                  </div>
-                )}
-              </NavLink>
-
-              <NavLink to="/testimonial" className={navLinkClass}>
-                {({ isActive }) => (
-                  <div className="relative py-2">
-                    Testimonials
-                    <NavIndicator isActive={isActive} />
-                  </div>
-                )}
-              </NavLink>
+                      <NavIndicator isActive={isActive} />
+                    </div>
+                  )}
+                </NavLink>
+              ))}
             </div>
 
-            {/* RIGHT */}
+            {/* ==================================================
+                RIGHT SIDE
+            ================================================== */}
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-3">
+              {/* Academy Badge */}
+
+              <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 xl:flex">
+                <Sparkles size={13} className="text-violet-500" />
+
+                <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500">
+                  Learn & Grow
+                </span>
+              </div>
+
+              {/* REGISTER BUTTON */}
+
               <Link
                 to="/register"
-                className="group relative hidden h-10 items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] px-5 text-[12px] font-bold uppercase tracking-[0.08em] text-black shadow-[0_8px_25px_rgba(37,244,238,0.12)] transition-all duration-300 hover:-translate-y-0.5 lg:flex"
+                className="group relative hidden h-10 items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 px-5 text-[11px] font-extrabold uppercase tracking-[0.08em] text-white shadow-[0_8px_25px_rgba(124,58,237,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(124,58,237,0.28)] lg:flex"
               >
+                <GraduationCap
+                  size={15}
+                  strokeWidth={2.5}
+                  className="relative z-10"
+                />
+
                 <span className="relative z-10">Register</span>
 
                 <ArrowRight
-                  size={15}
+                  size={14}
                   className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
                 />
+
+                {/* Shine */}
 
                 <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
               </Link>
             </div>
           </div>
         </div>
-      </motion.nav>
+      </nav>
 
       {/* ============================================================
           MOBILE TOP NAVBAR
+
+          ALWAYS FIXED
+          NEVER DISAPPEARS ON SCROLL
       ============================================================ */}
 
       <div
@@ -317,59 +341,131 @@ export default function Navbar() {
         }}
       >
         <div
-          className="flex h-[64px] items-center justify-between rounded-2xl border border-white/10 bg-[#050505]/95 px-3.5 shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+          className={`relative overflow-hidden rounded-2xl border px-3.5 transition-all duration-500 ${
+            scrolled
+              ? "border-slate-200 bg-white/98 shadow-[0_15px_45px_rgba(15,23,42,0.15)]"
+              : "border-slate-200/70 bg-white/92 shadow-[0_10px_30px_rgba(15,23,42,0.08)]"
+          }`}
           style={{
-            WebkitBackdropFilter: "blur(16px)",
-            backdropFilter: "blur(16px)",
-            WebkitTransform: "translateZ(0)",
-            transform: "translateZ(0)",
+            WebkitBackdropFilter: "blur(20px)",
+            backdropFilter: "blur(20px)",
           }}
         >
-          {/* MOBILE BRAND */}
+          {/* Accent */}
 
-          <Link to="/" className="flex min-w-0 items-center gap-2.5">
-            <div className="h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
-              <img
-                src={logo}
-                alt="Adonay TikTok Academy"
-                width="40"
-                height="40"
-                loading="eager"
-                decoding="async"
-                className="h-full w-full object-cover"
-              />
-            </div>
+          <div className="absolute left-0 right-0 top-0 h-[2px] bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500" />
 
-            <div className="min-w-0">
-              <h2 className="text-[12px] font-bold uppercase tracking-[0.1em] text-white">
-                Adonay
-              </h2>
+          <div className="flex h-[62px] items-center justify-between">
+            {/* MOBILE BRAND */}
 
-              <div className="flex items-center gap-1">
-                <span className="text-[8px] font-bold uppercase tracking-[0.18em] text-[#25F4EE]">
-                  TikTok
-                </span>
-
-                <span className="text-[8px] text-white/30">/</span>
-
-                <span className="text-[8px] font-bold uppercase tracking-[0.15em] text-[#FE2C55]">
-                  Academy
-                </span>
+            <Link to="/" className="flex min-w-0 items-center gap-2.5">
+              <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                <img
+                  src={logo}
+                  alt="Adonay TikTok Academy"
+                  width="40"
+                  height="40"
+                  loading="eager"
+                  decoding="async"
+                  className="h-full w-full object-cover"
+                />
               </div>
+
+              <div className="min-w-0">
+                <h2 className="text-[11px] font-black uppercase tracking-[0.1em] text-slate-900">
+                  Adonay
+                </h2>
+
+                <div className="mt-0.5 flex items-center gap-1">
+                  <span className="text-[7px] font-extrabold uppercase tracking-[0.18em] text-cyan-600">
+                    TikTok
+                  </span>
+
+                  <span className="text-[7px] text-slate-300">/</span>
+
+                  <span className="text-[7px] font-extrabold uppercase tracking-[0.15em] text-pink-500">
+                    Academy
+                  </span>
+                </div>
+              </div>
+            </Link>
+
+            {/* MOBILE ACTIONS */}
+
+            <div className="flex items-center gap-2">
+              {/* Join */}
+
+              <Link
+                to="/register"
+                aria-label="Register for training"
+                className="flex h-9 items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 px-3 text-[9px] font-extrabold uppercase tracking-[0.04em] text-white shadow-[0_5px_18px_rgba(124,58,237,0.18)] transition-transform duration-300 active:scale-95"
+              >
+                <GraduationCap size={14} />
+
+                <span className="hidden min-[390px]:inline">Join</span>
+              </Link>
+
+              {/* Menu */}
+
+              <button
+                type="button"
+                onClick={() => setOpen((value) => !value)}
+                aria-label={open ? "Close menu" : "Open menu"}
+                aria-expanded={open}
+                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border transition-all duration-300 ${
+                  open
+                    ? "border-violet-200 bg-violet-50 text-violet-600"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:border-violet-200 hover:text-violet-600"
+                }`}
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  {open ? (
+                    <motion.span
+                      key="close"
+                      initial={{
+                        opacity: 0,
+                        rotate: -90,
+                        scale: 0.7,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        rotate: 0,
+                        scale: 1,
+                      }}
+                      exit={{
+                        opacity: 0,
+                        rotate: 90,
+                        scale: 0.7,
+                      }}
+                    >
+                      <X size={18} />
+                    </motion.span>
+                  ) : (
+                    <motion.span
+                      key="menu"
+                      initial={{
+                        opacity: 0,
+                        rotate: 90,
+                        scale: 0.7,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        rotate: 0,
+                        scale: 1,
+                      }}
+                      exit={{
+                        opacity: 0,
+                        rotate: -90,
+                        scale: 0.7,
+                      }}
+                    >
+                      <Menu size={18} />
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </button>
             </div>
-          </Link>
-
-          {/* MENU BUTTON */}
-
-          <button
-            type="button"
-            onClick={() => setOpen((value) => !value)}
-            aria-label={open ? "Close menu" : "Open menu"}
-            aria-expanded={open}
-            className="flex h-10 w-10 shrink-0 touch-manipulation items-center justify-center rounded-xl border border-white/10 bg-white/[0.04] text-white transition-colors duration-300 hover:border-[#25F4EE]/30 hover:text-[#25F4EE]"
-          >
-            {open ? <X size={19} /> : <Menu size={19} />}
-          </button>
+          </div>
         </div>
       </div>
 
@@ -392,7 +488,7 @@ export default function Navbar() {
             transition={{
               duration: 0.2,
             }}
-            className="fixed inset-0 z-[90] bg-[#030303] md:hidden"
+            className="fixed inset-0 z-[90] bg-gradient-to-br from-slate-50 via-white to-cyan-50 md:hidden"
             style={{
               WebkitTransform: "translateZ(0)",
               transform: "translateZ(0)",
@@ -400,95 +496,195 @@ export default function Navbar() {
               paddingBottom: "env(safe-area-inset-bottom)",
             }}
           >
-            {/* GLOW */}
+            {/* BACKGROUND GLOW */}
 
-            <div className="pointer-events-none absolute -left-24 top-20 h-64 w-64 rounded-full bg-[#25F4EE]/10 blur-[80px]" />
+            <div className="pointer-events-none absolute -left-28 top-20 h-72 w-72 rounded-full bg-cyan-300/20 blur-3xl" />
 
-            <div className="pointer-events-none absolute -right-24 bottom-20 h-64 w-64 rounded-full bg-[#FE2C55]/10 blur-[80px]" />
+            <div className="pointer-events-none absolute -right-28 bottom-20 h-72 w-72 rounded-full bg-pink-300/20 blur-3xl" />
 
-            <div className="relative flex h-full flex-col justify-center overflow-y-auto px-8 py-24">
-              {/* BRAND HEADER */}
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet-200/20 blur-3xl" />
 
-              <div className="mb-12">
-                <div className="mb-5 flex items-center gap-3">
-                  <div className="h-[2px] w-8 bg-[#25F4EE]" />
-                  <div className="h-[2px] w-5 bg-[#FE2C55]" />
+            {/* GRID */}
+
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.025]"
+              style={{
+                backgroundImage:
+                  "linear-gradient(#0f172a 1px, transparent 1px), linear-gradient(90deg, #0f172a 1px, transparent 1px)",
+                backgroundSize: "32px 32px",
+              }}
+            />
+
+            {/* MENU CONTENT */}
+
+            <div className="relative flex h-full flex-col overflow-y-auto px-6 pb-10 pt-28">
+              {/* HEADER */}
+
+              <div className="mb-9">
+                <div className="mb-4 flex items-center gap-2">
+                  <span className="h-1.5 w-7 rounded-full bg-cyan-400" />
+                  <span className="h-1.5 w-4 rounded-full bg-violet-500" />
+                  <span className="h-1.5 w-7 rounded-full bg-pink-500" />
                 </div>
 
-                <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-white/50">
-                  Adonay TikTok Academy
-                </p>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <img
+                      src={logo}
+                      alt="Adonay TikTok Academy"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
 
-                <p className="mt-2 text-sm text-white/35">
-                  Learn. Create. Grow. Go Viral.
-                </p>
+                  <div>
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800">
+                      Adonay TikTok Academy
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-400">
+                      Learn. Create. Grow.
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* NAVIGATION */}
 
-              <div className="space-y-6">
-                {mobileItems.map((item, index) => (
-                  <motion.div
-                    key={item.path}
-                    initial={{
-                      opacity: 0,
-                      x: -20,
-                    }}
-                    animate={{
-                      opacity: 1,
-                      x: 0,
-                    }}
-                    transition={{
-                      delay: index * 0.05,
-                      duration: 0.25,
-                    }}
-                  >
-                    <NavLink
-                      to={item.path}
-                      onClick={() => setOpen(false)}
-                      className={({ isActive }) =>
-                        `group flex items-center justify-between border-b border-white/[0.06] pb-4 text-2xl font-semibold tracking-tight transition-colors ${
-                          isActive
-                            ? "text-white"
-                            : "text-white/65 hover:text-white"
-                        }`
-                      }
-                    >
-                      {({ isActive }) => (
-                        <>
-                          <span>{item.name}</span>
+              <div className="space-y-2">
+                {mobileItems.map((item, index) => {
+                  const Icon = item.icon;
 
-                          <ArrowRight
-                            size={20}
-                            className={`text-[#25F4EE] transition-all duration-300 ${
-                              isActive
-                                ? "translate-x-1 opacity-100"
-                                : "opacity-0 group-hover:translate-x-1 group-hover:opacity-100"
-                            }`}
-                          />
-                        </>
-                      )}
-                    </NavLink>
-                  </motion.div>
-                ))}
+                  return (
+                    <motion.div
+                      key={item.path}
+                      initial={{
+                        opacity: 0,
+                        x: -20,
+                      }}
+                      animate={{
+                        opacity: 1,
+                        x: 0,
+                      }}
+                      transition={{
+                        delay: index * 0.05,
+                        duration: 0.25,
+                      }}
+                    >
+                      <NavLink
+                        to={item.path}
+                        onClick={() => setOpen(false)}
+                        className={({ isActive }) =>
+                          `group flex items-center gap-4 rounded-2xl border p-4 transition-all duration-300 ${
+                            isActive
+                              ? "border-violet-200 bg-white shadow-[0_8px_30px_rgba(124,58,237,0.08)]"
+                              : "border-transparent hover:border-slate-200 hover:bg-white/70"
+                          }`
+                        }
+                      >
+                        {({ isActive }) => (
+                          <>
+                            {/* ICON */}
+
+                            <div
+                              className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl transition-all duration-300 ${
+                                isActive
+                                  ? "bg-gradient-to-br from-cyan-400 via-violet-500 to-pink-500 text-white shadow-sm"
+                                  : "bg-white text-slate-400 ring-1 ring-slate-200 group-hover:text-violet-500"
+                              }`}
+                            >
+                              <Icon size={18} />
+                            </div>
+
+                            {/* TEXT */}
+
+                            <div className="min-w-0 flex-1">
+                              <p
+                                className={`text-sm font-bold ${
+                                  isActive
+                                    ? "text-slate-900"
+                                    : "text-slate-600 group-hover:text-slate-900"
+                                }`}
+                              >
+                                {item.name}
+                              </p>
+
+                              <p className="mt-0.5 text-[10px] text-slate-400">
+                                {item.description}
+                              </p>
+                            </div>
+
+                            {/* ARROW */}
+
+                            <ArrowRight
+                              size={18}
+                              className={`shrink-0 transition-all duration-300 ${
+                                isActive
+                                  ? "translate-x-1 text-violet-500"
+                                  : "text-slate-300 group-hover:translate-x-1 group-hover:text-violet-500"
+                              }`}
+                            />
+                          </>
+                        )}
+                      </NavLink>
+                    </motion.div>
+                  );
+                })}
               </div>
 
-              {/* REGISTER */}
+              {/* REGISTER CARD */}
 
-              <Link
-                to="/register"
-                onClick={() => setOpen(false)}
-                className="group relative mt-10 flex h-14 items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] text-sm font-bold uppercase tracking-[0.1em] text-black shadow-[0_15px_40px_rgba(37,244,238,0.12)]"
+              <motion.div
+                initial={{
+                  opacity: 0,
+                  y: 15,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                transition={{
+                  delay: 0.3,
+                  duration: 0.3,
+                }}
+                className="mt-7"
               >
-                <GraduationCap size={18} />
+                <Link
+                  to="/register"
+                  onClick={() => setOpen(false)}
+                  className="group relative flex overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 p-[1px] shadow-[0_15px_40px_rgba(124,58,237,0.16)]"
+                >
+                  <div className="relative flex w-full items-center gap-4 rounded-[15px] bg-gradient-to-r from-violet-500 to-pink-500 px-5 py-4 text-white">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
+                      <GraduationCap size={21} />
+                    </div>
 
-                <span>Register for Training</span>
+                    <div className="flex-1">
+                      <p className="text-[9px] font-extrabold uppercase tracking-[0.15em] text-white/70">
+                        Start Learning
+                      </p>
 
-                <ArrowRight
-                  size={17}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </Link>
+                      <p className="mt-0.5 text-sm font-extrabold">
+                        Register for Training
+                      </p>
+                    </div>
+
+                    <ArrowRight
+                      size={19}
+                      className="transition-transform duration-300 group-hover:translate-x-1"
+                    />
+
+                    <span className="absolute inset-0 -translate-x-full bg-white/10 transition-transform duration-700 group-hover:translate-x-full" />
+                  </div>
+                </Link>
+              </motion.div>
+
+              {/* FOOTER */}
+
+              <div className="mt-auto pt-8 text-center">
+                <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-300">
+                  Learn • Create • Grow • Go Viral
+                </p>
+              </div>
             </div>
           </motion.div>
         )}
@@ -496,29 +692,43 @@ export default function Navbar() {
 
       {/* ============================================================
           MOBILE BOTTOM NAVIGATION
+
+          ALWAYS FIXED
+          NEVER DISAPPEARS ON SCROLL
+
+          IMPORTANT:
+          bottom-[max(...)] keeps it above the iPhone/Android
+          safe area and prevents the bar from being cut off.
       ============================================================ */}
 
       <div
-        className="fixed bottom-4 left-1/2 z-[100] flex w-[92%] max-w-md -translate-x-1/2 items-center justify-around rounded-2xl border border-white/10 bg-[#050505]/95 px-2 py-3 shadow-[0_15px_50px_rgba(0,0,0,0.5)] md:hidden"
+        className="fixed bottom-3 left-1/2 z-[100] flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center justify-around rounded-2xl border border-slate-200 bg-white/95 px-2 py-2 shadow-[0_15px_45px_rgba(15,23,42,0.15)] md:hidden"
         style={{
-          WebkitBackdropFilter: "blur(16px)",
-          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(18px)",
+          backdropFilter: "blur(18px)",
           WebkitTransform: "translate3d(-50%, 0, 0)",
           transform: "translate3d(-50%, 0, 0)",
-          paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))",
+          paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))",
+          marginBottom: "env(safe-area-inset-bottom)",
         }}
       >
         {/* HOME */}
 
-        <NavLink to="/" className={bottomLinkClass}>
-          <Home size={17} />
+        <NavLink to="/" className={bottomLinkClass} aria-label="Home">
+          <Home size={17} strokeWidth={2.3} />
+
           <span>Home</span>
         </NavLink>
 
         {/* SERVICES */}
 
-        <NavLink to="/services" className={bottomLinkClass}>
-          <Images size={17} />
+        <NavLink
+          to="/services"
+          className={bottomLinkClass}
+          aria-label="Services"
+        >
+          <Images size={17} strokeWidth={2.3} />
+
           <span>Services</span>
         </NavLink>
 
@@ -526,23 +736,33 @@ export default function Navbar() {
 
         <Link
           to="/register"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[#25F4EE] to-[#FE2C55] text-black shadow-[0_6px_20px_rgba(37,244,238,0.15)]"
+          className="relative flex h-11 w-11 shrink-0 -translate-y-2 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-violet-500 to-pink-500 text-white shadow-[0_8px_25px_rgba(124,58,237,0.28)] ring-4 ring-white transition-transform duration-300 active:scale-95"
           aria-label="Register for training"
         >
-          <GraduationCap size={19} />
+          <GraduationCap size={19} strokeWidth={2.5} />
+
+          {/* Notification dot */}
+
+          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-pink-500 ring-2 ring-white" />
         </Link>
 
         {/* TESTIMONIALS */}
 
-        <NavLink to="/testimonial" className={bottomLinkClass}>
-          <Star size={17} />
+        <NavLink
+          to="/testimonial"
+          className={bottomLinkClass}
+          aria-label="Testimonials"
+        >
+          <Star size={17} strokeWidth={2.3} />
+
           <span>Reviews</span>
         </NavLink>
 
         {/* ABOUT */}
 
-        <NavLink to="/about" className={bottomLinkClass}>
-          <Info size={17} />
+        <NavLink to="/about" className={bottomLinkClass} aria-label="About">
+          <Info size={17} strokeWidth={2.3} />
+
           <span>About</span>
         </NavLink>
       </div>
