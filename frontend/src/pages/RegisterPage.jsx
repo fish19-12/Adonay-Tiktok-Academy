@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import api from "../services/api";
 
@@ -26,8 +25,6 @@ import {
   Users,
 } from "lucide-react";
 
-const TOTAL_SEATS = 300;
-
 const initialForm = {
   name: "",
   phone: "",
@@ -39,79 +36,16 @@ const initialForm = {
   realEstateCompany: "",
 };
 
-/*
-|--------------------------------------------------------------------------
-| MAIN PAGE
-|--------------------------------------------------------------------------
-*/
-
 export default function RegisterPage() {
+  const navigate = useNavigate();
+
   const [form, setForm] = useState(initialForm);
-
-  const [registeredStudents, setRegisteredStudents] = useState(0);
-
-  const [loadingSeats, setLoadingSeats] = useState(true);
-
   const [submitting, setSubmitting] = useState(false);
-
   const [submitted, setSubmitted] = useState(false);
-
   const [registrationData, setRegistrationData] = useState(null);
-
   const [error, setError] = useState("");
 
   const hasTikTokAccount = form.hasTikTok === "yes";
-
-  const remainingSeats = Math.max(TOTAL_SEATS - registeredStudents, 0);
-
-  const seatPercentage = Math.min(
-    (registeredStudents / TOTAL_SEATS) * 100,
-    100,
-  );
-
-  /*
-  |--------------------------------------------------------------------------
-  | LOAD SEAT COUNT
-  |--------------------------------------------------------------------------
-  */
-
-  useEffect(() => {
-    let mounted = true;
-
-    const loadSeatCount = async () => {
-      try {
-        const response = await api.get("/registration/stats");
-
-        const count = Number(response?.data?.registeredStudents);
-
-        if (mounted && Number.isFinite(count)) {
-          setRegisteredStudents(Math.min(Math.max(count, 0), TOTAL_SEATS));
-        }
-      } catch (error) {
-        console.error("Failed to load registration count:", error);
-
-        if (mounted) {
-          setRegisteredStudents(0);
-        }
-      } finally {
-        if (mounted) {
-          setLoadingSeats(false);
-        }
-      }
-    };
-
-    loadSeatCount();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  /*
-  |--------------------------------------------------------------------------
-  | UPDATE FIELD
-  |--------------------------------------------------------------------------
-  */
 
   const updateField = (field, value) => {
     setForm((previous) => ({
@@ -123,12 +57,6 @@ export default function RegisterPage() {
       setError("");
     }
   };
-
-  /*
-  |--------------------------------------------------------------------------
-  | VALIDATION
-  |--------------------------------------------------------------------------
-  */
 
   const validateForm = () => {
     if (!form.name.trim()) {
@@ -180,12 +108,6 @@ export default function RegisterPage() {
     return "";
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | SUBMIT
-  |--------------------------------------------------------------------------
-  */
-
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -204,22 +126,12 @@ export default function RegisterPage() {
       return;
     }
 
-    if (remainingSeats <= 0) {
-      setError(
-        "Registration is currently full. Please check back for the next training intake.",
-      );
-
-      return;
-    }
-
     setSubmitting(true);
 
     try {
       const payload = {
         name: form.name.trim(),
-
         phone: form.phone.trim(),
-
         email: form.email.trim().toLowerCase(),
 
         hasTikTok: hasTikTokAccount,
@@ -248,14 +160,6 @@ export default function RegisterPage() {
         },
       );
 
-      /*
-      |--------------------------------------------------------------------------
-      | Update local count
-      |--------------------------------------------------------------------------
-      */
-
-      setRegisteredStudents((current) => Math.min(current + 1, TOTAL_SEATS));
-
       setSubmitted(true);
 
       window.scrollTo({
@@ -280,33 +184,20 @@ export default function RegisterPage() {
     }
   };
 
-  /*
-  |--------------------------------------------------------------------------
-  | SUCCESS
-  |--------------------------------------------------------------------------
-  */
-
   if (submitted) {
     return (
       <SuccessScreen
         registration={registrationData}
-        registeredStudents={registeredStudents}
+        onContinue={() => navigate("/seminar-countdown")}
       />
     );
   }
-
-  /*
-  |--------------------------------------------------------------------------
-  | MAIN
-  |--------------------------------------------------------------------------
-  */
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#050506] text-white">
       <Background />
 
       {/* HEADER */}
-
       <header className="relative z-10 border-b border-white/[0.06] bg-black/10 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
           <Link to="/" className="group flex items-center gap-3">
@@ -336,10 +227,8 @@ export default function RegisterPage() {
       </header>
 
       {/* CONTENT */}
-
       <div className="relative z-10 mx-auto max-w-7xl px-5 py-10 sm:px-8 sm:py-14 lg:py-16">
         {/* HERO */}
-
         <div className="mx-auto max-w-3xl text-center">
           <div className="inline-flex items-center gap-2 rounded-full border border-[#25F4EE]/10 bg-[#25F4EE]/[0.045] px-3.5 py-2">
             <Sparkles size={13} className="text-[#25F4EE]" />
@@ -362,81 +251,38 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        {/* SEATS */}
-
+        {/* LIVE SEMINAR NOTICE */}
         <div className="mx-auto mt-9 max-w-4xl">
-          <div className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.025] shadow-2xl backdrop-blur-2xl">
-            <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-              <div className="flex items-center gap-3.5">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.06]">
-                  <Users size={19} className="text-[#25F4EE]" />
+          <div className="relative overflow-hidden rounded-2xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-5 shadow-2xl backdrop-blur-2xl sm:p-6">
+            <div className="absolute right-0 top-0 h-32 w-32 rounded-full bg-[#25F4EE]/10 blur-[70px]" />
+
+            <div className="relative flex items-start gap-4">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.06]">
+                <CalendarCheck2 size={19} className="text-[#25F4EE]" />
+              </div>
+
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-bold">Live Academy Seminar</p>
+
+                  <span className="rounded-full border border-[#25F4EE]/15 bg-[#25F4EE]/10 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.15em] text-[#25F4EE]">
+                    Every Wednesday
+                  </span>
                 </div>
 
-                <div>
-                  <p className="text-sm font-bold">Limited enrollment</p>
-
-                  <p className="mt-1 text-xs text-white/30">
-                    {TOTAL_SEATS} seats available for this training.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4 sm:text-right">
-                {loadingSeats ? (
-                  <div className="flex items-center gap-2 text-xs text-white/35">
-                    <Loader2 size={14} className="animate-spin" />
-                    Checking seats...
-                  </div>
-                ) : (
-                  <>
-                    <div>
-                      <p className="text-2xl font-black tracking-tight">
-                        {remainingSeats}
-                      </p>
-
-                      <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/25">
-                        seats left
-                      </p>
-                    </div>
-
-                    <div className="hidden h-9 w-px bg-white/[0.08] sm:block" />
-
-                    <div className="hidden sm:block">
-                      <p className="text-sm font-bold">{registeredStudents}</p>
-
-                      <p className="text-[9px] uppercase tracking-[0.18em] text-white/25">
-                        registered
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-
-            <div className="px-5 pb-5 sm:px-6 sm:pb-6">
-              <div className="h-1 overflow-hidden rounded-full bg-white/[0.05]">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#25F4EE] to-[#FE2C55] transition-all duration-700"
-                  style={{
-                    width: `${seatPercentage}%`,
-                  }}
-                />
-              </div>
-
-              <div className="mt-2 flex justify-between text-[9px] font-medium text-white/20">
-                <span>{registeredStudents} people registered</span>
-
-                <span>{TOTAL_SEATS} seats</span>
+                <p className="mt-1.5 text-xs leading-5 text-white/35">
+                  Registered participants will receive access details and can
+                  follow the live seminar countdown after completing
+                  registration.
+                </p>
               </div>
             </div>
           </div>
         </div>
 
         {/* MAIN GRID */}
-
         <div className="mx-auto mt-8 grid max-w-6xl gap-7 lg:grid-cols-[0.68fr_1.32fr]">
           {/* LEFT */}
-
           <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
             <div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6 backdrop-blur-xl">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.06]">
@@ -446,8 +292,8 @@ export default function RegisterPage() {
               <h2 className="mt-5 text-lg font-bold">What you'll learn</h2>
 
               <p className="mt-2 text-sm leading-6 text-white/35">
-                A practical face-to-face training experience designed for real
-                estate professionals.
+                A practical training experience designed for real estate
+                professionals who want to build a stronger presence on TikTok.
               </p>
 
               <div className="mt-6 space-y-3">
@@ -457,6 +303,7 @@ export default function RegisterPage() {
                   "Personal branding",
                   "Audience growth",
                   "Short-form content",
+                  "Live seminar guidance",
                 ].map((item) => (
                   <div
                     key={item}
@@ -494,7 +341,6 @@ export default function RegisterPage() {
           </aside>
 
           {/* FORM */}
-
           <section className="overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.03] shadow-2xl backdrop-blur-2xl">
             <div className="border-b border-white/[0.06] px-5 py-6 sm:px-8">
               <div className="flex items-center justify-between gap-4">
@@ -508,7 +354,8 @@ export default function RegisterPage() {
                   </h2>
 
                   <p className="mt-2 text-sm text-white/30">
-                    A few details and you're done.
+                    Complete your details and get ready for the live academy
+                    experience.
                   </p>
                 </div>
 
@@ -535,7 +382,6 @@ export default function RegisterPage() {
 
               <form onSubmit={handleSubmit} className="space-y-8">
                 {/* PERSONAL */}
-
                 <FormSection
                   icon={UserRound}
                   title="Personal details"
@@ -590,7 +436,6 @@ export default function RegisterPage() {
                 </FormSection>
 
                 {/* PROFESSIONAL */}
-
                 <FormSection
                   icon={Building2}
                   title="Professional details"
@@ -610,7 +455,6 @@ export default function RegisterPage() {
                 </FormSection>
 
                 {/* TIKTOK */}
-
                 <FormSection
                   title="TikTok profile"
                   description="Tell us about your current TikTok presence"
@@ -763,7 +607,6 @@ export default function RegisterPage() {
                 </FormSection>
 
                 {/* TRAINING INFO */}
-
                 <div className="rounded-xl border border-white/[0.07] bg-white/[0.02] p-5">
                   <div className="flex items-start gap-3">
                     <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FE2C55]/10">
@@ -781,13 +624,33 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                {/* SUBMIT */}
+                {/* LIVE SEMINAR */}
+                <div className="rounded-xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-5">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#25F4EE]/10">
+                      <Sparkles size={17} className="text-[#25F4EE]" />
+                    </div>
 
+                    <div>
+                      <p className="text-sm font-bold">
+                        Wednesday Live Seminar
+                      </p>
+
+                      <p className="mt-1.5 text-xs leading-5 text-white/30">
+                        After registration, you'll be taken to your live seminar
+                        countdown page so you can easily track the time
+                        remaining until Wednesday's session.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SUBMIT */}
                 <div>
                   <button
                     type="submit"
-                    disabled={submitting || remainingSeats <= 0}
-                    className="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#7ffdf9] px-6 py-4 text-sm font-extrabold text-black shadow-[0_10px_35px_rgba(37,244,238,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(37,244,238,0.16)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0"
+                    disabled={submitting}
+                    className="group relative flex w-full items-center justify-center gap-2.5 overflow-hidden rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#7ffdf9] px-6 py-4 text-sm font-extrabold text-black shadow-[0_10px_35px_rgba(37,244,238,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_45px_rgba(37,244,238,0.16)] active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <span className="absolute inset-0 bg-white/20 opacity-0 transition group-hover:opacity-100" />
 
@@ -797,11 +660,9 @@ export default function RegisterPage() {
                           <Loader2 size={17} className="animate-spin" />
                           Sending registration...
                         </>
-                      ) : remainingSeats <= 0 ? (
-                        "Registration is full"
                       ) : (
                         <>
-                          Reserve my place
+                          Complete Registration
                           <ArrowRight
                             size={17}
                             className="transition-transform group-hover:translate-x-1"
@@ -814,7 +675,7 @@ export default function RegisterPage() {
                   <p className="mx-auto mt-4 max-w-lg text-center text-[10px] leading-5 text-white/20">
                     By registering, you confirm that your information is
                     accurate and agree to be contacted about your academy
-                    registration.
+                    registration and live seminar.
                   </p>
                 </div>
               </form>
@@ -826,22 +687,41 @@ export default function RegisterPage() {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| SUCCESS SCREEN
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   SUCCESS SCREEN
+========================================================= */
 
-function SuccessScreen({ registration, registeredStudents }) {
+function SuccessScreen({ registration, onContinue }) {
   const studentName = registration?.name?.trim() || "there";
 
   const firstName = studentName.split(/\s+/)[0] || studentName;
 
   const phone = registration?.phone || "";
-
   const email = registration?.email || "";
 
-  const seatNumber = registeredStudents;
+  const [seconds, setSeconds] = useState(6);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((current) => {
+        if (current <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+
+        return current - 1;
+      });
+    }, 1000);
+
+    const timeout = setTimeout(() => {
+      onContinue();
+    }, 6000);
+
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [onContinue]);
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#050506] px-4 py-6 text-white sm:px-6 sm:py-10">
@@ -850,7 +730,6 @@ function SuccessScreen({ registration, registeredStudents }) {
       <div className="relative z-10 mx-auto flex min-h-[calc(100vh-48px)] max-w-2xl items-center justify-center">
         <div className="w-full">
           {/* BRAND */}
-
           <div className="mb-5 flex justify-center">
             <Link
               to="/"
@@ -869,13 +748,11 @@ function SuccessScreen({ registration, registeredStudents }) {
           </div>
 
           {/* SUCCESS CARD */}
-
           <div className="relative overflow-hidden rounded-[28px] border border-white/[0.09] bg-white/[0.035] shadow-[0_30px_100px_rgba(0,0,0,0.5)] backdrop-blur-2xl">
             <div className="pointer-events-none absolute left-1/2 top-[-120px] h-[240px] w-[400px] -translate-x-1/2 rounded-full bg-[#25F4EE]/10 blur-[100px]" />
 
             <div className="relative p-6 sm:p-9">
               {/* ICON */}
-
               <div className="flex justify-center">
                 <div className="relative flex h-[72px] w-[72px] items-center justify-center rounded-[22px] border border-[#25F4EE]/20 bg-[#25F4EE]/[0.08] shadow-[0_0_45px_rgba(37,244,238,0.08)]">
                   <CheckCircle2
@@ -889,7 +766,6 @@ function SuccessScreen({ registration, registeredStudents }) {
               </div>
 
               {/* HEADING */}
-
               <div className="mt-6 text-center">
                 <div className="inline-flex items-center gap-2 rounded-full border border-[#25F4EE]/10 bg-[#25F4EE]/[0.045] px-3 py-1.5">
                   <span className="h-1.5 w-1.5 rounded-full bg-[#25F4EE]" />
@@ -913,7 +789,6 @@ function SuccessScreen({ registration, registeredStudents }) {
               </div>
 
               {/* STATUS */}
-
               <div className="mt-7 rounded-2xl border border-[#25F4EE]/10 bg-[#25F4EE]/[0.035] p-4 sm:p-5">
                 <div className="flex items-start gap-3">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#25F4EE]/10">
@@ -927,7 +802,7 @@ function SuccessScreen({ registration, registeredStudents }) {
 
                     <p className="mt-1.5 text-xs leading-5 text-white/40">
                       Registration is complete, but your place is not yet
-                      officially approved. Our team will call you on{" "}
+                      officially approved. Our team will contact you on{" "}
                       <span className="font-semibold text-white/65">
                         {phone}
                       </span>{" "}
@@ -947,40 +822,33 @@ function SuccessScreen({ registration, registeredStudents }) {
                 </div>
               </div>
 
-              {/* STUDENT SUMMARY */}
-
-              <div className="mt-4 rounded-2xl border border-white/[0.07] bg-black/20 p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.05]">
-                      <UserRound size={17} className="text-white/60" />
-                    </div>
-
-                    <div>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-white/25">
-                        Applicant
-                      </p>
-
-                      <p className="mt-0.5 text-sm font-bold">{studentName}</p>
-                    </div>
+              {/* SEMINAR TRANSITION */}
+              <div className="mt-4 rounded-2xl border border-white/[0.07] bg-black/20 p-5">
+                <div className="text-center">
+                  <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.05]">
+                    <CalendarCheck2 size={19} className="text-[#25F4EE]" />
                   </div>
 
-                  <div className="rounded-full border border-[#25F4EE]/10 bg-[#25F4EE]/[0.05] px-3 py-1.5">
-                    <span className="text-[9px] font-bold text-[#25F4EE]">
-                      #{seatNumber || "—"} registered
+                  <p className="mt-4 text-sm font-bold">
+                    Your Wednesday Live Seminar is next
+                  </p>
+
+                  <p className="mx-auto mt-1.5 max-w-sm text-xs leading-5 text-white/30">
+                    We're taking you to your dedicated live seminar countdown
+                    page.
+                  </p>
+
+                  <div className="mt-4">
+                    <span className="text-2xl font-black text-[#25F4EE]">
+                      {seconds}
                     </span>
+
+                    <span className="ml-2 text-xs text-white/25">seconds</span>
                   </div>
-                </div>
-
-                <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                  <MiniInfo icon={Phone} value={phone} />
-
-                  <MiniInfo icon={Mail} value={email} />
                 </div>
               </div>
 
-              {/* NEXT STEPS */}
-
+              {/* JOURNEY */}
               <div className="mt-5">
                 <p className="mb-3 text-[9px] font-bold uppercase tracking-[0.2em] text-white/25">
                   Your journey
@@ -996,17 +864,17 @@ function SuccessScreen({ registration, registeredStudents }) {
               </div>
 
               {/* BUTTON */}
-
-              <Link
-                to="/"
-                className="group mt-6 flex w-full items-center justify-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.05] px-5 py-3.5 text-sm font-bold text-white transition-all hover:border-white/[0.15] hover:bg-white/[0.08]"
+              <button
+                type="button"
+                onClick={onContinue}
+                className="group mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#25F4EE] to-[#7ffdf9] px-5 py-3.5 text-sm font-extrabold text-black transition-all hover:-translate-y-0.5 hover:shadow-[0_15px_40px_rgba(37,244,238,0.12)]"
               >
-                Back to Academy
+                Open Live Seminar Countdown
                 <ArrowRight
                   size={16}
                   className="transition-transform group-hover:translate-x-1"
                 />
-              </Link>
+              </button>
 
               <p className="mt-5 text-center text-[9px] font-medium uppercase tracking-[0.16em] text-white/15">
                 Thank you for choosing Adonay TikTok Academy
@@ -1019,11 +887,9 @@ function SuccessScreen({ registration, registeredStudents }) {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| MINI INFO
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   MINI INFO
+========================================================= */
 
 function MiniInfo({ icon: Icon, value }) {
   return (
@@ -1035,11 +901,9 @@ function MiniInfo({ icon: Icon, value }) {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| STATUS ITEM
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   STATUS ITEM
+========================================================= */
 
 function StatusItem({ number, label, active = false }) {
   return (
@@ -1069,11 +933,9 @@ function StatusItem({ number, label, active = false }) {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| BACKGROUND
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   BACKGROUND
+========================================================= */
 
 function Background() {
   return (
@@ -1094,11 +956,9 @@ function Background() {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| BRAND MARK
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   BRAND MARK
+========================================================= */
 
 function BrandMark() {
   return (
@@ -1108,11 +968,9 @@ function BrandMark() {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| FORM SECTION
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   FORM SECTION
+========================================================= */
 
 function FormSection({ icon: Icon, title, description, children }) {
   return (
@@ -1136,11 +994,9 @@ function FormSection({ icon: Icon, title, description, children }) {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| FIELD
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   FIELD
+========================================================= */
 
 function Field({ label, required = false, hint, children }) {
   return (
@@ -1170,11 +1026,9 @@ function Field({ label, required = false, hint, children }) {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| INPUT WITH ICON
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   INPUT WITH ICON
+========================================================= */
 
 function InputWithIcon({ icon: Icon, rightIcon: RightIcon, children }) {
   return (
@@ -1196,11 +1050,9 @@ function InputWithIcon({ icon: Icon, rightIcon: RightIcon, children }) {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| CHOICE BUTTON
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   CHOICE BUTTON
+========================================================= */
 
 function ChoiceButton({ active, onClick, children }) {
   return (
@@ -1229,11 +1081,9 @@ function ChoiceButton({ active, onClick, children }) {
   );
 }
 
-/*
-|--------------------------------------------------------------------------
-| INPUT STYLES
-|--------------------------------------------------------------------------
-*/
+/* =========================================================
+   INPUT STYLES
+========================================================= */
 
 const inputClass =
   "w-full rounded-xl border border-white/[0.08] bg-white/[0.025] px-4 py-3.5 text-sm text-white outline-none placeholder:text-white/20 transition-all duration-200 hover:border-white/[0.14] focus:border-[#25F4EE]/35 focus:bg-white/[0.04] focus:ring-4 focus:ring-[#25F4EE]/[0.04]";
