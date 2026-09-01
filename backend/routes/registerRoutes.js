@@ -7,6 +7,7 @@ const {
   getRegistration,
   approveRegistration,
   rejectRegistration,
+  deleteRegistration,
 } = require("../controllers/registerController");
 
 const router = express.Router();
@@ -109,5 +110,20 @@ Automatically sends the student a rejection email.
 */
 
 router.put("/:id/reject", rejectRegistration);
+
+/*
+|--------------------------------------------------------------------------
+| DELETE REGISTRATION
+|--------------------------------------------------------------------------
+*/
+
+/*
+DELETE
+/api/register/:id
+
+Permanently deletes the registration.
+*/
+
+router.delete("/:id", deleteRegistration);
 
 module.exports = router;

@@ -19,11 +19,11 @@ function normalizeBoolean(value) {
     return value;
   }
 
-  if (value === "true" || value === "yes" || value === 1) {
+  if (value === "true" || value === "yes" || value === 1 || value === "1") {
     return true;
   }
 
-  if (value === "false" || value === "no" || value === 0) {
+  if (value === "false" || value === "no" || value === 0 || value === "0") {
     return false;
   }
 
@@ -78,18 +78,21 @@ const createRegistration = async (req, res) => {
 
     if (!normalizedName) {
       return res.status(400).json({
+        success: false,
         message: "Full name is required.",
       });
     }
 
     if (!normalizedPhone) {
       return res.status(400).json({
+        success: false,
         message: "Phone number is required.",
       });
     }
 
     if (!normalizedEmail) {
       return res.status(400).json({
+        success: false,
         message: "Email address is required.",
       });
     }
@@ -98,18 +101,21 @@ const createRegistration = async (req, res) => {
 
     if (!emailPattern.test(normalizedEmail)) {
       return res.status(400).json({
+        success: false,
         message: "Please provide a valid email address.",
       });
     }
 
     if (!normalizedCompany) {
       return res.status(400).json({
+        success: false,
         message: "Real estate company or agency is required.",
       });
     }
 
     if (normalizedHasTikTok === null) {
       return res.status(400).json({
+        success: false,
         message: "Please specify whether you have a TikTok account.",
       });
     }
@@ -126,17 +132,18 @@ const createRegistration = async (req, res) => {
 
     if (normalizedHasTikTok) {
       normalizedUsername = cleanString(tiktokUsername).replace(/^@/, "");
-
       normalizedProfileLink = cleanString(tiktokProfileLink);
 
       if (!normalizedUsername) {
         return res.status(400).json({
+          success: false,
           message: "TikTok username is required.",
         });
       }
 
       if (!normalizedProfileLink) {
         return res.status(400).json({
+          success: false,
           message: "TikTok profile link is required.",
         });
       }
@@ -151,6 +158,7 @@ const createRegistration = async (req, res) => {
         followerNumber < 0
       ) {
         return res.status(400).json({
+          success: false,
           message: "Please provide a valid TikTok follower count.",
         });
       }
@@ -160,11 +168,8 @@ const createRegistration = async (req, res) => {
 
     /*
     |--------------------------------------------------------------------------
-    | OPTIONAL DUPLICATE PROTECTION
+    | DUPLICATE PROTECTION
     |--------------------------------------------------------------------------
-    |
-    | Prevent the same email from creating many pending registrations.
-    |
     */
 
     const existingRegistration = await Registration.findOne({
@@ -178,6 +183,7 @@ const createRegistration = async (req, res) => {
 
     if (existingRegistration) {
       return res.status(409).json({
+        success: false,
         message:
           existingRegistration.status === "approved"
             ? "This email already has an approved registration."
@@ -188,7 +194,7 @@ const createRegistration = async (req, res) => {
 
     /*
     |--------------------------------------------------------------------------
-    | CREATE
+    | CREATE REGISTRATION
     |--------------------------------------------------------------------------
     */
 
@@ -196,16 +202,12 @@ const createRegistration = async (req, res) => {
       name: normalizedName,
       phone: normalizedPhone,
       email: normalizedEmail,
-
       hasTikTok: normalizedHasTikTok,
-
       tiktokUsername: normalizedUsername,
       tiktokProfileLink: normalizedProfileLink,
       followers: normalizedFollowers,
-
       realEstateCompany: normalizedCompany,
       trainingType: normalizedTrainingType,
-
       status: "pending",
     });
 
@@ -213,10 +215,6 @@ const createRegistration = async (req, res) => {
     |--------------------------------------------------------------------------
     | SEND CONFIRMATION EMAIL
     |--------------------------------------------------------------------------
-    |
-    | Important:
-    | Email failure does NOT fail registration.
-    |
     */
 
     try {
@@ -241,6 +239,7 @@ const createRegistration = async (req, res) => {
     console.error("[createRegistration]", error);
 
     return res.status(500).json({
+      success: false,
       message: "Registration could not be completed. Please try again.",
     });
   }
@@ -260,12 +259,15 @@ const getRegistrationStats = async (req, res) => {
     const [registeredStudents, approved, pending, rejected] = await Promise.all(
       [
         Registration.countDocuments(),
+
         Registration.countDocuments({
           status: "approved",
         }),
+
         Registration.countDocuments({
           status: "pending",
         }),
+
         Registration.countDocuments({
           status: "rejected",
         }),
@@ -273,6 +275,7 @@ const getRegistrationStats = async (req, res) => {
     );
 
     return res.status(200).json({
+      success: true,
       registeredStudents,
       approved,
       pending,
@@ -282,6 +285,7 @@ const getRegistrationStats = async (req, res) => {
     console.error("[getRegistrationStats]", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to load registration statistics.",
     });
   }
@@ -313,6 +317,7 @@ const getRegistrations = async (req, res) => {
     console.error("[getRegistrations]", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to load registrations.",
     });
   }
@@ -333,6 +338,7 @@ const getRegistration = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
+        success: false,
         message: "Invalid registration ID.",
       });
     }
@@ -341,6 +347,7 @@ const getRegistration = async (req, res) => {
 
     if (!registration) {
       return res.status(404).json({
+        success: false,
         message: "Registration not found.",
       });
     }
@@ -353,6 +360,7 @@ const getRegistration = async (req, res) => {
     console.error("[getRegistration]", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to load registration.",
     });
   }
@@ -373,6 +381,7 @@ const approveRegistration = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
+        success: false,
         message: "Invalid registration ID.",
       });
     }
@@ -381,6 +390,7 @@ const approveRegistration = async (req, res) => {
 
     if (!registration) {
       return res.status(404).json({
+        success: false,
         message: "Registration not found.",
       });
     }
@@ -430,6 +440,7 @@ const approveRegistration = async (req, res) => {
     console.error("[approveRegistration]", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to approve registration.",
     });
   }
@@ -456,6 +467,7 @@ const rejectRegistration = async (req, res) => {
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({
+        success: false,
         message: "Invalid registration ID.",
       });
     }
@@ -464,6 +476,7 @@ const rejectRegistration = async (req, res) => {
 
     if (!registration) {
       return res.status(404).json({
+        success: false,
         message: "Registration not found.",
       });
     }
@@ -521,10 +534,87 @@ const rejectRegistration = async (req, res) => {
     console.error("[rejectRegistration]", error);
 
     return res.status(500).json({
+      success: false,
       message: "Failed to reject registration.",
     });
   }
 };
+
+/*
+|--------------------------------------------------------------------------
+| DELETE REGISTRATION
+|--------------------------------------------------------------------------
+|
+| DELETE /api/register/:id
+|
+| Permanently deletes a registration.
+|
+*/
+
+const deleteRegistration = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    /*
+    |--------------------------------------------------------------------------
+    | VALIDATE ID
+    |--------------------------------------------------------------------------
+    */
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid registration ID.",
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | FIND AND DELETE
+    |--------------------------------------------------------------------------
+    */
+
+    const registration = await Registration.findByIdAndDelete(id);
+
+    /*
+    |--------------------------------------------------------------------------
+    | NOT FOUND
+    |--------------------------------------------------------------------------
+    */
+
+    if (!registration) {
+      return res.status(404).json({
+        success: false,
+        message: "Registration not found. It may have already been deleted.",
+      });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | SUCCESS
+    |--------------------------------------------------------------------------
+    */
+
+    return res.status(200).json({
+      success: true,
+      message: `${registration.name}'s registration was deleted successfully.`,
+      registration,
+    });
+  } catch (error) {
+    console.error("[deleteRegistration]", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete registration. Please try again.",
+    });
+  }
+};
+
+/*
+|--------------------------------------------------------------------------
+| EXPORTS
+|--------------------------------------------------------------------------
+*/
 
 module.exports = {
   createRegistration,
@@ -533,4 +623,5 @@ module.exports = {
   getRegistration,
   approveRegistration,
   rejectRegistration,
+  deleteRegistration,
 };
