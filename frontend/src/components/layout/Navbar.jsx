@@ -6,7 +6,6 @@ import {
   Menu,
   X,
   Home,
-  Images,
   Star,
   Info,
   ArrowRight,
@@ -54,12 +53,7 @@ export default function Navbar() {
 
   /* ============================================================
      SCROLL EFFECT
-
-     IMPORTANT:
-     Navbar NEVER hides while scrolling.
-
-     We only detect scrolling so the navbar can become slightly
-     more solid and add a stronger shadow.
+     Navbar stays visible while scrolling.
   ============================================================ */
 
   useEffect(() => {
@@ -95,17 +89,6 @@ export default function Navbar() {
   const navLinkClass = ({ isActive }) =>
     `group relative flex items-center text-[13px] font-semibold tracking-wide transition-all duration-300 ${
       isActive ? "text-slate-900" : "text-slate-500 hover:text-slate-900"
-    }`;
-
-  /* ============================================================
-     MOBILE BOTTOM NAV STYLE
-  ============================================================ */
-
-  const bottomLinkClass = ({ isActive }) =>
-    `flex min-w-0 flex-col items-center justify-center gap-1 rounded-xl px-2 py-1.5 text-[9px] font-bold transition-all duration-300 ${
-      isActive
-        ? "scale-105 text-violet-600"
-        : "text-slate-400 hover:text-slate-700"
     }`;
 
   /* ============================================================
@@ -165,7 +148,7 @@ export default function Navbar() {
     {
       name: "Services",
       path: "/services",
-      icon: Images,
+      icon: Sparkles,
       description: "Explore what we offer",
     },
     {
@@ -192,7 +175,6 @@ export default function Navbar() {
     <>
       {/* ============================================================
           DESKTOP NAVBAR
-
           ALWAYS FIXED
           NEVER DISAPPEARS ON SCROLL
       ============================================================ */}
@@ -222,9 +204,7 @@ export default function Navbar() {
           <div className="h-[2px] w-full bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500" />
 
           <div className="flex h-[70px] items-center justify-between px-5 xl:px-7">
-            {/* ==================================================
-                BRAND
-            ================================================== */}
+            {/* BRAND */}
 
             <Link to="/" className="group flex min-w-0 items-center gap-3">
               <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-0.5 group-hover:shadow-md">
@@ -260,9 +240,7 @@ export default function Navbar() {
               </div>
             </Link>
 
-            {/* ==================================================
-                DESKTOP NAVIGATION
-            ================================================== */}
+            {/* DESKTOP NAVIGATION */}
 
             <div className="hidden items-center gap-8 lg:flex">
               {desktopItems.map((item) => (
@@ -282,9 +260,7 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* ==================================================
-                RIGHT SIDE
-            ================================================== */}
+            {/* RIGHT SIDE */}
 
             <div className="flex items-center gap-3">
               {/* Academy Badge */}
@@ -327,9 +303,7 @@ export default function Navbar() {
 
       {/* ============================================================
           MOBILE TOP NAVBAR
-
-          ALWAYS FIXED
-          NEVER DISAPPEARS ON SCROLL
+          NO MOBILE BOTTOM BAR
       ============================================================ */}
 
       <div
@@ -689,83 +663,6 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* ============================================================
-          MOBILE BOTTOM NAVIGATION
-
-          ALWAYS FIXED
-          NEVER DISAPPEARS ON SCROLL
-
-          IMPORTANT:
-          bottom-[max(...)] keeps it above the iPhone/Android
-          safe area and prevents the bar from being cut off.
-      ============================================================ */}
-
-      <div
-        className="fixed bottom-3 left-1/2 z-[100] flex w-[calc(100%-24px)] max-w-md -translate-x-1/2 items-center justify-around rounded-2xl border border-slate-200 bg-white/95 px-2 py-2 shadow-[0_15px_45px_rgba(15,23,42,0.15)] md:hidden"
-        style={{
-          WebkitBackdropFilter: "blur(18px)",
-          backdropFilter: "blur(18px)",
-          WebkitTransform: "translate3d(-50%, 0, 0)",
-          transform: "translate3d(-50%, 0, 0)",
-          paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))",
-          marginBottom: "env(safe-area-inset-bottom)",
-        }}
-      >
-        {/* HOME */}
-
-        <NavLink to="/" className={bottomLinkClass} aria-label="Home">
-          <Home size={17} strokeWidth={2.3} />
-
-          <span>Home</span>
-        </NavLink>
-
-        {/* SERVICES */}
-
-        <NavLink
-          to="/services"
-          className={bottomLinkClass}
-          aria-label="Services"
-        >
-          <Images size={17} strokeWidth={2.3} />
-
-          <span>Services</span>
-        </NavLink>
-
-        {/* REGISTER */}
-
-        <Link
-          to="/register"
-          className="relative flex h-11 w-11 shrink-0 -translate-y-2 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-400 via-violet-500 to-pink-500 text-white shadow-[0_8px_25px_rgba(124,58,237,0.28)] ring-4 ring-white transition-transform duration-300 active:scale-95"
-          aria-label="Register for training"
-        >
-          <GraduationCap size={19} strokeWidth={2.5} />
-
-          {/* Notification dot */}
-
-          <span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-pink-500 ring-2 ring-white" />
-        </Link>
-
-        {/* TESTIMONIALS */}
-
-        <NavLink
-          to="/testimonial"
-          className={bottomLinkClass}
-          aria-label="Testimonials"
-        >
-          <Star size={17} strokeWidth={2.3} />
-
-          <span>Reviews</span>
-        </NavLink>
-
-        {/* ABOUT */}
-
-        <NavLink to="/about" className={bottomLinkClass} aria-label="About">
-          <Info size={17} strokeWidth={2.3} />
-
-          <span>About</span>
-        </NavLink>
-      </div>
     </>
   );
 }
