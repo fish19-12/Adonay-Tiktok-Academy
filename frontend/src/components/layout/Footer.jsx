@@ -44,40 +44,6 @@ export default function Footer() {
         {/* =====================================================
             ESSENTIAL LINKS
         ===================================================== */}
-
-        <div className="flex items-center gap-4">
-          <Link
-            to="/privacy"
-            className="
-              text-[9px]
-              font-semibold
-              uppercase
-              tracking-[0.12em]
-              text-black/40
-              transition-colors
-              hover:text-[#d9573f]
-            "
-          >
-            Privacy
-          </Link>
-
-          <span className="h-1 w-1 rounded-full bg-black/15" />
-
-          <Link
-            to="/terms"
-            className="
-              text-[9px]
-              font-semibold
-              uppercase
-              tracking-[0.12em]
-              text-black/40
-              transition-colors
-              hover:text-[#d9573f]
-            "
-          >
-            Terms
-          </Link>
-        </div>
       </div>
     </footer>
   );
