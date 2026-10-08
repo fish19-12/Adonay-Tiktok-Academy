@@ -132,6 +132,10 @@ export default function Navbar() {
       name: "Testimonials",
       path: "/testimonial",
     },
+    {
+      name: "Webinars",
+      path: "/webinars",
+    },
   ];
 
   /* ============================================================
@@ -162,6 +166,12 @@ export default function Navbar() {
       path: "/testimonial",
       icon: Star,
       description: "See student experiences",
+    },
+    {
+      name: "Webinars",
+      path: "/webinars",
+      icon: Sparkles,
+      description: "Join live learning sessions",
     },
     {
       name: "FAQ",

@@ -636,8 +636,44 @@ async function sendRegistrationRejectedEmail(registration, reason = "") {
   });
 }
 
+async function sendWebinarVerificationEmail({ registration, webinar, verificationUrl }) {
+  const firstName =
+    String(registration.name || "")
+      .trim()
+      .split(/\s+/)[0] || "there";
+
+  const html = emailLayout({
+    previewText: "Verify your email to access the webinar.",
+    eyebrow: "Verify your email",
+    title: `Confirm your place, ${escapeHtml(firstName)}.`,
+    intro: `You registered for ${escapeHtml(webinar.title)}. Verify this email address to receive your webinar access link.`,
+    content: `
+      <div class="callout">
+        <p class="callout-title">${escapeHtml(webinar.title)}</p>
+        <p class="callout-text">
+          This access link is personal to this email address and expires after the webinar.
+        </p>
+      </div>
+      <p style="margin:24px 0;text-align:center">
+        <a
+          href="${escapeHtml(verificationUrl)}"
+          style="display:inline-block;border-radius:10px;background:#e85f3f;padding:14px 22px;color:#fff;font-weight:700;text-decoration:none"
+        >Verify email and view access</a>
+      </p>
+    `,
+  });
+
+  return sendEmail({
+    to: registration.email,
+    subject: `Verify your place: ${webinar.title}`,
+    html,
+    idempotencyKey: `webinar-verify-${registration._id}-${registration.accessTokenHash}`,
+  });
+}
+
 module.exports = {
   sendRegistrationReceivedEmail,
   sendRegistrationApprovedEmail,
   sendRegistrationRejectedEmail,
+  sendWebinarVerificationEmail,
 };

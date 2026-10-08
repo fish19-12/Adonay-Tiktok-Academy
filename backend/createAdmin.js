@@ -4,35 +4,33 @@ const Admin = require("./models/Admin");
 
 dotenv.config();
 
-// Connect to MongoDB (Mongoose 7+)
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB Connected"))
-  .catch((err) => {
-    console.error("MongoDB connection error:", err);
-    process.exit(1);
-  });
-
 const createAdmin = async () => {
-  const email = "adonay@gmail.com";
-  const password = "112233";
+  const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
+  const password = process.env.ADMIN_PASSWORD;
+
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI is required.");
+  }
+
+  if (!email || !password || password.length < 12) {
+    throw new Error("Set ADMIN_EMAIL and an ADMIN_PASSWORD of at least 12 characters.");
+  }
+
+  await mongoose.connect(process.env.MONGO_URI);
 
   try {
-    let admin = await Admin.findOne({ email });
-    if (admin) {
-      console.log(`⚠️ Admin already exists: ${email}, deleting...`);
-      await Admin.deleteOne({ email });
+    if (await Admin.exists({ email })) {
+      throw new Error(`An admin account already exists for ${email}; no changes made.`);
     }
 
-    admin = await Admin.create({ email, password });
-    console.log("✅ Admin created successfully");
-    console.log(admin);
-
-    process.exit(0);
-  } catch (err) {
-    console.error("❌ Error creating admin:", err);
-    process.exit(1);
+    await Admin.create({ email, password });
+    console.log(`Admin account created for ${email}.`);
+  } finally {
+    await mongoose.disconnect();
   }
 };
 
-createAdmin();
+createAdmin().catch((error) => {
+  console.error("Failed to create admin:", error.message);
+  process.exitCode = 1;
+});

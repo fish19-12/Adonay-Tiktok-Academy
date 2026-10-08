@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const protect = require("../middleware/authMiddleware");
 
 const {
   createBooking,
@@ -16,9 +17,9 @@ const upload = require("../middleware/upload");
 router.post("/", upload.single("paymentScreenshot"), createBooking);
 
 /* ================= ADMIN ================= */
-router.get("/", getBookings);
-router.get("/:id", getBookingById);
-router.put("/:id", updatePaymentStatus);
-router.delete("/:id", deleteBooking);
+router.get("/", protect, getBookings);
+router.get("/:id", protect, getBookingById);
+router.put("/:id", protect, updatePaymentStatus);
+router.delete("/:id", protect, deleteBooking);
 
 module.exports = router;

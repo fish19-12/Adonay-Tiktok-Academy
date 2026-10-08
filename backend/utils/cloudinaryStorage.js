@@ -1,15 +1,12 @@
 const multer = require("multer");
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const cloudinary = require("../config/cloudinary");
+const createCloudinaryStorage = require("./cloudinaryStorageEngine");
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
+const upload = multer({
+  storage: createCloudinaryStorage({
     folder: "teme-upholstery-gallery",
     allowed_formats: ["jpg", "png", "jpeg", "webp"],
-  },
+    resource_type: "image",
+  }),
 });
-
-const upload = multer({ storage });
 
 module.exports = upload;

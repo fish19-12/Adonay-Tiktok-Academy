@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const protect = require("../middleware/authMiddleware");
 
 const upload = require("../middleware/testimonialUpload");
 
@@ -15,6 +16,7 @@ ROUTES
 
 router.post(
   "/",
+  protect,
   upload.fields([
     { name: "image", maxCount: 1 },
     { name: "video", maxCount: 1 },
@@ -26,6 +28,6 @@ router.post(
 router.get("/", getTestimonials);
 
 /* ✅ DELETE ROUTE */
-router.delete("/:id", deleteTestimonial);
+router.delete("/:id", protect, deleteTestimonial);
 
 module.exports = router;

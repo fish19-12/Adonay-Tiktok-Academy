@@ -7,6 +7,8 @@ import TestimonialPage from "../pages/TestimonialPage.jsx";
 import RegisterPage from "../pages/RegisterPage.jsx";
 import FAQPage from "../pages/FAQPage.jsx";
 import SeminarCountdownPage from "../pages/SeminarCountdownPage";
+import WebinarsPage from "../pages/WebinarsPage.jsx";
+import WebinarDetailPage from "../pages/WebinarDetailPage.jsx";
 
 export default function AppRoutes() {
   return (
@@ -19,11 +21,10 @@ export default function AppRoutes() {
       <Route path="/services" element={<ServicesPage />} />
       <Route path="/testimonial" element={<TestimonialPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/webinars" element={<WebinarsPage />} />
+      <Route path="/webinars/:slug" element={<WebinarDetailPage />} />
 
       <Route path="/seminar-countdown" element={<SeminarCountdownPage />} />
-
-      {/* Registration */}
-      <Route path="/register" element={<RegisterPage />} />
 
       {/* Support */}
       <Route path="/faq" element={<FAQPage />} />

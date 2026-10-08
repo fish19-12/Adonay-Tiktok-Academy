@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const protect = require("../middleware/authMiddleware");
 const upload = require("../middleware/trainingUpload");
 
 const {
@@ -15,6 +16,7 @@ ROUTES
 
 router.post(
   "/",
+  protect,
   upload.fields([
     { name: "video", maxCount: 1 },
     { name: "thumbnail", maxCount: 1 },
@@ -26,6 +28,6 @@ router.get("/", getTrainings);
 
 router.get("/:id", getSingleTraining);
 
-router.delete("/:id", deleteTraining);
+router.delete("/:id", protect, deleteTraining);
 
 module.exports = router;

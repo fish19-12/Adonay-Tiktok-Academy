@@ -18,17 +18,28 @@ import { useEffect, useMemo, useState } from "react";
 ===============================================================
 */
 
-const WEBINAR_DATE = "2026-09-02T11:00:00-04:00";
-
-const ADONAY_VIDEO_ID = "7592926632487341333";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 const VIDEO_URL =
-  `https://www.tiktok.com/player/v1/${ADONAY_VIDEO_ID}` +
-  `?controls=1` +
-  `&description=1` +
-  `&music_info=1` +
-  `&fullscreen_button=1` +
-  `&rel=0`;
+  "https://player.mediadelivery.net/play/773543/88acc664-0a03-4c44-ae49-7a22c07a237d";
+
+function formatWebinarDate(dateString) {
+  if (!dateString) return "Check back soon";
+
+  const date = new Date(dateString);
+
+  if (Number.isNaN(date.getTime())) {
+    return "Check back soon";
+  }
+
+  return date.toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  });
+}
 
 /*
 ===============================================================
@@ -36,8 +47,9 @@ const VIDEO_URL =
 ===============================================================
 */
 
-function getRemainingTime() {
-  const target = new Date(WEBINAR_DATE).getTime();
+function getRemainingTime(targetDate) {
+  if (!targetDate) return 0;
+  const target = new Date(targetDate).getTime();
   return Math.max(0, target - Date.now());
 }
 
@@ -109,19 +121,44 @@ function CountdownBox({ value, label }) {
 export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
 
-  const [timeLeft, setTimeLeft] = useState(getRemainingTime());
-
   const [videoOpen, setVideoOpen] = useState(false);
-
-  /*
-  -------------------------------------------------------------
-  COUNTDOWN UPDATE
-  -------------------------------------------------------------
-  */
+  const [upcomingWebinar, setUpcomingWebinar] = useState(null);
+  const [timeLeft, setTimeLeft] = useState(0);
 
   useEffect(() => {
+    const loadWebinar = async () => {
+      try {
+        const response = await fetch(`${API_URL}/webinars`);
+        const webinars = await response.json();
+
+        if (!Array.isArray(webinars) || !webinars.length) {
+          return;
+        }
+
+        const nextWebinar = [...webinars]
+          .filter((webinar) => webinar.status !== "cancelled")
+          .sort(
+            (a, b) => new Date(a.scheduledAt || 0) - new Date(b.scheduledAt || 0),
+          )
+          .find((webinar) => new Date(webinar.scheduledAt).getTime() > Date.now());
+
+        if (nextWebinar) {
+          setUpcomingWebinar(nextWebinar);
+          setTimeLeft(getRemainingTime(nextWebinar.scheduledAt));
+        }
+      } catch (error) {
+        console.error("Failed to load webinar countdown:", error);
+      }
+    };
+
+    loadWebinar();
+  }, []);
+
+  useEffect(() => {
+    if (!upcomingWebinar?.scheduledAt) return;
+
     const updateCountdown = () => {
-      setTimeLeft(getRemainingTime());
+      setTimeLeft(getRemainingTime(upcomingWebinar.scheduledAt));
     };
 
     updateCountdown();
@@ -131,13 +168,7 @@ export default function Hero() {
     return () => {
       window.clearInterval(interval);
     };
-  }, []);
-
-  /*
-  -------------------------------------------------------------
-  COUNTDOWN VALUES
-  -------------------------------------------------------------
-  */
+  }, [upcomingWebinar]);
 
   const countdown = useMemo(() => {
     const totalSeconds = Math.floor(timeLeft / 1000);
@@ -291,7 +322,9 @@ export default function Hero() {
                 sm:text-[11px]
               "
             >
-              September 2nd @ 11:00 AM EDT
+              {upcomingWebinar?.scheduledAt
+                ? formatWebinarDate(upcomingWebinar.scheduledAt)
+                : "Webinar schedule coming soon"}
             </span>
           </div>
         </div>
@@ -352,7 +385,7 @@ export default function Hero() {
               sm:text-[10px]
             "
           >
-            The Adonay Creator Workshop
+            {upcomingWebinar ? upcomingWebinar.title : "The Adonay Creator Workshop"}
           </motion.p>
 
           {/* =================================================
@@ -396,9 +429,17 @@ export default function Hero() {
               lg:text-[52px]
             "
           >
-            Learn what makes people
-            <br />
-            <span className="text-[#d9573f]">stop, watch & follow.</span>
+            {upcomingWebinar ? (
+              <>
+                {upcomingWebinar.title}
+              </>
+            ) : (
+              <>
+                Learn what makes people
+                <br />
+                <span className="text-[#d9573f]">stop, watch & follow.</span>
+              </>
+            )}
           </motion.h1>
 
           {/* =================================================
@@ -436,8 +477,9 @@ export default function Hero() {
               sm:leading-6
             "
           >
-            Learn the attention, storytelling and personal branding principles I
-            have tested across millions of viewers.
+            {upcomingWebinar?.description
+              ? upcomingWebinar.description
+              : "Learn the attention, storytelling and personal branding principles I have tested across millions of viewers."}
           </motion.p>
 
           {/* =================================================
@@ -828,7 +870,11 @@ export default function Hero() {
             "
           >
             <Link
-              to="/register"
+              to={
+                upcomingWebinar
+                  ? `/webinars/${upcomingWebinar.slug || upcomingWebinar._id}`
+                  : "/register"
+              }
               className="
                 group
                 flex
@@ -970,7 +1016,7 @@ export default function Hero() {
           >
             <div className="relative aspect-video">
               <iframe
-                src={`${VIDEO_URL}&autoplay=1`}
+                src={`${VIDEO_URL}?autoplay=true`}
                 title="Adonay Creator Workshop"
                 className="
                   absolute

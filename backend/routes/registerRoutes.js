@@ -11,6 +11,7 @@ const {
 } = require("../controllers/registerController");
 
 const router = express.Router();
+const protect = require("../middleware/authMiddleware");
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +61,7 @@ GET
 /api/register
 */
 
-router.get("/", getRegistrations);
+router.get("/", protect, getRegistrations);
 
 /*
 |--------------------------------------------------------------------------
@@ -73,7 +74,7 @@ GET
 /api/register/:id
 */
 
-router.get("/:id", getRegistration);
+router.get("/:id", protect, getRegistration);
 
 /*
 |--------------------------------------------------------------------------
@@ -88,7 +89,7 @@ PUT
 Automatically sends the student an approval email.
 */
 
-router.put("/:id/approve", approveRegistration);
+router.put("/:id/approve", protect, approveRegistration);
 
 /*
 |--------------------------------------------------------------------------
@@ -109,7 +110,7 @@ Optional body:
 Automatically sends the student a rejection email.
 */
 
-router.put("/:id/reject", rejectRegistration);
+router.put("/:id/reject", protect, rejectRegistration);
 
 /*
 |--------------------------------------------------------------------------
@@ -124,6 +125,6 @@ DELETE
 Permanently deletes the registration.
 */
 
-router.delete("/:id", deleteRegistration);
+router.delete("/:id", protect, deleteRegistration);
 
 module.exports = router;

@@ -15,10 +15,15 @@ app.use(helmet());
 
 /* ================= MIDDLEWARE ================= */
 
+const allowedOrigins = (process.env.FRONTEND_URL || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 // CORS
 app.use(
   cors({
-    origin: "*",
+    origin: allowedOrigins.length ? allowedOrigins : "*",
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -53,6 +58,8 @@ app.use("/api/testimonials", require("./routes/testimonialRoutes"));
 app.use("/api/training", require("./routes/trainingRoutes"));
 
 app.use("/api/gallery", require("./routes/galleryRoutes"));
+
+app.use("/api/webinars", require("./routes/webinarRoutes"));
 
 /*
  * Registration API
