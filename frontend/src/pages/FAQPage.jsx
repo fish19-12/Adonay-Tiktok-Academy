@@ -391,7 +391,7 @@ export default function FAQPage() {
               <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600">
                 If you cannot find the answer you are looking for, reach out and
                 get the information you need before choosing your training
-                program.
+                programs.
               </p>
             </div>
 
