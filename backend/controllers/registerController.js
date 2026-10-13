@@ -107,13 +107,6 @@ const createRegistration = async (req, res) => {
       });
     }
 
-    if (!normalizedCompany) {
-      return res.status(400).json({
-        success: false,
-        message: "Real estate company or agency is required.",
-      });
-    }
-
     if (normalizedHasTikTok === null) {
       return res.status(400).json({
         success: false,

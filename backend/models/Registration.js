@@ -46,8 +46,8 @@ const registrationSchema = new mongoose.Schema(
 
     realEstateCompany: {
       type: String,
-      required: true,
       trim: true,
+      default: "",
     },
 
     trainingType: {

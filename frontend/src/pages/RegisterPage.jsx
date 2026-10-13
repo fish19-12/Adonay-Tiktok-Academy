@@ -6,7 +6,6 @@ import {
   AlertCircle,
   ArrowLeft,
   ArrowRight,
-  Building2,
   CalendarDays,
   Check,
   CheckCircle2,
@@ -43,7 +42,6 @@ const initialForm = {
   tiktokUsername: "",
   tiktokProfileLink: "",
   followers: "",
-  realEstateCompany: "",
 };
 
 /* =========================================================
@@ -115,7 +113,6 @@ export default function RegisterPage() {
     const name = form.name.trim();
     const phone = form.phone.trim();
     const email = form.email.trim();
-    const company = form.realEstateCompany.trim();
 
     if (!name) {
       return "Please enter your full name.";
@@ -141,10 +138,6 @@ export default function RegisterPage() {
 
     if (!emailPattern.test(email)) {
       return "Please enter a valid email address.";
-    }
-
-    if (!company) {
-      return "Please enter your real estate company or agency.";
     }
 
     if (!form.hasTikTok) {
@@ -234,7 +227,7 @@ export default function RegisterPage() {
 
       followers: hasTikTokAccount ? Number(form.followers) : null,
 
-      realEstateCompany: form.realEstateCompany.trim(),
+      realEstateCompany: "",
 
       trainingType: "In-person / Face-to-face",
     };
@@ -463,7 +456,7 @@ export default function RegisterPage() {
               </span>
 
               <span className="text-[8px] font-black uppercase tracking-[0.2em] text-[#5f51d5] sm:text-[9px]">
-                Live Webinar Registration
+                Academy Registration
               </span>
 
               <Video size={12} className="text-[#18aeca]" />
@@ -474,8 +467,9 @@ export default function RegisterPage() {
             </h1>
 
             <p className="mx-auto mt-3 max-w-lg text-xs leading-5 text-[#858a9d] sm:text-sm">
-              Register for our upcoming live webinar and get ready for practical
-              TikTok training designed for real estate professionals.
+              Register for training with Adonay TikTok Academy and build
+              practical skills in content, audience growth, and personal
+              branding.
             </p>
           </div>
 
@@ -552,20 +546,6 @@ export default function RegisterPage() {
                         onChange={(value) => updateField("email", value)}
                         placeholder="you@example.com"
                         autoComplete="email"
-                        required
-                      />
-                    </div>
-
-                    <div className="mt-4">
-                      <InputField
-                        label="Real estate company / agency"
-                        icon={Building2}
-                        value={form.realEstateCompany}
-                        onChange={(value) =>
-                          updateField("realEstateCompany", value)
-                        }
-                        placeholder="Company or agency name"
-                        autoComplete="organization"
                         required
                       />
                     </div>
@@ -658,12 +638,11 @@ export default function RegisterPage() {
                       />
 
                       <p className="text-[10px] leading-4 text-[#777c91]">
-                        This registration is for the upcoming{" "}
+                        Submit your details to register for training with{" "}
                         <span className="font-black text-[#6254dc]">
-                          live Adonay TikTok Academy webinar
+                          Adonay TikTok Academy
                         </span>
-                        . After registration, you can view the live webinar
-                        countdown.
+                        . The academy will review your registration.
                       </p>
                     </div>
 
@@ -941,30 +920,27 @@ function SuccessScreen({ registration }) {
                 <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-[#858a9d]">
                   Thank you,{" "}
                   <span className="font-black text-[#5b50cf]">{firstName}</span>
-                  . Your registration for the Adonay TikTok Academy live webinar
-                  has been received successfully.
+                  . Your registration for Adonay TikTok Academy has been
+                  received successfully.
                 </p>
-
-                {/* WEBINAR NOTICE */}
 
                 <div className="mt-6 rounded-2xl border border-[#e2defe] bg-gradient-to-br from-[#f8f6ff] to-[#f2fcff] p-4 text-left">
                   <div className="flex items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-sm">
-                      <Video size={17} className="text-[#6254dc]" />
+                      <CheckCircle2 size={17} className="text-[#6254dc]" />
                     </div>
 
                     <div>
                       <p className="text-[10px] font-black uppercase tracking-[0.13em] text-[#6254dc]">
-                        Your live webinar
+                        What happens next
                       </p>
 
                       <p className="mt-1 text-[11px] font-bold leading-4 text-[#4d5268]">
-                        Wednesday at 7:00 PM
+                        The academy will review your registration
                       </p>
 
                       <p className="mt-1 text-[9px] leading-4 text-[#8b90a3]">
-                        Continue to the webinar page to see the live countdown
-                        and upcoming session details.
+                        We&apos;ll contact you with relevant training details.
                       </p>
                     </div>
                   </div>
@@ -982,18 +958,13 @@ function SuccessScreen({ registration }) {
                     label="Email"
                     value={registration?.email || "Registered"}
                   />
-
-                  <DetailRow
-                    label="Company"
-                    value={registration?.realEstateCompany || "Registered"}
-                  />
                 </div>
 
-                {/* COUNTDOWN BUTTON */}
+                {/* HOME BUTTON */}
 
                 <div className="mt-6">
                   <Link
-                    to="/seminar-countdown"
+                    to="/"
                     className="
                       group
                       flex
@@ -1020,7 +991,7 @@ function SuccessScreen({ registration }) {
                   >
                     <CalendarDays size={16} />
 
-                    <span>View Webinar Countdown</span>
+                    <span>Return to Academy Home</span>
 
                     <ArrowRight
                       size={15}

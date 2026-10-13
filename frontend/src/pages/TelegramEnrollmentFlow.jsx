@@ -8,7 +8,6 @@ import {
   LoaderCircle,
   MessageCircle,
   Megaphone,
-  ShieldCheck,
   Users,
 } from "lucide-react";
 import api from "../services/api.js";
@@ -28,7 +27,6 @@ const emptyForm = {
   name: "",
   phone: "",
   email: "",
-  realEstateCompany: "",
   hasTikTok: "yes",
   tiktokUsername: "",
   tiktokProfileLink: "",
@@ -235,11 +233,11 @@ function TelegramEnrollmentFlow() {
       {view === "register" && (
         <main className="academy-mini-register">
           <div className="academy-mini-register-heading">
-            <span className="academy-mini-kicker">YOUR NEXT STEP</span>
-            <h1>Apply for training.</h1>
+            <span className="academy-mini-kicker">ADONAY TIKTOK ACADEMY</span>
+            <h1>Register for the academy.</h1>
             <p>
-              Complete your application for Real Estate Agency Training. The
-              academy will review your details.
+              Share your details to register for training with Adonay TikTok
+              Academy.
             </p>
           </div>
           {identityError && (
@@ -283,15 +281,6 @@ function TelegramEnrollmentFlow() {
                 />
               </label>
             </div>
-            <label>
-              Real estate company or agency
-              <input
-                name="realEstateCompany"
-                required
-                value={form.realEstateCompany}
-                onChange={updateForm}
-              />
-            </label>
             <label>
               Do you have a TikTok account?
               <select
@@ -340,16 +329,6 @@ function TelegramEnrollmentFlow() {
                 </label>
               </div>
             )}
-            <div className="academy-mini-payment-note">
-              <ShieldCheck size={18} />
-              <p>
-                <strong>Payment is not collected in this application.</strong>{" "}
-                Telegram requires Stars for digital course purchases inside its
-                apps. Do not send a bank transfer or receipt through this
-                screen. The academy will share the permitted next steps after
-                reviewing your application.
-              </p>
-            </div>
             {formError && (
               <p className="academy-mini-error" role="alert">
                 {formError}
@@ -387,10 +366,6 @@ function TelegramEnrollmentFlow() {
               <p>
                 The academy has approved your registration. The next-step
                 information will be sent to the email address you provided.
-              </p>
-              <p className="academy-mini-status-small">
-                Course access and payment are not provided by this status
-                screen.
               </p>
             </div>
           ) : registrationStatus === "rejected" ? (
@@ -481,8 +456,8 @@ function TelegramEnrollmentFlow() {
                 </a>
               </section>
               <p className="academy-mini-status-small">
-                You can join the community now. Training access is provided
-                separately after your application is approved.
+                You can join the community while the academy reviews your
+                application.
               </p>
               <a
                 className="academy-mini-support-link"
