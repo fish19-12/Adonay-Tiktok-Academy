@@ -1,11 +1,13 @@
 function getPaymentOptions(environment = process.env) {
-  const amountEtb = Number(environment.PAYMENT_AMOUNT_ETB);
-  const accountName = (environment.PAYMENT_ACCOUNT_NAME || "").trim();
+  const amountEtb = Number(environment.PAYMENT_AMOUNT_ETB || 2500);
+  const accountName = (
+    environment.PAYMENT_ACCOUNT_NAME || "Adonay TikTok Academy"
+  ).trim();
   const cbeAccountNumber = (
-    environment.PAYMENT_CBE_ACCOUNT_NUMBER || ""
+    environment.PAYMENT_CBE_ACCOUNT_NUMBER || "1000457365344"
   ).trim();
   const telebirrPhoneNumber = (
-    environment.PAYMENT_TELEBIRR_NUMBER || ""
+    environment.PAYMENT_TELEBIRR_NUMBER || "0909567654"
   ).trim();
 
   const methods = {

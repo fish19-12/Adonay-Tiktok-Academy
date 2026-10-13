@@ -18,9 +18,24 @@ test("returns configured CBE and Telebirr payment details", () => {
 });
 
 test("does not report payment instructions as configured when details are missing", () => {
-  const options = getPaymentOptions({ PAYMENT_AMOUNT_ETB: "2500" });
+  const options = getPaymentOptions({
+    PAYMENT_AMOUNT_ETB: "invalid",
+    PAYMENT_ACCOUNT_NAME: " ",
+    PAYMENT_CBE_ACCOUNT_NUMBER: " ",
+    PAYMENT_TELEBIRR_NUMBER: " ",
+  });
 
   assert.equal(options.configured, false);
   assert.equal(options.methods.cbe.configured, false);
   assert.equal(options.methods.telebirr.configured, false);
+});
+
+test("falls back to academy payment details when environment settings are absent", () => {
+  const options = getPaymentOptions({});
+
+  assert.equal(options.amountEtb, 2500);
+  assert.equal(options.methods.cbe.accountName, "Adonay TikTok Academy");
+  assert.equal(options.methods.cbe.accountNumber, "1000457365344");
+  assert.equal(options.methods.telebirr.phoneNumber, "0909567654");
+  assert.equal(options.configured, true);
 });
