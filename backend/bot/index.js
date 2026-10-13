@@ -211,17 +211,34 @@ async function createApprovedCommunityInvites(
   if (registration.status !== "approved") return null;
 
   const inviteTargets = [
-    ["studentGroup", environment.TELEGRAM_STUDENT_GROUP_ID],
-    ["announcementsChannel", environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID],
+    [
+      "studentGroup",
+      environment.TELEGRAM_STUDENT_GROUP_ID,
+      environment.TELEGRAM_STUDENT_GROUP_URL ||
+        "https://t.me/+KRece_7cHLZlOTJk",
+    ],
+    [
+      "announcementsChannel",
+      environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID,
+      environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL ||
+        "https://t.me/+6m8OBjwrEgUxMzk0",
+    ],
   ];
   const communityInvites = registration.communityInvites || {};
   const inviteStatuses = {};
+  const fallbackInvites = {};
   const expiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000);
   let changed = false;
 
-  for (const [key, chatId] of inviteTargets) {
+  for (const [key, chatId, inviteUrl] of inviteTargets) {
     if (!chatId || !/^-?\d+$/.test(chatId)) {
-      inviteStatuses[key] = "not_configured";
+      const safeInviteUrl = telegramInviteUrl(inviteUrl);
+      if (safeInviteUrl) {
+        fallbackInvites[key] = safeInviteUrl;
+        inviteStatuses[key] = "ready_shared_link";
+      } else {
+        inviteStatuses[key] = "not_configured";
+      }
       continue;
     }
     if (!bot) {
@@ -272,8 +289,14 @@ async function createApprovedCommunityInvites(
   }
 
   return {
-    studentGroupUrl: communityInvites.studentGroup?.url || null,
-    announcementsUrl: communityInvites.announcementsChannel?.url || null,
+    studentGroupUrl:
+      communityInvites.studentGroup?.url ||
+      fallbackInvites.studentGroup ||
+      null,
+    announcementsUrl:
+      communityInvites.announcementsChannel?.url ||
+      fallbackInvites.announcementsChannel ||
+      null,
     studentGroupStatus: inviteStatuses.studentGroup || "not_configured",
     announcementsStatus:
       inviteStatuses.announcementsChannel || "not_configured",

@@ -598,7 +598,7 @@ function TelegramEnrollmentFlow() {
                       ? "The Academy bot needs permission to create an invite for the student group. Please contact support."
                       : communityInvites?.studentGroupStatus ===
                           "not_configured"
-                        ? "The student group is not connected to the Academy bot yet. Please contact support."
+                        ? "The student-group button needs its numeric Telegram chat ID configured on the backend. Academy support can find it in Telegram chat diagnostics."
                         : "The student group invite is temporarily unavailable. Please reopen this screen shortly."}
                   </p>
                 )}
@@ -609,7 +609,7 @@ function TelegramEnrollmentFlow() {
                       ? "The Academy bot needs permission to create an invite for the learning resources channel. Please contact support."
                       : communityInvites?.announcementsStatus ===
                           "not_configured"
-                        ? "The learning resources channel is not connected to the Academy bot yet. Please contact support."
+                        ? "The learning-channel button needs its numeric Telegram chat ID configured on the backend. Academy support can find it in Telegram chat diagnostics."
                         : "The learning resources channel invite is temporarily unavailable. Please reopen this screen shortly."}
                   </p>
                 )}

@@ -145,13 +145,29 @@ test("approved invite response identifies missing chat configuration", async () 
   const result = await telegramBot.createApprovedCommunityInvites(
     registration,
     { telegram: {} },
-    {},
+    {
+      TELEGRAM_STUDENT_GROUP_URL: "https://example.com/not-telegram",
+      TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL: "https://example.com/not-telegram",
+    },
   );
 
   assert.equal(result.studentGroupUrl, null);
   assert.equal(result.announcementsUrl, null);
   assert.equal(result.studentGroupStatus, "not_configured");
   assert.equal(result.announcementsStatus, "not_configured");
+});
+
+test("approved registrations fall back to the academy's existing invite URLs", async () => {
+  const result = await telegramBot.createApprovedCommunityInvites(
+    { status: "approved", communityInvites: {} },
+    { telegram: {} },
+    {},
+  );
+
+  assert.equal(result.studentGroupUrl, "https://t.me/+KRece_7cHLZlOTJk");
+  assert.equal(result.announcementsUrl, "https://t.me/+6m8OBjwrEgUxMzk0");
+  assert.equal(result.studentGroupStatus, "ready_shared_link");
+  assert.equal(result.announcementsStatus, "ready_shared_link");
 });
 
 test("approved invite response identifies missing Telegram admin permissions", async () => {
