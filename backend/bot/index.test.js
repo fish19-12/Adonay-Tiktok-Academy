@@ -21,8 +21,11 @@ test("builds direct Mini App links for home and registration", () => {
 
 test("uses the configured support username and a safe website fallback", () => {
   const previousUsername = process.env.TELEGRAM_SUPPORT_USERNAME;
-  process.env.TELEGRAM_SUPPORT_USERNAME = "@academy_help";
-  assert.equal(telegramBot.supportUrl(), "https://t.me/academy_help");
+  process.env.TELEGRAM_SUPPORT_USERNAME = "@Adonaytiktokacademysupport";
+  assert.equal(
+    telegramBot.supportUrl(),
+    "https://t.me/Adonaytiktokacademysupport",
+  );
 
   process.env.TELEGRAM_SUPPORT_USERNAME = "invalid handle";
   assert.equal(
@@ -44,8 +47,14 @@ test("adds configured announcement and community invite links", () => {
 
   const rows = telegramBot.welcomeKeyboard().reply_markup.inline_keyboard;
   const buttons = rows.flat();
-  assert.ok(buttons.some((button) => button.text === "Academy Announcements"));
-  assert.ok(buttons.some((button) => button.text === "Student Community"));
+  assert.ok(buttons.some((button) => button.text === "📣 Announcements"));
+  assert.ok(buttons.some((button) => button.text === "👥 Student Community"));
+  assert.ok(buttons.some((button) => button.text === "🚀 Launch Academy App"));
+  assert.ok(buttons.some((button) => button.text === "❔ FAQs"));
+  assert.ok(buttons.some((button) => button.text === "ℹ️ About"));
+  assert.ok(
+    !buttons.some((button) => /Webinars|Programs|Payments/.test(button.text)),
+  );
   assert.equal(telegramBot.telegramInviteUrl("javascript:alert(1)"), null);
 
   if (previousChannel === undefined)
@@ -57,9 +66,10 @@ test("adds configured announcement and community invite links", () => {
 });
 
 test("escapes Telegram HTML in the personalized welcome", () => {
-  assert.match(telegramBot.welcomeText("<student>"), /&lt;student&gt;/);
-  assert.doesNotMatch(
-    telegramBot.welcomeText("<student>"),
-    /\nWelcome, <student>/,
-  );
+  const message = telegramBot.welcomeText("<student>");
+  assert.match(message, /✨ <b>ADONAY TIKTOK ACADEMY<\/b>/);
+  assert.match(message, /🚀 <b>What you can do<\/b>/);
+  assert.match(message, /&lt;student&gt;! 👋/);
+  assert.match(message, /Choose your next step below/);
+  assert.doesNotMatch(message, /\nWelcome, <student>/);
 });

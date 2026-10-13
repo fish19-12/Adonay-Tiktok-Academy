@@ -1,17 +1,25 @@
 const { Telegraf, Markup } = require("telegraf");
+const { recordTelegramChat } = require("./chatDiscovery");
+const academyPrograms = require("../config/academyPrograms");
 
 const WEBSITE_URL = "https://www.adonaytiktokacademy.com";
 const DEFAULT_MINI_APP_URL = "https://www.adonaytiktokacademy.com/app";
+const FAQ_ANSWER =
+  "<b>Quick FAQs</b>\n\n<b>What do you teach?</b> Practical TikTok, short-form video, content strategy, and personal branding.\n\n<b>What is open now?</b> Real Estate Agency Training is open for registration.\n\n<b>Do I need experience?</b> No. Training is designed for different levels.\n\n<b>How do I apply?</b> Tap Register for Training and submit the application. The academy will review it.\n\n<b>Where is the current training held?</b> Real Estate Agency Training is face-to-face.";
+const ABOUT_ANSWER =
+  "<b>About Adonay TikTok Academy</b>\n\nWe build practical digital skills through content, strategy, and education. Our learning helps creators, professionals, and businesses communicate ideas, strengthen their digital presence, and grow with purpose.\n\n<i>Learn. Create. Grow.</i>";
+let activeBot = null;
+let pollingActive = false;
 
 function escapeHtml(value) {
   return String(value).replace(
-    /[&<>"']/g,
+    /[&<>\"']/g,
     (character) =>
       ({
         "&": "&amp;",
         "<": "&lt;",
         ">": "&gt;",
-        '"': "&quot;",
+        '\"': "&quot;",
         "'": "&#39;",
       })[character],
   );
@@ -73,43 +81,42 @@ function telegramInviteUrl(value) {
 
 function welcomeKeyboard() {
   const buttons = [
-    [Markup.button.webApp("Launch Academy App", miniAppUrl("home"))],
+    [Markup.button.webApp("🚀 Launch Academy App", miniAppUrl("home"))],
+    [appButton("register", "📝 Register for Training")],
     [
-      appButton("register", "Apply for Training"),
-      appButton("training", "Explore Programs"),
+      Markup.button.callback("❔ FAQs", "faq"),
+      Markup.button.callback("ℹ️ About", "about"),
     ],
-    [appButton("webinars", "Webinars"), appButton("faq", "FAQs")],
-    [
-      appButton("profile", "My Profile"),
-      Markup.button.callback("Payment Information", "payments"),
-    ],
-    [
-      Markup.button.url("About the Academy", `${WEBSITE_URL}/about`),
-      Markup.button.url("Contact Support", supportUrl()),
-    ],
+    [Markup.button.url("💬 Contact Support", supportUrl())],
   ];
 
   const announcementsUrl = telegramInviteUrl(
     process.env.TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL,
   );
-  if (announcementsUrl) {
-    buttons.push([
-      Markup.button.url("Academy Announcements", announcementsUrl),
-    ]);
-  }
+  if (announcementsUrl)
+    buttons.push([Markup.button.url("📣 Announcements", announcementsUrl)]);
 
   const communityUrl = telegramInviteUrl(
     process.env.TELEGRAM_STUDENT_GROUP_URL,
   );
   if (communityUrl)
-    buttons.push([Markup.button.url("Student Community", communityUrl)]);
+    buttons.push([Markup.button.url("👥 Student Community", communityUrl)]);
+
   return Markup.inlineKeyboard(buttons);
 }
 
 const welcomeText = (name = "") =>
-  `<b>ADONAY TIKTOK ACADEMY</b>${name ? `\nWelcome, ${escapeHtml(name)}.` : ""}\n\n` +
-  "Build practical skills in TikTok, short-form content, personal branding, and digital growth.\n\n" +
-  "Choose where you would like to begin.";
+  `✨ <b>ADONAY TIKTOK ACADEMY</b>\n` +
+  `<i>Learn with purpose. Create with confidence.</i>\n\n` +
+  `${name ? `Welcome, ${escapeHtml(name)}! 👋\n` : "Welcome to the creator community! 👋\n"}` +
+  "Turn your ideas into stronger short-form content, a clearer personal brand, and practical digital skills.\n\n" +
+  "🚀 <b>What you can do</b>\n" +
+  "• Open the Academy Mini App\n" +
+  "• Explore training and submit a registration\n" +
+  "• Get quick answers about the academy\n" +
+  "• Follow announcements and join the community\n" +
+  "• Contact the support team\n\n" +
+  "Choose your next step below 👇";
 
 function startTelegramBot() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -121,6 +128,27 @@ function startTelegramBot() {
   }
 
   const bot = new Telegraf(token);
+  activeBot = bot;
+  bot.on(
+    [
+      "message",
+      "edited_message",
+      "channel_post",
+      "edited_channel_post",
+      "my_chat_member",
+      "chat_member",
+    ],
+    (ctx, next) => {
+      const membershipUpdate = ctx.myChatMember || ctx.chatMember;
+      recordTelegramChat(
+        ctx.chat,
+        ctx.updateType,
+        membershipUpdate?.new_chat_member?.status || null,
+      );
+      return next();
+    },
+  );
+
   const sendWelcome = (ctx) =>
     ctx.reply(welcomeText(ctx.from?.first_name), {
       ...welcomeKeyboard(),
@@ -130,136 +158,146 @@ function startTelegramBot() {
   bot.start(sendWelcome);
   bot.help((ctx) =>
     ctx.reply(
-      "Use /start to open the academy menu. You can browse training, check webinars, read FAQs, and contact the academy here.",
+      "<b>What this bot can do</b>\n🚀 Open the Academy Mini App\n📝 Start a training registration\n🎓 Show available training\n📅 List public upcoming webinars\n❔ Answer common academy questions\n📣 Share the official announcements channel\n💬 Connect you with support\n\n<b>Commands</b>\n/start - Welcome and quick actions\n/register - Apply for training\n/courses - Available programs\n/account - Open your profile\n/payments - Payment guidance\n/webinars - Upcoming public webinars\n/announcements - Academy updates\n/faq - Common questions\n/support - Contact support\n/about - About the academy",
+      { ...welcomeKeyboard(), parse_mode: "HTML" },
     ),
   );
   bot.command("register", (ctx) =>
     ctx.reply(
-      "Registration is handled through the academy's official form. Open the registration screen below to apply.",
-      Markup.inlineKeyboard([[appButton("register", "Open Registration")]]),
+      "Apply for an academy training program using the registration form.",
+      Markup.inlineKeyboard([[appButton("register", "📝 Open Registration")]]),
     ),
   );
-  bot.command("courses", (ctx) =>
-    ctx.reply(
-      "Browse the academy's available training programs.",
-      Markup.inlineKeyboard([[appButton("training", "Explore Training")]]),
-    ),
-  );
+  bot.command("courses", (ctx) => {
+    const programs = academyPrograms
+      .filter((program) => program.status === "available")
+      .map(
+        (program) =>
+          `• <b>${escapeHtml(program.title)}</b>\n${escapeHtml(program.description)}`,
+      );
+    const details = programs.length
+      ? `${programs.join("\n\n")}\n\nMore programs will be announced when registration opens.`
+      : "There are no programs open for registration right now.";
+    return ctx.reply(`<b>Available training</b>\n\n${details}`, {
+      ...Markup.inlineKeyboard([
+        [appButton("training", "🎬 Explore Programs")],
+      ]),
+      parse_mode: "HTML",
+    });
+  });
   bot.command("account", (ctx) =>
     ctx.reply(
-      "Open the Academy App to see your Telegram profile and account options.",
-      Markup.inlineKeyboard([[appButton("profile", "My Account")]]),
+      "Open your profile in the Academy App. Telegram identity is checked by the app; academy registration and payment records are not linked to this profile yet.",
+      Markup.inlineKeyboard([[appButton("profile", "👤 Open My Account")]]),
     ),
   );
   bot.command("payments", (ctx) =>
     ctx.reply(
-      "Payment status is not managed in this bot. The academy will provide payment instructions through an authorized process after registration. Never send payment details or receipt screenshots in this chat.",
+      "Payment status is not available in the bot yet. Follow the academy's official instructions after registration. Never send payment details or receipt screenshots in chat.",
     ),
   );
-  bot.command("webinars", (ctx) =>
-    ctx.reply(
-      "See public upcoming and live academy webinars.",
-      Markup.inlineKeyboard([[appButton("webinars", "View Webinars")]]),
-    ),
-  );
+  bot.command("webinars", async (ctx) => {
+    let sessions;
+    try {
+      const Webinar = require("../models/Webinar");
+      sessions = await Webinar.find({
+        status: { $in: ["scheduled", "live"] },
+        accessType: { $ne: "private" },
+        $or: [{ scheduledAt: null }, { scheduledAt: { $gte: new Date() } }],
+      })
+        .select("title scheduledAt")
+        .sort({ scheduledAt: 1 })
+        .limit(5)
+        .lean();
+    } catch {
+      return ctx.reply(
+        "Upcoming webinar details are temporarily unavailable. Open the Academy App to check again.",
+        Markup.inlineKeyboard([[appButton("webinars", "📅 Open Webinars")]]),
+      );
+    }
+    const details = sessions.length
+      ? sessions
+          .map((session) => {
+            const date = session.scheduledAt
+              ? new Date(session.scheduledAt).toLocaleString("en", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })
+              : "Time to be announced";
+            return `• <b>${escapeHtml(session.title)}</b>\n${escapeHtml(date)}`;
+          })
+          .join("\n\n")
+      : "No upcoming public webinars are scheduled right now.";
+    return ctx.reply(`<b>Upcoming webinars</b>\n\n${details}`, {
+      ...Markup.inlineKeyboard([[appButton("webinars", "📅 Open Webinars")]]),
+      parse_mode: "HTML",
+    });
+  });
   bot.command("announcements", (ctx) => {
     const announcementsUrl = telegramInviteUrl(
       process.env.TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL,
     );
-    if (!announcementsUrl) {
+    if (!announcementsUrl)
       return ctx.reply("Academy announcements are not configured yet.");
-    }
     return ctx.reply(
       "Follow the official academy channel for updates and announcements.",
       Markup.inlineKeyboard([
-        [Markup.button.url("Open Announcements Channel", announcementsUrl)],
+        [Markup.button.url("📣 Open Announcements", announcementsUrl)],
       ]),
     );
   });
-  bot.command("faq", (ctx) =>
-    ctx.reply(
-      "The academy focuses on practical TikTok, short-form content, personal branding, and digital strategy. Training formats depend on each program. Read more at the official FAQ: https://www.adonaytiktokacademy.com/faq",
-      Markup.inlineKeyboard([[appButton("faq", "Open FAQ")]]),
-    ),
-  );
+  bot.command("faq", (ctx) => ctx.reply(FAQ_ANSWER, { parse_mode: "HTML" }));
   bot.command("support", (ctx) =>
     ctx.reply(
-      "Contact the academy support team here. Never share your password or payment credentials.",
+      "Contact academy support here. Never share passwords or payment credentials.",
       Markup.inlineKeyboard([
-        [Markup.button.url("Message Support", supportUrl())],
+        [Markup.button.url("💬 Message Support", supportUrl())],
       ]),
     ),
   );
   bot.command("about", (ctx) =>
-    ctx.reply(
-      "Adonay TikTok Academy builds practical digital skills through content, strategy, and education. Learn, create, and grow with a focus on real-world application. More: https://www.adonaytiktokacademy.com/about",
-      Markup.inlineKeyboard([
-        [Markup.button.url("About the Academy", `${WEBSITE_URL}/about`)],
-      ]),
-    ),
+    ctx.reply(ABOUT_ANSWER, { parse_mode: "HTML" }),
   );
 
-  bot.action(/^open:(.+)$/, async (ctx) => {
+  bot.action(/^open:(register|training|profile|webinars|faq)$/, async (ctx) => {
     const screen = ctx.match[1];
     await ctx.answerCbQuery();
-    const url = miniAppUrl(screen);
-    const markup = Markup.inlineKeyboard([
-      [
-        url
-          ? Markup.button.webApp("Open this screen", url)
-          : Markup.button.url("Open Academy Website", websiteUrl(screen)),
-      ],
-    ]);
     return ctx.reply(
-      `Open ${screen === "training" ? "training" : screen} in the Academy App.`,
-      markup,
+      `Open ${screen === "training" ? "training programs" : screen} in the Academy App.`,
+      Markup.inlineKeyboard([[appButton(screen, "🚀 Open in Academy App")]]),
     );
   });
   bot.action("payments", async (ctx) => {
     await ctx.answerCbQuery();
     return ctx.reply(
-      "Payment status is not managed in this bot. Never send payment details or receipt screenshots in this chat.",
+      "Payment status is not available in the bot yet. Follow the academy's official instructions after registration. Never send payment details or receipt screenshots in chat.",
     );
+  });
+  bot.action("faq", async (ctx) => {
+    await ctx.answerCbQuery();
+    return ctx.reply(FAQ_ANSWER, { parse_mode: "HTML" });
   });
   bot.action("about", async (ctx) => {
     await ctx.answerCbQuery();
-    return ctx.reply(
-      "Adonay TikTok Academy builds practical digital skills through content, strategy, and education.",
-      Markup.inlineKeyboard([
-        [Markup.button.url("About the Academy", `${WEBSITE_URL}/about`)],
-      ]),
-    );
-  });
-  bot.action("support", async (ctx) => {
-    await ctx.answerCbQuery();
-    return ctx.reply(
-      "Contact the academy support team here. Never share your password or payment credentials.",
-      Markup.inlineKeyboard([
-        [Markup.button.url("Message Support", supportUrl())],
-      ]),
-    );
+    return ctx.reply(ABOUT_ANSWER, { parse_mode: "HTML" });
   });
 
-  bot.catch((error) =>
-    console.error("Telegram bot update failed:", error.message),
-  );
+  bot.catch(() => console.error("Telegram bot could not process an update."));
   bot.telegram
     .setMyCommands([
       { command: "start", description: "Open the academy menu" },
       { command: "help", description: "Get help using the bot" },
       { command: "register", description: "Register for training" },
-      { command: "courses", description: "Explore training programs" },
+      { command: "courses", description: "Explore available programs" },
       { command: "account", description: "Open account options" },
-      { command: "payments", description: "Payment status information" },
-      { command: "webinars", description: "View public webinars" },
+      { command: "payments", description: "Payment guidance" },
+      { command: "webinars", description: "View upcoming webinars" },
       { command: "announcements", description: "Follow academy updates" },
       { command: "faq", description: "Frequently asked questions" },
       { command: "support", description: "Contact academy support" },
       { command: "about", description: "About the academy" },
     ])
-    .catch((error) =>
-      console.error("Telegram command setup failed:", error.message),
-    );
+    .catch(() => console.error("Telegram command setup failed."));
 
   bot.telegram
     .setChatMenuButton({
@@ -269,39 +307,63 @@ function startTelegramBot() {
         web_app: { url: miniAppUrl("home") },
       },
     })
-    .catch((error) =>
-      console.error("Telegram Mini App menu setup failed:", error.message),
-    );
+    .catch(() => console.error("Telegram Mini App menu setup failed."));
 
   bot.telegram
     .setMyDescription(
       "Practical TikTok and digital content training. Explore programs, webinars, and academy support.",
     )
-    .catch((error) =>
-      console.error("Telegram bot description setup failed:", error.message),
-    );
+    .catch(() => console.error("Telegram bot description setup failed."));
 
   bot.telegram
     .setMyShortDescription(
       "Learn. Create. Grow. Practical creator education from Adonay TikTok Academy.",
     )
-    .catch((error) =>
-      console.error(
-        "Telegram bot short description setup failed:",
-        error.message,
-      ),
-    );
+    .catch(() => console.error("Telegram bot short description setup failed."));
 
-  bot
-    .launch()
-    .then(() => console.info("Telegram bot started."))
-    .catch((error) =>
-      console.error("Telegram bot could not start:", error.message),
+  bot.telegram
+    .getWebhookInfo()
+    .then((webhookInfo) => {
+      if (webhookInfo.url) {
+        console.error(
+          "Telegram webhook is configured. Long polling was not started; remove the webhook before restarting the bot.",
+        );
+        return;
+      }
+      return bot
+        .launch({
+          allowedUpdates: [
+            "message",
+            "edited_message",
+            "channel_post",
+            "edited_channel_post",
+            "callback_query",
+            "my_chat_member",
+            "chat_member",
+          ],
+        })
+        .then(() => {
+          pollingActive = true;
+          console.info("Telegram bot started with long polling.");
+        });
+    })
+    .catch(() =>
+      console.error("Telegram bot could not verify its polling configuration."),
     );
   return bot;
 }
 
+function getTelegramBot() {
+  return activeBot;
+}
+
+function isTelegramPollingActive() {
+  return pollingActive;
+}
+
 module.exports = startTelegramBot;
+module.exports.getTelegramBot = getTelegramBot;
+module.exports.isTelegramPollingActive = isTelegramPollingActive;
 module.exports.miniAppUrl = miniAppUrl;
 module.exports.supportUrl = supportUrl;
 module.exports.telegramInviteUrl = telegramInviteUrl;

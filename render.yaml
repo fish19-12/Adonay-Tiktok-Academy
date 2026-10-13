@@ -22,6 +22,8 @@ services:
         sync: false
       - key: FRONTEND_URL
         sync: false
+      - key: BACKEND_URL
+        sync: false
       - key: ZOOM_ACCOUNT_ID
         sync: false
       - key: ZOOM_CLIENT_ID
@@ -31,4 +33,24 @@ services:
       - key: RESEND_API_KEY
         sync: false
       - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_BOT_USERNAME
+        value: AdonayTiktokAcademyofficialBot
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
+      - key: TELEGRAM_MINI_APP_URL
+        value: https://www.adonaytiktokacademy.com/app
+      - key: TELEGRAM_SUPPORT_USERNAME
+        value: fera_tech
+      - key: TELEGRAM_STUDENT_GROUP_ID
+        sync: false
+      - key: TELEGRAM_STUDENT_GROUP_URL
+        sync: false
+      - key: TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID
+        sync: false
+      - key: TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL
+        sync: false
+      - key: ADMIN_TELEGRAM_IDS
         sync: false
