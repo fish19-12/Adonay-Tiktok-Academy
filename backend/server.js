@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const path = require("path");
+const startTelegramBot = require("./bot");
 
 dotenv.config();
 connectDB();
@@ -60,6 +61,7 @@ app.use("/api/training", require("./routes/trainingRoutes"));
 app.use("/api/gallery", require("./routes/galleryRoutes"));
 
 app.use("/api/webinars", require("./routes/webinarRoutes"));
+app.use("/api/telegram", require("./routes/telegramRoutes"));
 
 /*
  * Registration API
@@ -98,4 +100,5 @@ const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
   console.log(`🔥 Server running on port ${PORT}`);
+  startTelegramBot();
 });
