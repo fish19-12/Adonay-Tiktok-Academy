@@ -9,12 +9,12 @@ import FAQPage from "../pages/FAQPage.jsx";
 import SeminarCountdownPage from "../pages/SeminarCountdownPage";
 import WebinarsPage from "../pages/WebinarsPage.jsx";
 import WebinarDetailPage from "../pages/WebinarDetailPage.jsx";
-import TelegramMiniApp from "../pages/TelegramMiniApp.jsx";
+import TelegramEnrollmentFlow from "../pages/TelegramEnrollmentFlow.jsx";
 
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/app" element={<TelegramMiniApp />} />
+      <Route path="/app" element={<TelegramEnrollmentFlow />} />
       {/* Home */}
       <Route path="/" element={<Home />} />
 

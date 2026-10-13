@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 
 const Registration = require("../models/Registration");
 
@@ -198,6 +199,12 @@ const createRegistration = async (req, res) => {
     |--------------------------------------------------------------------------
     */
 
+    const statusToken = crypto.randomBytes(32).toString("base64url");
+    const statusTokenHash = crypto
+      .createHash("sha256")
+      .update(statusToken)
+      .digest("hex");
+
     const registration = await Registration.create({
       name: normalizedName,
       phone: normalizedPhone,
@@ -209,6 +216,7 @@ const createRegistration = async (req, res) => {
       realEstateCompany: normalizedCompany,
       trainingType: normalizedTrainingType,
       status: "pending",
+      statusTokenHash,
     });
 
     /*
@@ -233,7 +241,13 @@ const createRegistration = async (req, res) => {
       success: true,
       message:
         "Registration received successfully. Your application is now pending review.",
-      registration,
+      registration: {
+        _id: registration._id,
+        status: registration.status,
+        trainingType: registration.trainingType,
+        createdAt: registration.createdAt,
+      },
+      statusToken,
     });
   } catch (error) {
     console.error("[createRegistration]", error);
@@ -241,6 +255,43 @@ const createRegistration = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Registration could not be completed. Please try again.",
+    });
+  }
+};
+
+const getRegistrationStatusByToken = async (req, res) => {
+  const { token } = req.params;
+  if (typeof token !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
+    return res
+      .status(404)
+      .json({ success: false, message: "Registration status not found." });
+  }
+
+  try {
+    const statusTokenHash = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+    const registration = await Registration.findOne({ statusTokenHash })
+      .select("status trainingType createdAt")
+      .lean();
+
+    if (!registration) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Registration status not found." });
+    }
+
+    return res.json({
+      success: true,
+      status: registration.status,
+      trainingType: registration.trainingType,
+      createdAt: registration.createdAt,
+    });
+  } catch {
+    return res.status(500).json({
+      success: false,
+      message: "Registration status is temporarily unavailable.",
     });
   }
 };
@@ -618,6 +669,7 @@ const deleteRegistration = async (req, res) => {
 
 module.exports = {
   createRegistration,
+  getRegistrationStatusByToken,
   getRegistrationStats,
   getRegistrations,
   getRegistration,

@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   createRegistration,
+  getRegistrationStatusByToken,
   getRegistrationStats,
   getRegistrations,
   getRegistration,
@@ -27,6 +28,8 @@ Create a new student registration.
 */
 
 router.post("/", createRegistration);
+
+router.get("/status/:token", getRegistrationStatusByToken);
 
 /*
 |--------------------------------------------------------------------------

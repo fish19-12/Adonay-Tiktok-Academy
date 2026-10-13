@@ -63,6 +63,12 @@ const registrationSchema = new mongoose.Schema(
       default: "pending",
       index: true,
     },
+
+    statusTokenHash: {
+      type: String,
+      select: false,
+      default: null,
+    },
   },
   {
     timestamps: true,
