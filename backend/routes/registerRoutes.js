@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   createRegistration,
+  getPublicPaymentOptions,
   getRegistrationStatusByToken,
   getRegistrationStats,
   getRegistrations,
@@ -13,6 +14,7 @@ const {
 
 const router = express.Router();
 const protect = require("../middleware/authMiddleware");
+const paymentReceiptUpload = require("../middleware/paymentReceiptUpload");
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +29,8 @@ POST
 Create a new student registration.
 */
 
-router.post("/", createRegistration);
+router.get("/payment-options", getPublicPaymentOptions);
+router.post("/", paymentReceiptUpload, createRegistration);
 
 router.get("/status/:token", getRegistrationStatusByToken);
 

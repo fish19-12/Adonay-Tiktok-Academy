@@ -824,6 +824,67 @@
 .mini-field-full {
   grid-column: 1 / -1;
 }
+.mini-payment-section {
+  display: grid;
+  gap: 11px;
+  padding: 13px;
+  border: 1px solid var(--mini-line);
+  background: rgba(255, 255, 255, 0.025);
+}
+.mini-payment-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.mini-payment-heading h3 {
+  margin: 0;
+  font-size: 14px;
+}
+.mini-payment-heading strong {
+  color: var(--mini-cyan);
+  font-size: 12px;
+}
+.mini-payment-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+.mini-payment-options label {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--mini-line);
+  background: #0b1117;
+}
+.mini-payment-options label > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--mini-text);
+}
+.mini-payment-options input[type="radio"] {
+  width: 14px;
+  min-height: 14px;
+  padding: 0;
+  accent-color: var(--mini-cyan);
+}
+.mini-payment-options small,
+.mini-payment-options b {
+  display: block;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+  color: var(--mini-muted);
+  font-size: 9px;
+  line-height: 1.5;
+}
+.mini-payment-options b {
+  color: var(--mini-text);
+}
+.mini-form .mini-receipt-upload input {
+  min-height: auto;
+  padding: 10px;
+  font-size: 10px;
+}
 .mini-privacy-note {
   margin: 0;
   color: var(--mini-muted);
@@ -928,5 +989,8 @@
   }
   .mini-field-full {
     grid-column: auto;
+  }
+  .mini-payment-options {
+    grid-template-columns: 1fr;
   }
 }

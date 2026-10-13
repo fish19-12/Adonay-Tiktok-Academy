@@ -37,10 +37,11 @@ Telegram settings:
 - `TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL` to the academy channel invite link.
 - `TELEGRAM_STUDENT_GROUP_URL` to the student group invite link.
 - `TELEGRAM_STUDENT_GROUP_ID` and `TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID` to numeric IDs after discovery. The current bot’s menu works without either ID.
-- `ADMIN_TELEGRAM_IDS` is reserved for Telegram-based admin authorization; the current diagnostics use the existing JWT-protected admin login instead. It is not a substitute for a JWT and is not currently read by runtime code.
+- `ADMIN_TELEGRAM_IDS` is a comma- or whitespace-separated allowlist of numeric Telegram user IDs. Those users can review registration payment receipts using the Approve/Reject buttons delivered by the bot. Each reviewer must open the bot and send `/start` first so Telegram permits private bot messages.
 - `TELEGRAM_WEBHOOK_SECRET` is reserved for a future webhook deployment. The current service uses long polling and does not use this secret.
 - `TELEGRAM_STUDENT_GROUP_URL` and `TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL` are invite links shown as menu shortcuts. They are not chat IDs.
-- `PAYMENT_PROVIDER`, `PAYMENT_RECEIPTS_FOLDER`, and `MAX_RECEIPT_SIZE_MB` are reserved configuration for the later payment-receipt workflow and are not currently read by the runtime.
+- `PAYMENT_AMOUNT_ETB`, `PAYMENT_ACCOUNT_NAME`, `PAYMENT_CBE_ACCOUNT_NUMBER`, and `PAYMENT_TELEBIRR_NUMBER` configure the public registration payment instructions. Set the account name and numbers to the academy's verified receiving accounts in backend environment variables; do not put account details in frontend source.
+- `PAYMENT_PROVIDER`, `PAYMENT_RECEIPTS_FOLDER`, and `MAX_RECEIPT_SIZE_MB` configure manual payment review and Cloudinary receipt uploads. Receipt images are limited to the configured size (maximum 10 MB).
 
 The bot uses long polling and starts when the backend starts if a token is configured. It checks Telegram's webhook status first and refuses to start polling when a webhook is active. Without a token, the existing API still starts and the bot stays disabled. The Mini App URL must use HTTPS.
 
@@ -57,6 +58,14 @@ The bot receives updates using its existing long-polling process; do not start a
 If no chat appears, confirm the bot is running with the rotated token, re-add it to the correct chat, and send a new group command or channel post while Render logs indicate the service is up. A channel bot must be an administrator to receive channel posts. The bot cannot determine a chat ID from a private invite link alone. The diagnostic cache is in-memory and clears on restart, so do discovery after deployment has settled.
 
 The authenticated admin API can send a plain-text announcement after an ID has been configured: `POST /api/telegram/admin/broadcast` with JSON `{ "target": "announcements", "text": "..." }` or `{ "target": "community", "text": "..." }`. It uses only the configured numeric IDs. Treat this as a public broadcast action and restrict access to trusted admins.
+
+### Registration payment review
+
+1. Configure `PAYMENT_AMOUNT_ETB=2500`, `PAYMENT_ACCOUNT_NAME=Adonay TikTok Academy`, `PAYMENT_CBE_ACCOUNT_NUMBER=1000457365344`, and `PAYMENT_TELEBIRR_NUMBER=0909567654` in the backend deployment environment. Verify account ownership before accepting payments.
+2. Configure `ADMIN_TELEGRAM_IDS` with the numeric Telegram user IDs of trusted support reviewers. Each reviewer must open the bot and send `/start` before a receipt is submitted.
+3. Deploy the backend and confirm the bot is polling. Registration submissions require a CBE or Telebirr selection and a JPG, PNG, or WEBP receipt screenshot. The receipt is stored in Cloudinary and sent privately to the configured Telegram reviewers.
+4. An allowlisted reviewer checks the screenshot and taps Approve payment or Reject payment. Decisions are one-time; approval updates registration status and sends the applicant the existing approval email. Rejection updates status and sends the rejection email.
+5. `GET /api/register/payment-options` exposes only configured payment instructions. `POST /api/register` accepts multipart form data with `paymentScreenshot`; direct registration without proof is rejected.
 
 ## Configure BotFather
 

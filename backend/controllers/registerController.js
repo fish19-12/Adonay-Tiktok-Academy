@@ -1,7 +1,11 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
+const streamifier = require("streamifier");
 
 const Registration = require("../models/Registration");
+const cloudinary = require("../config/cloudinary");
+const getPaymentOptions = require("../config/paymentOptions");
+const telegramBot = require("../bot");
 
 const {
   sendRegistrationReceivedEmail,
@@ -60,6 +64,7 @@ const createRegistration = async (req, res) => {
       followers,
       realEstateCompany,
       trainingType,
+      paymentMethod,
     } = req.body;
 
     /*
@@ -74,8 +79,40 @@ const createRegistration = async (req, res) => {
     const normalizedCompany = cleanString(realEstateCompany);
     const normalizedTrainingType =
       cleanString(trainingType) || "In-person / Face-to-face";
+    const normalizedPaymentMethod = cleanString(paymentMethod).toLowerCase();
+    const paymentOptions = getPaymentOptions();
 
     const normalizedHasTikTok = normalizeBoolean(hasTikTok);
+
+    if (!paymentOptions.configured) {
+      return res.status(503).json({
+        success: false,
+        message:
+          "Payment details are not configured. Please contact academy support.",
+      });
+    }
+
+    if (!paymentOptions.methods[normalizedPaymentMethod]?.configured) {
+      return res.status(400).json({
+        success: false,
+        message: "Choose CBE or Telebirr as your payment method.",
+      });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "Upload a screenshot of your payment to continue.",
+      });
+    }
+
+    if (!telegramBot.canReviewPayments()) {
+      return res.status(503).json({
+        success: false,
+        message:
+          "Telegram payment review is not available. Please contact academy support.",
+      });
+    }
 
     if (!normalizedName) {
       return res.status(400).json({
@@ -186,6 +223,23 @@ const createRegistration = async (req, res) => {
       });
     }
 
+    const receiptUpload = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder:
+            process.env.PAYMENT_RECEIPTS_FOLDER ||
+            "adonay-tiktok-academy/payment-receipts",
+          resource_type: "image",
+          access_mode: "authenticated",
+        },
+        (uploadError, result) => {
+          if (uploadError) return reject(uploadError);
+          resolve(result);
+        },
+      );
+      streamifier.createReadStream(req.file.buffer).pipe(uploadStream);
+    });
+
     /*
     |--------------------------------------------------------------------------
     | CREATE REGISTRATION
@@ -208,9 +262,40 @@ const createRegistration = async (req, res) => {
       followers: normalizedFollowers,
       realEstateCompany: normalizedCompany,
       trainingType: normalizedTrainingType,
+      paymentMethod: normalizedPaymentMethod,
+      paymentAmountEtb: paymentOptions.amountEtb,
+      paymentReceipt: {
+        url: receiptUpload.secure_url,
+        public_id: receiptUpload.public_id,
+      },
+      paymentStatus: "pending",
       status: "pending",
       statusTokenHash,
     });
+
+    try {
+      await telegramBot.notifyPaymentReview(
+        registration,
+        req.file.buffer,
+        req.file.mimetype,
+      );
+    } catch (notificationError) {
+      await Promise.allSettled([
+        Registration.deleteOne({ _id: registration._id }),
+        receiptUpload.public_id
+          ? cloudinary.uploader.destroy(receiptUpload.public_id)
+          : Promise.resolve(),
+      ]);
+      console.error(
+        "[Registration] Telegram payment notification failed:",
+        notificationError,
+      );
+      return res.status(503).json({
+        success: false,
+        message:
+          "Academy support could not receive your payment proof. Please contact support before submitting again.",
+      });
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -287,6 +372,15 @@ const getRegistrationStatusByToken = async (req, res) => {
       message: "Registration status is temporarily unavailable.",
     });
   }
+};
+
+const getPublicPaymentOptions = (_req, res) => {
+  return res.json({
+    success: true,
+    ...getPaymentOptions(),
+    reviewReady:
+      telegramBot.canReviewPayments() && telegramBot.isTelegramPollingActive(),
+  });
 };
 
 /*
@@ -436,6 +530,14 @@ const approveRegistration = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "Registration not found.",
+      });
+    }
+
+    if (registration.paymentStatus !== "approved") {
+      return res.status(409).json({
+        success: false,
+        message:
+          "Payment must be verified by Telegram support before approval.",
       });
     }
 
@@ -662,6 +764,7 @@ const deleteRegistration = async (req, res) => {
 
 module.exports = {
   createRegistration,
+  getPublicPaymentOptions,
   getRegistrationStatusByToken,
   getRegistrationStats,
   getRegistrations,

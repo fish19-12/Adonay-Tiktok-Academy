@@ -57,6 +57,30 @@ const registrationSchema = new mongoose.Schema(
       default: "In-person / Face-to-face",
     },
 
+    paymentMethod: {
+      type: String,
+      enum: ["cbe", "telebirr", null],
+      default: null,
+    },
+
+    paymentAmountEtb: {
+      type: Number,
+      min: 1,
+      default: null,
+    },
+
+    paymentReceipt: {
+      url: { type: String, default: null },
+      public_id: { type: String, default: null },
+    },
+
+    paymentStatus: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+      index: true,
+    },
+
     status: {
       type: String,
       enum: ["pending", "approved", "rejected"],

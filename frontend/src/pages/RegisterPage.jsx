@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { createElement, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../services/api";
 
@@ -50,6 +50,9 @@ const initialForm = {
 
 export default function RegisterPage() {
   const [form, setForm] = useState(initialForm);
+  const [paymentOptions, setPaymentOptions] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("cbe");
+  const [paymentScreenshot, setPaymentScreenshot] = useState(null);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -82,6 +85,13 @@ export default function RegisterPage() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    api
+      .get("/register/payment-options")
+      .then(({ data }) => setPaymentOptions(data))
+      .catch(() => setPaymentOptions({ configured: false }));
   }, []);
 
   /* =======================================================
@@ -257,7 +267,16 @@ export default function RegisterPage() {
        * signal: controller.signal
        */
 
-      const response = await api.post("/register", payload, {
+      const registrationData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          registrationData.append(key, String(value));
+        }
+      });
+      registrationData.append("paymentMethod", paymentMethod);
+      registrationData.append("paymentScreenshot", paymentScreenshot);
+
+      const response = await api.post("/register", registrationData, {
         signal: controller.signal,
 
         /*
@@ -626,6 +645,81 @@ export default function RegisterPage() {
                     )}
                   </div>
 
+                  <div className="border-t border-[#eceef5] pt-7">
+                    <SectionHeading
+                      number="03"
+                      title="Payment"
+                      description="Pay using CBE or Telebirr, then upload your receipt for Telegram support to review."
+                    />
+
+                    {paymentOptions?.configured ? (
+                      <div className="space-y-4">
+                        <p className="rounded-xl border border-[#e2e4ef] bg-[#fafbfe] p-4 text-sm font-bold text-[#292d43]">
+                          Training fee: {paymentOptions.amountEtb} ETB
+                        </p>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          {[
+                            ["cbe", paymentOptions.methods.cbe],
+                            ["telebirr", paymentOptions.methods.telebirr],
+                          ].map(([method, details]) => (
+                            <label
+                              key={method}
+                              className={`cursor-pointer rounded-xl border p-4 transition ${paymentMethod === method ? "border-[#6254dc] bg-[#f8f7ff]" : "border-[#e2e4ef] bg-white"}`}
+                            >
+                              <span className="flex items-center gap-2 text-xs font-black text-[#292d43]">
+                                <input
+                                  type="radio"
+                                  name="paymentMethod"
+                                  value={method}
+                                  checked={paymentMethod === method}
+                                  onChange={() => setPaymentMethod(method)}
+                                  className="accent-[#6254dc]"
+                                />
+                                {details.label}
+                              </span>
+                              <span className="mt-2 block break-all text-[11px] leading-5 text-[#70758a]">
+                                {details.accountName}
+                                <br />
+                                {details.accountNumber || details.phoneNumber}
+                              </span>
+                            </label>
+                          ))}
+                        </div>
+                        <label className="block text-[9px] font-black uppercase tracking-[0.14em] text-[#686e84]">
+                          Payment screenshot (JPG, PNG, or WEBP)
+                          <input
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            required
+                            onChange={(event) =>
+                              setPaymentScreenshot(
+                                event.target.files?.[0] || null,
+                              )
+                            }
+                            className="mt-2 block min-h-12 w-full rounded-xl border border-[#e0e2eb] bg-[#fafbfe] p-3 text-xs normal-case tracking-normal"
+                          />
+                        </label>
+                        {!paymentOptions.reviewReady && (
+                          <p
+                            role="status"
+                            className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-800"
+                          >
+                            Telegram support review is temporarily unavailable.
+                            Please try again later.
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <p
+                        role="alert"
+                        className="rounded-xl bg-red-50 p-4 text-xs leading-5 text-red-700"
+                      >
+                        Payment instructions are temporarily unavailable. Please
+                        contact academy support.
+                      </p>
+                    )}
+                  </div>
+
                   {/* =================================================
                       SUBMIT
                       ================================================= */}
@@ -648,7 +742,12 @@ export default function RegisterPage() {
 
                     <button
                       type="submit"
-                      disabled={submitting}
+                      disabled={
+                        submitting ||
+                        !paymentOptions?.configured ||
+                        !paymentOptions?.reviewReady ||
+                        !paymentScreenshot
+                      }
                       aria-busy={submitting}
                       className={`
                         group
@@ -741,7 +840,7 @@ function SectionHeading({ number, title, description }) {
 
 function InputField({
   label,
-  icon: Icon,
+  icon,
   value,
   onChange,
   placeholder,
@@ -758,11 +857,12 @@ function InputField({
       </label>
 
       <div className="group relative">
-        <Icon
-          aria-hidden="true"
-          className="pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#a4a8b9] transition-colors group-focus-within:text-[#6555df]"
-          strokeWidth={2}
-        />
+        {createElement(icon, {
+          "aria-hidden": true,
+          className:
+            "pointer-events-none absolute left-3.5 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-[#a4a8b9] transition-colors group-focus-within:text-[#6555df]",
+          strokeWidth: 2,
+        })}
 
         <input
           type={type}
@@ -909,19 +1009,19 @@ function SuccessScreen({ registration }) {
                   <span className="h-1.5 w-1.5 rounded-full bg-[#20b486]" />
 
                   <span className="text-[8px] font-black uppercase tracking-[0.18em] text-[#188f69]">
-                    Registration Confirmed
+                    PAYMENT PROOF SENT FOR REVIEW
                   </span>
                 </div>
 
                 <h1 className="mt-4 text-2xl font-black tracking-[-0.04em] text-[#171a35] sm:text-3xl">
-                  You&apos;re registered!
+                  Your application is under review.
                 </h1>
 
                 <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-[#858a9d]">
                   Thank you,{" "}
                   <span className="font-black text-[#5b50cf]">{firstName}</span>
-                  . Your registration for Adonay TikTok Academy has been
-                  received successfully.
+                  . Your registration and payment screenshot have been sent to
+                  academy support. We&apos;ll contact you after review.
                 </p>
 
                 <div className="mt-6 rounded-2xl border border-[#e2defe] bg-gradient-to-br from-[#f8f6ff] to-[#f2fcff] p-4 text-left">
@@ -936,7 +1036,7 @@ function SuccessScreen({ registration }) {
                       </p>
 
                       <p className="mt-1 text-[11px] font-bold leading-4 text-[#4d5268]">
-                        The academy will review your registration
+                        Telegram support is checking your payment
                       </p>
 
                       <p className="mt-1 text-[9px] leading-4 text-[#8b90a3]">

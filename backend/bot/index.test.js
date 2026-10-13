@@ -63,3 +63,41 @@ test("escapes Telegram HTML in the personalized welcome", () => {
   assert.match(message, /Where would you like to start\?/);
   assert.doesNotMatch(message, /\nWelcome, <student>/);
 });
+
+test("payment reviews are limited to configured numeric Telegram IDs", () => {
+  const reviewers = telegramBot.adminTelegramIds({
+    ADMIN_TELEGRAM_IDS: "123456, 789012 invalid -42",
+  });
+
+  assert.equal(reviewers.has("123456"), true);
+  assert.equal(reviewers.has("789012"), true);
+  assert.equal(reviewers.has("invalid"), false);
+  assert.equal(reviewers.has("-42"), false);
+  assert.equal(
+    telegramBot.canReviewPayments({ ADMIN_TELEGRAM_IDS: "invalid" }),
+    false,
+  );
+});
+
+test("FAQ reply explains registration and welcomes learners at every level", () => {
+  assert.match(telegramBot.faqAnswer, /How do I register\?/);
+  assert.match(telegramBot.faqAnswer, /Launch Academy App/);
+  assert.match(telegramBot.faqAnswer, /payment screenshot/);
+  assert.match(telegramBot.faqAnswer, /beginners and active creators/);
+  assert.match(
+    telegramBot.faqAnswer,
+    /Real Estate Agency Training is face-to-face/,
+  );
+});
+
+test("About reply covers the founder and academy's practical learning approach", () => {
+  assert.match(telegramBot.aboutAnswer, /Adonay hailemikael/);
+  assert.match(telegramBot.aboutAnswer, /FOUNDER &amp; ACADEMY LEAD/);
+  assert.match(telegramBot.aboutAnswer, /OUR MISSION/);
+  assert.match(telegramBot.aboutAnswer, /OUR PHILOSOPHY/);
+  assert.match(telegramBot.aboutAnswer, /OUR COMMUNITY/);
+  assert.match(telegramBot.aboutAnswer, /Content/);
+  assert.match(telegramBot.aboutAnswer, /Strategy/);
+  assert.match(telegramBot.aboutAnswer, /Audience/);
+  assert.match(telegramBot.aboutAnswer, /Confidence/);
+});

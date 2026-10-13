@@ -54,3 +54,17 @@ services:
         sync: false
       - key: ADMIN_TELEGRAM_IDS
         sync: false
+      - key: PAYMENT_AMOUNT_ETB
+        value: "2500"
+      - key: PAYMENT_ACCOUNT_NAME
+        value: Adonay TikTok Academy
+      - key: PAYMENT_CBE_ACCOUNT_NUMBER
+        value: "1000457365344"
+      - key: PAYMENT_TELEBIRR_NUMBER
+        value: "0909567654"
+      - key: PAYMENT_PROVIDER
+        value: manual_review
+      - key: PAYMENT_RECEIPTS_FOLDER
+        value: adonay-tiktok-academy/payment-receipts
+      - key: MAX_RECEIPT_SIZE_MB
+        value: "5"

@@ -52,6 +52,9 @@ function TelegramEnrollmentFlow() {
   const [statusError, setStatusError] = useState(false);
   const [identityError, setIdentityError] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [paymentOptions, setPaymentOptions] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("cbe");
+  const [paymentScreenshot, setPaymentScreenshot] = useState(null);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -77,6 +80,13 @@ function TelegramEnrollmentFlow() {
       })
       .catch(() => setIdentityError(true));
     return undefined;
+  }, []);
+
+  useEffect(() => {
+    api
+      .get("/register/payment-options")
+      .then(({ data }) => setPaymentOptions(data))
+      .catch(() => setPaymentOptions({ configured: false }));
   }, []);
 
   useEffect(() => {
@@ -136,7 +146,15 @@ function TelegramEnrollmentFlow() {
         delete payload.tiktokUsername;
         delete payload.tiktokProfileLink;
       }
-      const { data } = await api.post("/register", payload);
+      const registrationData = new FormData();
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          registrationData.append(key, String(value));
+        }
+      });
+      registrationData.append("paymentMethod", paymentMethod);
+      registrationData.append("paymentScreenshot", paymentScreenshot);
+      const { data } = await api.post("/register", registrationData);
       if (!data.statusToken)
         throw new Error(
           "Registration was received but status tracking could not be started. Please contact academy support.",
@@ -329,6 +347,72 @@ function TelegramEnrollmentFlow() {
                 </label>
               </div>
             )}
+            <section
+              className="academy-mini-payment"
+              aria-labelledby="payment-title"
+            >
+              <div>
+                <span className="academy-mini-kicker">PAYMENT</span>
+                <h2 id="payment-title">
+                  {paymentOptions?.amountEtb
+                    ? `Training fee: ${paymentOptions.amountEtb} ETB`
+                    : "Payment details"}
+                </h2>
+              </div>
+              {paymentOptions?.configured ? (
+                <>
+                  <div className="academy-mini-payment-methods">
+                    {[
+                      ["cbe", paymentOptions.methods.cbe],
+                      ["telebirr", paymentOptions.methods.telebirr],
+                    ].map(([method, details]) => (
+                      <label
+                        className={`academy-mini-payment-method ${paymentMethod === method ? "selected" : ""}`}
+                        key={method}
+                      >
+                        <span>
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value={method}
+                            checked={paymentMethod === method}
+                            onChange={() => setPaymentMethod(method)}
+                          />
+                          <strong>{details.label}</strong>
+                        </span>
+                        <small>{details.accountName}</small>
+                        <b>{details.accountNumber || details.phoneNumber}</b>
+                      </label>
+                    ))}
+                  </div>
+                  <label className="academy-mini-receipt-label">
+                    Payment screenshot (JPG, PNG, or WEBP)
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      required
+                      onChange={(event) =>
+                        setPaymentScreenshot(event.target.files?.[0] || null)
+                      }
+                    />
+                  </label>
+                  <p className="academy-mini-payment-caption">
+                    Your screenshot will be sent to academy support for review.
+                  </p>
+                  {!paymentOptions.reviewReady && (
+                    <p className="academy-mini-warning" role="status">
+                      Telegram support review is temporarily unavailable. Please
+                      try again later.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="academy-mini-warning">
+                  Payment details are temporarily unavailable. Please contact
+                  academy support.
+                </p>
+              )}
+            </section>
             {formError && (
               <p className="academy-mini-error" role="alert">
                 {formError}
@@ -337,7 +421,12 @@ function TelegramEnrollmentFlow() {
             <button
               className="academy-mini-cta academy-mini-submit"
               type="submit"
-              disabled={submitting}
+              disabled={
+                submitting ||
+                !paymentOptions?.configured ||
+                !paymentOptions?.reviewReady ||
+                !paymentScreenshot
+              }
             >
               {submitting ? (
                 <>
@@ -396,8 +485,8 @@ function TelegramEnrollmentFlow() {
               <span className="academy-mini-kicker">APPLICATION RECEIVED</span>
               <h1>We’re reviewing your application.</h1>
               <p>
-                Your registration is safely with the academy team. This screen
-                will update when the review is complete.
+                Your payment screenshot has been sent to academy support. This
+                screen will update after they verify it.
               </p>
               <div className="academy-mini-review-state">
                 <span />

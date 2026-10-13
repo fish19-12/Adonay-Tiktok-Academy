@@ -1,13 +1,35 @@
-const { Telegraf, Markup } = require("telegraf");
+const { Telegraf, Markup, Input } = require("telegraf");
 const { recordTelegramChat } = require("./chatDiscovery");
 const academyPrograms = require("../config/academyPrograms");
+const reviewRegistrationPayment = require("../services/registrationPaymentReview");
 
 const WEBSITE_URL = "https://www.adonaytiktokacademy.com";
 const DEFAULT_MINI_APP_URL = "https://www.adonaytiktokacademy.com/app";
 const FAQ_ANSWER =
-  "<b>Quick FAQs</b>\n\n<b>What do you teach?</b> Practical TikTok, short-form video, content strategy, and personal branding.\n\n<b>What is open now?</b> Real Estate Agency Training is open for registration.\n\n<b>Do I need experience?</b> No. Training is designed for different levels.\n\n<b>How do I apply?</b> Tap Register for Training and submit the application. The academy will review it.\n\n<b>Where is the current training held?</b> Real Estate Agency Training is face-to-face.";
+  "<b>❔ ACADEMY FAQ</b>\n\n" +
+  "<b>🎬 What will I learn?</b>\nShort-form content, TikTok strategy, audience communication, and personal branding.\n\n" +
+  "<b>📝 How do I register?</b>\nTap <b>Launch Academy App</b>, choose registration, complete the form, and submit your payment screenshot. Support reviews it and emails you the decision.\n\n" +
+  "<b>🌱 Do I need TikTok experience?</b>\nNo. Training is practical and suitable for beginners and active creators alike.\n\n" +
+  "<b>👥 Who is it for?</b>\nCreators, entrepreneurs, professionals, agents, and businesses.\n\n" +
+  "<b>📍 Where is current training held?</b>\nReal Estate Agency Training is face-to-face. Check the Academy App for current program details.";
 const ABOUT_ANSWER =
-  "<b>About Adonay TikTok Academy</b>\n\nWe build practical digital skills through content, strategy, and education. Our learning helps creators, professionals, and businesses communicate ideas, strengthen their digital presence, and grow with purpose.\n\n<i>Learn. Create. Grow.</i>";
+  "<b>✨ ADONAY TIKTOK ACADEMY</b>\n" +
+  "A practical learning platform for TikTok, short-form content, personal branding, and digital growth. We make digital education clearer, more practical, and useful in real life.\n\n" +
+  "<b>👤 FOUNDER &amp; ACADEMY LEAD</b>\n" +
+  "<b>Adonay hailemikael</b>\n" +
+  "Building practical digital skills through content, strategy, and education.\n\n" +
+  "<b>01 · OUR MISSION</b>\n" +
+  "Make practical digital learning accessible, helping people build stronger skills, brands, businesses, and opportunities online.\n\n" +
+  "<b>02 · OUR PHILOSOPHY</b>\n" +
+  "Information matters when you can use it. We focus on clear strategy, practical understanding, and real-world action.\n\n" +
+  "<b>03 · OUR COMMUNITY</b>\n" +
+  "A learning environment for creators, professionals, businesses, and future digital leaders.\n\n" +
+  "<b>🚀 WHAT YOU’LL BUILD</b>\n" +
+  "✦ <b>Content</b> · Create stronger short-form videos\n" +
+  "✦ <b>Strategy</b> · Post with intention\n" +
+  "✦ <b>Audience</b> · Reach and connect with the right people\n" +
+  "✦ <b>Confidence</b> · Keep using your skills to grow\n\n" +
+  "<i>Learn. Create. Grow.</i>";
 let activeBot = null;
 let pollingActive = false;
 
@@ -76,6 +98,73 @@ function telegramInviteUrl(value) {
       : null;
   } catch {
     return null;
+  }
+}
+
+function adminTelegramIds(environment = process.env) {
+  return new Set(
+    (environment.ADMIN_TELEGRAM_IDS || "")
+      .split(/[\s,]+/)
+      .map((id) => id.trim())
+      .filter((id) => /^\d+$/.test(id)),
+  );
+}
+
+function canReviewPayments(environment = process.env) {
+  return adminTelegramIds(environment).size > 0;
+}
+
+async function notifyPaymentReview(registration, receiptBuffer, mimeType) {
+  const bot = getTelegramBot();
+  const admins = [...adminTelegramIds()];
+  if (!bot || !pollingActive || admins.length === 0) {
+    throw new Error("Telegram payment review is not configured.");
+  }
+
+  const method = registration.paymentMethod === "cbe" ? "CBE" : "Telebirr";
+  const account =
+    registration.paymentMethod === "cbe"
+      ? process.env.PAYMENT_CBE_ACCOUNT_NUMBER
+      : process.env.PAYMENT_TELEBIRR_NUMBER;
+  const caption =
+    `<b>Payment proof to review</b>\n\n` +
+    `<b>Applicant:</b> ${escapeHtml(registration.name)}\n` +
+    `<b>Phone:</b> ${escapeHtml(registration.phone)}\n` +
+    `<b>Email:</b> ${escapeHtml(registration.email)}\n` +
+    `<b>Method:</b> ${method}\n` +
+    `<b>Amount:</b> ${escapeHtml(registration.paymentAmountEtb)} ETB\n` +
+    `<b>Paid to:</b> ${escapeHtml(account || "Configured account")}\n` +
+    `<b>Registration:</b> <code>${registration._id}</code>`;
+  const keyboard = Markup.inlineKeyboard([
+    [
+      Markup.button.callback(
+        "Approve payment",
+        `pay:approve:${registration._id}`,
+      ),
+      Markup.button.callback(
+        "Reject payment",
+        `pay:reject:${registration._id}`,
+      ),
+    ],
+  ]);
+  const extension =
+    mimeType === "image/png"
+      ? "png"
+      : mimeType === "image/webp"
+        ? "webp"
+        : "jpg";
+  const deliveries = await Promise.allSettled(
+    admins.map((adminId) =>
+      bot.telegram.sendPhoto(
+        adminId,
+        Input.fromBuffer(receiptBuffer, `payment-receipt.${extension}`),
+        { caption, parse_mode: "HTML", ...keyboard },
+      ),
+    ),
+  );
+
+  if (!deliveries.some((delivery) => delivery.status === "fulfilled")) {
+    throw new Error("Telegram could not deliver the receipt to any admin.");
   }
 }
 
@@ -173,7 +262,7 @@ function startTelegramBot() {
   );
   bot.command("payments", (ctx) =>
     ctx.reply(
-      "Payment status is not available in the bot yet. Follow the academy's official instructions after registration. Never send payment details or receipt screenshots in chat.",
+      "Open the Academy App registration form to view the official CBE and Telebirr instructions and upload your receipt screenshot. Academy support reviews submitted proof in a private admin chat. Do not send payment credentials or receipts to public chats or unverified accounts.",
     ),
   );
   bot.command("webinars", async (ctx) => {
@@ -250,7 +339,7 @@ function startTelegramBot() {
   bot.action("payments", async (ctx) => {
     await ctx.answerCbQuery();
     return ctx.reply(
-      "Payment status is not available in the bot yet. Follow the academy's official instructions after registration. Never send payment details or receipt screenshots in chat.",
+      "Open the Academy App registration form to view the official CBE and Telebirr instructions and upload your receipt screenshot. Academy support reviews submitted proof in a private admin chat. Do not send payment credentials or receipts to public chats or unverified accounts.",
     );
   });
   bot.action("faq", async (ctx) => {
@@ -260,6 +349,54 @@ function startTelegramBot() {
   bot.action("about", async (ctx) => {
     await ctx.answerCbQuery();
     return ctx.reply(ABOUT_ANSWER, { parse_mode: "HTML" });
+  });
+
+  bot.action(/^pay:(approve|reject):([a-f\d]{24})$/i, async (ctx) => {
+    const actorId = String(ctx.from?.id || "");
+    if (!adminTelegramIds().has(actorId)) {
+      await ctx.answerCbQuery("You are not authorized to review payments.", {
+        show_alert: true,
+      });
+      return;
+    }
+
+    const decision = ctx.match[1] === "approve" ? "approved" : "rejected";
+    try {
+      const result = await reviewRegistrationPayment(ctx.match[2], decision);
+      if (result.result === "not_found") {
+        await ctx.answerCbQuery("Registration not found.", {
+          show_alert: true,
+        });
+        return;
+      }
+      if (result.result === "already_reviewed") {
+        await ctx.answerCbQuery(
+          `This payment was already ${result.registration.paymentStatus}.`,
+          { show_alert: true },
+        );
+        return;
+      }
+
+      await ctx.answerCbQuery(
+        decision === "approved" ? "Payment approved." : "Payment rejected.",
+      );
+      const previousCaption = ctx.callbackQuery.message.caption || "";
+      try {
+        await ctx.editMessageCaption(
+          `${previousCaption}\n\n<b>Decision:</b> ${decision.toUpperCase()} by ${escapeHtml(ctx.from.first_name || "Telegram admin")}`,
+          { parse_mode: "HTML" },
+        );
+      } catch {
+        console.warn(
+          "[Telegram payment review] Could not update receipt caption.",
+        );
+      }
+    } catch (error) {
+      console.error("[Telegram payment review] Decision failed:", error);
+      await ctx.answerCbQuery("Could not update this payment. Try again.", {
+        show_alert: true,
+      });
+    }
   });
 
   bot.catch(() => console.error("Telegram bot could not process an update."));
@@ -349,3 +486,8 @@ module.exports.supportUrl = supportUrl;
 module.exports.telegramInviteUrl = telegramInviteUrl;
 module.exports.welcomeKeyboard = welcomeKeyboard;
 module.exports.welcomeText = welcomeText;
+module.exports.faqAnswer = FAQ_ANSWER;
+module.exports.aboutAnswer = ABOUT_ANSWER;
+module.exports.canReviewPayments = canReviewPayments;
+module.exports.notifyPaymentReview = notifyPaymentReview;
+module.exports.adminTelegramIds = adminTelegramIds;

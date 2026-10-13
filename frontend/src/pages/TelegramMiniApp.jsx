@@ -49,7 +49,6 @@ const emptyRegistration = {
   name: "",
   phone: "",
   email: "",
-  realEstateCompany: "",
   hasTikTok: "yes",
   tiktokUsername: "",
   tiktokProfileLink: "",
@@ -81,6 +80,16 @@ function MiniAppRegistration({ course, onClose, identity }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [paymentOptions, setPaymentOptions] = useState(null);
+  const [paymentMethod, setPaymentMethod] = useState("cbe");
+  const [paymentScreenshot, setPaymentScreenshot] = useState(null);
+
+  useEffect(() => {
+    api
+      .get("/register/payment-options")
+      .then(({ data }) => setPaymentOptions(data))
+      .catch(() => setPaymentOptions({ configured: false }));
+  }, []);
 
   const update = (event) =>
     setForm((current) => ({
@@ -103,9 +112,17 @@ function MiniAppRegistration({ course, onClose, identity }) {
         delete payload.tiktokUsername;
         delete payload.tiktokProfileLink;
       }
-      const { data } = await api.post("/register", payload);
+      const registrationData = new FormData();
+      Object.entries({ ...payload, paymentMethod }).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          registrationData.append(key, String(value));
+        }
+      });
+      registrationData.append("paymentScreenshot", paymentScreenshot);
+      const { data } = await api.post("/register", registrationData);
       setSuccess(
-        data.message || "Your registration has been received for review.",
+        data.message ||
+          "Your payment proof is with academy support for review.",
       );
     } catch (requestError) {
       setError(
@@ -196,15 +213,6 @@ function MiniAppRegistration({ course, onClose, identity }) {
               </label>
             </div>
             <label>
-              Company or agency
-              <input
-                name="realEstateCompany"
-                required
-                value={form.realEstateCompany}
-                onChange={update}
-              />
-            </label>
-            <label>
               Do you have a TikTok account?
               <select name="hasTikTok" value={form.hasTikTok} onChange={update}>
                 <option value="yes">Yes</option>
@@ -249,9 +257,64 @@ function MiniAppRegistration({ course, onClose, identity }) {
                 </label>
               </div>
             )}
+            <section
+              className="mini-payment-section"
+              aria-labelledby="mini-payment-title"
+            >
+              <div className="mini-payment-heading">
+                <h3 id="mini-payment-title">Payment</h3>
+                <strong>{paymentOptions?.amountEtb || "..."} ETB</strong>
+              </div>
+              {paymentOptions?.configured ? (
+                <>
+                  <div className="mini-payment-options">
+                    {[
+                      ["cbe", paymentOptions.methods.cbe],
+                      ["telebirr", paymentOptions.methods.telebirr],
+                    ].map(([method, details]) => (
+                      <label key={method}>
+                        <span>
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            checked={paymentMethod === method}
+                            onChange={() => setPaymentMethod(method)}
+                          />
+                          {details.label}
+                        </span>
+                        <small>{details.accountName}</small>
+                        <b>{details.accountNumber || details.phoneNumber}</b>
+                      </label>
+                    ))}
+                  </div>
+                  <label className="mini-receipt-upload">
+                    Payment screenshot (JPG, PNG, or WEBP)
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      required
+                      onChange={(event) =>
+                        setPaymentScreenshot(event.target.files?.[0] || null)
+                      }
+                    />
+                  </label>
+                  {!paymentOptions.reviewReady && (
+                    <p className="mini-form-error" role="status">
+                      Telegram support review is temporarily unavailable. Please
+                      try again later.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <p className="mini-form-error">
+                  Payment details are temporarily unavailable. Please contact
+                  academy support.
+                </p>
+              )}
+            </section>
             <p className="mini-privacy-note">
-              Your details are sent to the academy for registration review.
-              Registration does not mean payment approval or course access.
+              Your receipt will be sent to academy support for review.
+              We&apos;ll email you when the review is complete.
             </p>
             {error && (
               <p className="mini-form-error" role="alert">
@@ -261,7 +324,12 @@ function MiniAppRegistration({ course, onClose, identity }) {
             <button
               className="mini-button mini-button-primary mini-submit"
               type="submit"
-              disabled={submitting}
+              disabled={
+                submitting ||
+                !paymentOptions?.configured ||
+                !paymentOptions?.reviewReady ||
+                !paymentScreenshot
+              }
             >
               {submitting ? (
                 <>

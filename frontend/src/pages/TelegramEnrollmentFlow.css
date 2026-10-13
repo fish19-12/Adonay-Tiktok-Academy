@@ -243,6 +243,66 @@
 .academy-mini-field-full {
   grid-column: 1 / -1;
 }
+.academy-mini-payment {
+  display: grid;
+  gap: 13px;
+  padding: 15px;
+  border: 1px solid var(--flow-line);
+  background: rgba(255, 255, 255, 0.62);
+}
+.academy-mini-payment h2 {
+  margin: 5px 0 0;
+  font-size: 16px;
+  line-height: 1.3;
+}
+.academy-mini-payment-methods {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+}
+.academy-mini-payment-methods label {
+  min-width: 0;
+  padding: 11px;
+  border: 1px solid var(--flow-line);
+  background: white;
+}
+.academy-mini-payment-methods label.selected {
+  border-color: var(--flow-coral);
+  background: rgba(232, 95, 63, 0.045);
+}
+.academy-mini-payment-methods label > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.academy-mini-payment-methods input {
+  width: 14px;
+  min-height: 14px;
+  padding: 0;
+  accent-color: var(--flow-coral);
+}
+.academy-mini-payment-methods small,
+.academy-mini-payment-methods b {
+  display: block;
+  margin-top: 7px;
+  overflow-wrap: anywhere;
+  font-size: 9px;
+  line-height: 1.5;
+}
+.academy-mini-payment-methods small {
+  color: var(--flow-muted);
+}
+.academy-mini-receipt-label input {
+  min-height: auto;
+  padding: 10px;
+  font-size: 10px;
+}
+.academy-mini-payment-caption {
+  margin: 0;
+  color: var(--flow-muted);
+  font-size: 10px;
+  line-height: 1.55;
+}
 .academy-mini-submit {
   width: 100%;
   min-height: 48px;
@@ -481,6 +541,9 @@
   .academy-mini-hero {
     padding-right: 15px;
     padding-left: 15px;
+  }
+  .academy-mini-payment-methods {
+    grid-template-columns: 1fr;
   }
 }
 @media (prefers-reduced-motion: reduce) {
