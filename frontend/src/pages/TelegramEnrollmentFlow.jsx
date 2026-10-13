@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  ArrowUpRight,
   CalendarDays,
   Check,
   Clock3,
@@ -20,7 +19,6 @@ import "./TelegramEnrollmentFlow.css";
 const VIDEO_URL =
   "https://player.mediadelivery.net/play/773543/88acc664-0a03-4c44-ae49-7a22c07a237d";
 const SUPPORT_URL = "https://t.me/Adonaytiktokacademysupport";
-const WEBINARS_URL = "https://www.adonaytiktokacademy.com/webinars";
 const WEBINAR_DELAY_MS = 7 * 24 * 60 * 60 * 1000;
 const emptyForm = {
   name: "",
@@ -528,8 +526,8 @@ function TelegramEnrollmentFlow() {
                 </div>
                 {webinarIsOpen ? (
                   <p className="academy-mini-webinar-open-copy">
-                    Your seven-day welcome period is complete. Open the webinar
-                    page to see available live sessions.
+                    Your seven-day countdown is complete. You can now access the
+                    live webinar learning from the Academy App.
                   </p>
                 ) : (
                   <div className="academy-mini-countdown-grid">
@@ -546,14 +544,6 @@ function TelegramEnrollmentFlow() {
                   <span>Counting down from your approval time</span>
                 </div>
               </section>
-              <a
-                className="academy-mini-cta academy-mini-webinar-link"
-                href={WEBINARS_URL}
-                target="_blank"
-                rel="noreferrer"
-              >
-                Explore live webinars <ArrowUpRight size={17} />
-              </a>
               <section
                 className="academy-mini-community"
                 aria-labelledby="community-title"
@@ -564,7 +554,7 @@ function TelegramEnrollmentFlow() {
                   </span>
                   <div>
                     <h2 id="community-title">Your Academy community</h2>
-                    <p>Private invitations for approved students</p>
+                    <p>Connect with learners and access course resources</p>
                   </div>
                 </div>
                 {communityInvites?.studentGroupUrl && (
@@ -579,7 +569,7 @@ function TelegramEnrollmentFlow() {
                     </span>
                     <span>
                       <strong>Join Student Community</strong>
-                      <small>Meet approved learners on Telegram</small>
+                      <small>Chat and share ideas with other students</small>
                     </span>
                     <ExternalLink size={16} />
                   </a>
@@ -596,18 +586,33 @@ function TelegramEnrollmentFlow() {
                     </span>
                     <span>
                       <strong>Follow Academy Updates</strong>
-                      <small>News and learning announcements</small>
+                      <small>Get learning resources and academy updates</small>
                     </span>
                     <ExternalLink size={16} />
                   </a>
                 )}
-                {!communityInvites?.studentGroupUrl &&
-                  !communityInvites?.announcementsUrl && (
-                    <p className="academy-mini-community-unavailable">
-                      Community invitations are being prepared. Reopen this
-                      screen shortly or contact support.
-                    </p>
-                  )}
+                {!communityInvites?.studentGroupUrl && (
+                  <p className="academy-mini-community-unavailable">
+                    {communityInvites?.studentGroupStatus ===
+                    "permission_required"
+                      ? "The Academy bot needs permission to create an invite for the student group. Please contact support."
+                      : communityInvites?.studentGroupStatus ===
+                          "not_configured"
+                        ? "The student group is not connected to the Academy bot yet. Please contact support."
+                        : "The student group invite is temporarily unavailable. Please reopen this screen shortly."}
+                  </p>
+                )}
+                {!communityInvites?.announcementsUrl && (
+                  <p className="academy-mini-community-unavailable">
+                    {communityInvites?.announcementsStatus ===
+                    "permission_required"
+                      ? "The Academy bot needs permission to create an invite for the learning resources channel. Please contact support."
+                      : communityInvites?.announcementsStatus ===
+                          "not_configured"
+                        ? "The learning resources channel is not connected to the Academy bot yet. Please contact support."
+                        : "The learning resources channel invite is temporarily unavailable. Please reopen this screen shortly."}
+                  </p>
+                )}
               </section>
               <p className="academy-mini-approved-footnote">
                 We&apos;ve also sent your approval details to your email.

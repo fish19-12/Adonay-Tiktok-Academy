@@ -140,6 +140,48 @@ test("legacy shared group and channel invite links are revoked at startup", asyn
   assert.equal(revoked[1].inviteLink, "https://t.me/+6m8OBjwrEgUxMzk0");
 });
 
+test("approved invite response identifies missing chat configuration", async () => {
+  const registration = { status: "approved", communityInvites: {} };
+  const result = await telegramBot.createApprovedCommunityInvites(
+    registration,
+    { telegram: {} },
+    {},
+  );
+
+  assert.equal(result.studentGroupUrl, null);
+  assert.equal(result.announcementsUrl, null);
+  assert.equal(result.studentGroupStatus, "not_configured");
+  assert.equal(result.announcementsStatus, "not_configured");
+});
+
+test("approved invite response identifies missing Telegram admin permissions", async () => {
+  const registration = {
+    status: "approved",
+    communityInvites: {},
+    async save() {},
+  };
+  const bot = {
+    telegram: {
+      async createChatInviteLink() {
+        const error = new Error("Not enough rights to invite users");
+        error.code = 400;
+        throw error;
+      },
+    },
+  };
+  const result = await telegramBot.createApprovedCommunityInvites(
+    registration,
+    bot,
+    {
+      TELEGRAM_STUDENT_GROUP_ID: "-1001",
+      TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID: "-1002",
+    },
+  );
+
+  assert.equal(result.studentGroupStatus, "permission_required");
+  assert.equal(result.announcementsStatus, "permission_required");
+});
+
 test("payment reviews are limited to configured numeric Telegram IDs", () => {
   const reviewers = telegramBot.adminTelegramIds({
     ADMIN_TELEGRAM_IDS: "123456, 789012 invalid -42",

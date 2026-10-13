@@ -215,17 +215,26 @@ async function createApprovedCommunityInvites(
     ["announcementsChannel", environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID],
   ];
   const communityInvites = registration.communityInvites || {};
+  const inviteStatuses = {};
   const expiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000);
   let changed = false;
 
   for (const [key, chatId] of inviteTargets) {
-    if (!chatId || !/^-?\d+$/.test(chatId) || !bot) continue;
+    if (!chatId || !/^-?\d+$/.test(chatId)) {
+      inviteStatuses[key] = "not_configured";
+      continue;
+    }
+    if (!bot) {
+      inviteStatuses[key] = "bot_unavailable";
+      continue;
+    }
     const currentInvite = communityInvites[key];
     if (
       currentInvite?.url &&
       currentInvite.expiresAt &&
       new Date(currentInvite.expiresAt).getTime() > now
     ) {
+      inviteStatuses[key] = "ready";
       continue;
     }
 
@@ -235,8 +244,21 @@ async function createApprovedCommunityInvites(
         expire_date: Math.floor(expiresAt.getTime() / 1000),
       });
       communityInvites[key] = { url: invite.invite_link, expiresAt };
+      inviteStatuses[key] = "ready";
       changed = true;
     } catch (error) {
+      const errorMessage = String(
+        error?.response?.description ||
+          error?.description ||
+          error?.message ||
+          "",
+      );
+      inviteStatuses[key] =
+        /administrator|invite users|not enough rights|permission/i.test(
+          errorMessage,
+        )
+          ? "permission_required"
+          : "invite_unavailable";
       console.error(
         `[Telegram] Could not create approved ${key} invite:`,
         error?.code || error?.message || "unknown error",
@@ -252,6 +274,9 @@ async function createApprovedCommunityInvites(
   return {
     studentGroupUrl: communityInvites.studentGroup?.url || null,
     announcementsUrl: communityInvites.announcementsChannel?.url || null,
+    studentGroupStatus: inviteStatuses.studentGroup || "not_configured",
+    announcementsStatus:
+      inviteStatuses.announcementsChannel || "not_configured",
   };
 }
 
