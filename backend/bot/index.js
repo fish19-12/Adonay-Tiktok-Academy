@@ -80,43 +80,23 @@ function telegramInviteUrl(value) {
 }
 
 function welcomeKeyboard() {
-  const buttons = [
+  return Markup.inlineKeyboard([
     [Markup.button.webApp("🚀 Launch Academy App", miniAppUrl("home"))],
-    [appButton("register", "📝 Register for Training")],
     [
       Markup.button.callback("❔ FAQs", "faq"),
-      Markup.button.callback("ℹ️ About", "about"),
+      Markup.button.callback("✨ About", "about"),
     ],
     [Markup.button.url("💬 Contact Support", supportUrl())],
-  ];
-
-  const announcementsUrl = telegramInviteUrl(
-    process.env.TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL,
-  );
-  if (announcementsUrl)
-    buttons.push([Markup.button.url("📣 Announcements", announcementsUrl)]);
-
-  const communityUrl = telegramInviteUrl(
-    process.env.TELEGRAM_STUDENT_GROUP_URL,
-  );
-  if (communityUrl)
-    buttons.push([Markup.button.url("👥 Student Community", communityUrl)]);
-
-  return Markup.inlineKeyboard(buttons);
+  ]);
 }
 
 const welcomeText = (name = "") =>
   `✨ <b>ADONAY TIKTOK ACADEMY</b>\n` +
   `<i>Learn with purpose. Create with confidence.</i>\n\n` +
-  `${name ? `Welcome, ${escapeHtml(name)}! 👋\n` : "Welcome to the creator community! 👋\n"}` +
-  "Turn your ideas into stronger short-form content, a clearer personal brand, and practical digital skills.\n\n" +
-  "🚀 <b>What you can do</b>\n" +
-  "• Open the Academy Mini App\n" +
-  "• Explore training and submit a registration\n" +
-  "• Get quick answers about the academy\n" +
-  "• Follow announcements and join the community\n" +
-  "• Contact the support team\n\n" +
-  "Choose your next step below 👇";
+  `${name ? `Welcome, ${escapeHtml(name)}! 👋` : "Welcome, creator! 👋"}\n\n` +
+  "Turn ideas into compelling short-form content and build your digital presence with practical guidance.\n\n" +
+  "<b>Here to help you:</b> explore the Academy App, get quick answers, learn about our approach, or reach our support team.\n\n" +
+  "Where would you like to start? 👇";
 
 function startTelegramBot() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
