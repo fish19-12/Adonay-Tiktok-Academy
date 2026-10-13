@@ -57,11 +57,87 @@ test("welcome keyboard contains only the launch, FAQ, about, and support actions
 
 test("escapes Telegram HTML in the personalized welcome", () => {
   const message = telegramBot.welcomeText("<student>");
-  assert.match(message, /✨ <b>ADONAY TIKTOK ACADEMY<\/b>/);
-  assert.match(message, /<b>Here to help you:<\/b>/);
+  assert.match(message, /🚀 <b>WELCOME TO ADONAY TIKTOK ACADEMY!<\/b>/);
+  assert.match(message, /Turn your creativity into influence/);
+  assert.match(message, /Learn practical skills/);
+  assert.match(message, /Learn\. Create\. Grow\. Make an Impact\./);
   assert.match(message, /&lt;student&gt;! 👋/);
-  assert.match(message, /Where would you like to start\?/);
   assert.doesNotMatch(message, /\nWelcome, <student>/);
+});
+
+test("only approved registrations receive reusable one-person community invites", async () => {
+  const calls = [];
+  const bot = {
+    telegram: {
+      async createChatInviteLink(chatId, options) {
+        calls.push({ chatId, options });
+        return { invite_link: `https://t.me/+private-${chatId}` };
+      },
+    },
+  };
+  const environment = {
+    TELEGRAM_STUDENT_GROUP_ID: "-100123",
+    TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID: "-100456",
+  };
+  const pending = { status: "pending", communityInvites: {} };
+  assert.equal(
+    await telegramBot.createApprovedCommunityInvites(
+      pending,
+      bot,
+      environment,
+      1000,
+    ),
+    null,
+  );
+  assert.equal(calls.length, 0);
+
+  const approved = {
+    status: "approved",
+    communityInvites: {},
+    async save() {
+      this.saved = true;
+    },
+  };
+  const links = await telegramBot.createApprovedCommunityInvites(
+    approved,
+    bot,
+    environment,
+    1000,
+  );
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].options.member_limit, 1);
+  assert.equal(approved.saved, true);
+  assert.equal(links.studentGroupUrl, "https://t.me/+private--100123");
+  assert.equal(links.announcementsUrl, "https://t.me/+private--100456");
+
+  await telegramBot.createApprovedCommunityInvites(
+    approved,
+    bot,
+    environment,
+    2000,
+  );
+  assert.equal(calls.length, 2);
+});
+
+test("legacy shared group and channel invite links are revoked at startup", async () => {
+  const revoked = [];
+  const bot = {
+    telegram: {
+      async revokeChatInviteLink(chatId, inviteLink) {
+        revoked.push({ chatId, inviteLink });
+        return true;
+      },
+    },
+  };
+
+  await telegramBot.revokeLegacyCommunityInvites(bot, {
+    TELEGRAM_STUDENT_GROUP_ID: "-100123",
+    TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID: "-100456",
+  });
+
+  assert.equal(revoked.length, 2);
+  assert.equal(revoked[0].inviteLink, "https://t.me/+KRece_7cHLZlOTJk");
+  assert.equal(revoked[1].inviteLink, "https://t.me/+6m8OBjwrEgUxMzk0");
 });
 
 test("payment reviews are limited to configured numeric Telegram IDs", () => {

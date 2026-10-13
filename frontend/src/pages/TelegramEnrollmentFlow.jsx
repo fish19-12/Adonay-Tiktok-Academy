@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
+  ArrowUpRight,
+  CalendarDays,
   Check,
   Clock3,
   ExternalLink,
@@ -9,6 +11,7 @@ import {
   MessageCircle,
   Megaphone,
   Users,
+  Video,
 } from "lucide-react";
 import api from "../services/api.js";
 import logo from "../assets/images/logo.jpg";
@@ -17,12 +20,8 @@ import "./TelegramEnrollmentFlow.css";
 const VIDEO_URL =
   "https://player.mediadelivery.net/play/773543/88acc664-0a03-4c44-ae49-7a22c07a237d";
 const SUPPORT_URL = "https://t.me/Adonaytiktokacademysupport";
-const STUDENT_GROUP_URL =
-  import.meta.env.VITE_TELEGRAM_STUDENT_GROUP_URL ||
-  "https://t.me/+KRece_7cHLZlOTJk";
-const ANNOUNCEMENTS_URL =
-  import.meta.env.VITE_TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL ||
-  "https://t.me/+6m8OBjwrEgUxMzk0";
+const WEBINARS_URL = "https://www.adonaytiktokacademy.com/webinars";
+const WEBINAR_DELAY_MS = 7 * 24 * 60 * 60 * 1000;
 const emptyForm = {
   name: "",
   phone: "",
@@ -49,6 +48,9 @@ function TelegramEnrollmentFlow() {
     initialStatusToken() ? "status" : "home",
   );
   const [registrationStatus, setRegistrationStatus] = useState("pending");
+  const [approvedAt, setApprovedAt] = useState(null);
+  const [communityInvites, setCommunityInvites] = useState(null);
+  const [clock, setClock] = useState(Date.now());
   const [statusError, setStatusError] = useState(false);
   const [identityError, setIdentityError] = useState(false);
   const [form, setForm] = useState(emptyForm);
@@ -112,6 +114,8 @@ function TelegramEnrollmentFlow() {
         );
         if (!active) return;
         setRegistrationStatus(data.status);
+        if (data.approvedAt) setApprovedAt(data.approvedAt);
+        setCommunityInvites(data.communityInvites || null);
         setStatusError(false);
       } catch (error) {
         if (!active) return;
@@ -135,6 +139,25 @@ function TelegramEnrollmentFlow() {
       window.clearInterval(timer);
     };
   }, [statusToken]);
+
+  useEffect(() => {
+    if (view !== "status" || registrationStatus !== "approved") {
+      return undefined;
+    }
+    const timer = window.setInterval(() => setClock(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, [view, registrationStatus]);
+
+  const webinarTimeRemaining = approvedAt
+    ? Math.max(0, new Date(approvedAt).getTime() + WEBINAR_DELAY_MS - clock)
+    : WEBINAR_DELAY_MS;
+  const webinarCountdown = {
+    days: Math.floor(webinarTimeRemaining / 86400000),
+    hours: Math.floor((webinarTimeRemaining % 86400000) / 3600000),
+    minutes: Math.floor((webinarTimeRemaining % 3600000) / 60000),
+    seconds: Math.floor((webinarTimeRemaining % 60000) / 1000),
+  };
+  const webinarIsOpen = approvedAt && webinarTimeRemaining === 0;
 
   const updateForm = (event) => {
     setForm((current) => ({
@@ -463,15 +486,131 @@ function TelegramEnrollmentFlow() {
       {view === "status" && (
         <main className="academy-mini-status-page">
           {registrationStatus === "approved" ? (
-            <div className="academy-mini-status-content">
-              <span className="academy-mini-status-icon approved">
-                <Check size={23} />
+            <div className="academy-mini-approved-content">
+              <div className="academy-mini-approved-topline">
+                <span className="academy-mini-status-icon approved">
+                  <Check size={22} />
+                </span>
+                <span className="academy-mini-approved-badge">
+                  APPLICATION APPROVED
+                </span>
+              </div>
+              <span className="academy-mini-kicker">
+                WELCOME TO THE ACADEMY
               </span>
-              <span className="academy-mini-kicker">APPLICATION REVIEW</span>
-              <h1>Your application is approved.</h1>
-              <p>
-                The academy has approved your registration. The next-step
-                information will be sent to the email address you provided.
+              <h1>You&apos;re in. Let&apos;s get ready.</h1>
+              <p className="academy-mini-approved-intro">
+                Your payment is verified and your place is confirmed. Your live
+                webinar experience opens in seven days.
+              </p>
+              <section
+                className={`academy-mini-webinar-countdown ${webinarIsOpen ? "is-open" : ""}`}
+                aria-live="polite"
+              >
+                <div className="academy-mini-webinar-heading">
+                  <span className="academy-mini-webinar-icon">
+                    {webinarIsOpen ? (
+                      <Video size={19} />
+                    ) : (
+                      <CalendarDays size={19} />
+                    )}
+                  </span>
+                  <div>
+                    <span className="academy-mini-kicker">
+                      {webinarIsOpen ? "LIVE WEBINAR" : "YOUR COUNTDOWN"}
+                    </span>
+                    <h2>
+                      {webinarIsOpen
+                        ? "Your webinar is ready"
+                        : "Live webinar opens in"}
+                    </h2>
+                  </div>
+                </div>
+                {webinarIsOpen ? (
+                  <p className="academy-mini-webinar-open-copy">
+                    Your seven-day welcome period is complete. Open the webinar
+                    page to see available live sessions.
+                  </p>
+                ) : (
+                  <div className="academy-mini-countdown-grid">
+                    {Object.entries(webinarCountdown).map(([unit, value]) => (
+                      <div className="academy-mini-countdown-unit" key={unit}>
+                        <strong>{String(value).padStart(2, "0")}</strong>
+                        <span>{unit}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="academy-mini-countdown-note">
+                  <Clock3 size={14} />
+                  <span>Counting down from your approval time</span>
+                </div>
+              </section>
+              <a
+                className="academy-mini-cta academy-mini-webinar-link"
+                href={WEBINARS_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Explore live webinars <ArrowUpRight size={17} />
+              </a>
+              <section
+                className="academy-mini-community"
+                aria-labelledby="community-title"
+              >
+                <div className="academy-mini-community-heading">
+                  <span className="academy-mini-community-icon">
+                    <Users size={17} />
+                  </span>
+                  <div>
+                    <h2 id="community-title">Your Academy community</h2>
+                    <p>Private invitations for approved students</p>
+                  </div>
+                </div>
+                {communityInvites?.studentGroupUrl && (
+                  <a
+                    className="academy-mini-community-link"
+                    href={communityInvites.studentGroupUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="academy-mini-community-link-icon">
+                      <Users size={17} />
+                    </span>
+                    <span>
+                      <strong>Join Student Community</strong>
+                      <small>Meet approved learners on Telegram</small>
+                    </span>
+                    <ExternalLink size={16} />
+                  </a>
+                )}
+                {communityInvites?.announcementsUrl && (
+                  <a
+                    className="academy-mini-community-link"
+                    href={communityInvites.announcementsUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <span className="academy-mini-community-link-icon announcements">
+                      <Megaphone size={17} />
+                    </span>
+                    <span>
+                      <strong>Follow Academy Updates</strong>
+                      <small>News and learning announcements</small>
+                    </span>
+                    <ExternalLink size={16} />
+                  </a>
+                )}
+                {!communityInvites?.studentGroupUrl &&
+                  !communityInvites?.announcementsUrl && (
+                    <p className="academy-mini-community-unavailable">
+                      Community invitations are being prepared. Reopen this
+                      screen shortly or contact support.
+                    </p>
+                  )}
+              </section>
+              <p className="academy-mini-approved-footnote">
+                We&apos;ve also sent your approval details to your email.
               </p>
             </div>
           ) : registrationStatus === "rejected" ? (
@@ -517,53 +656,8 @@ function TelegramEnrollmentFlow() {
                 </div>
                 <LoaderCircle size={17} className="academy-mini-spin" />
               </div>
-              <section
-                className="academy-mini-community"
-                aria-labelledby="community-title"
-              >
-                <div className="academy-mini-community-heading">
-                  <span className="academy-mini-community-icon">
-                    <Users size={17} />
-                  </span>
-                  <div>
-                    <h2 id="community-title">Stay connected while we review</h2>
-                    <p>These community spaces are open to you now.</p>
-                  </div>
-                </div>
-                <a
-                  className="academy-mini-community-link"
-                  href={STUDENT_GROUP_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span className="academy-mini-community-link-icon">
-                    <Users size={17} />
-                  </span>
-                  <span>
-                    <strong>Join Student Community</strong>
-                    <small>Meet the academy community on Telegram</small>
-                  </span>
-                  <ExternalLink size={16} />
-                </a>
-                <a
-                  className="academy-mini-community-link"
-                  href={ANNOUNCEMENTS_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span className="academy-mini-community-link-icon announcements">
-                    <Megaphone size={17} />
-                  </span>
-                  <span>
-                    <strong>Follow Academy Updates</strong>
-                    <small>Announcements, news, and next steps</small>
-                  </span>
-                  <ExternalLink size={16} />
-                </a>
-              </section>
               <p className="academy-mini-status-small">
-                You can join the community while the academy reviews your
-                application.
+                Group and channel invitations are available after approval.
               </p>
               <a
                 className="academy-mini-support-link"

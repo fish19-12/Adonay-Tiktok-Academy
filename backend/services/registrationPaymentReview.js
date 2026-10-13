@@ -19,6 +19,7 @@ async function reviewRegistrationPayment(registrationId, decision) {
       $set: {
         paymentStatus: decision,
         status: decision,
+        approvedAt: decision === "approved" ? new Date() : null,
       },
     },
     { new: true },

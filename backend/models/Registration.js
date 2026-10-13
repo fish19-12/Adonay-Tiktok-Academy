@@ -88,6 +88,22 @@ const registrationSchema = new mongoose.Schema(
       index: true,
     },
 
+    approvedAt: {
+      type: Date,
+      default: null,
+    },
+
+    communityInvites: {
+      studentGroup: {
+        url: { type: String, default: null },
+        expiresAt: { type: Date, default: null },
+      },
+      announcementsChannel: {
+        url: { type: String, default: null },
+        expiresAt: { type: Date, default: null },
+      },
+    },
+
     statusTokenHash: {
       type: String,
       select: false,

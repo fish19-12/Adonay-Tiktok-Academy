@@ -63,9 +63,10 @@ The authenticated admin API can send a plain-text announcement after an ID has b
 
 1. Configure `PAYMENT_AMOUNT_ETB=2500`, `PAYMENT_ACCOUNT_NAME=Adonay TikTok Academy`, `PAYMENT_CBE_ACCOUNT_NUMBER=1000457365344`, and `PAYMENT_TELEBIRR_NUMBER=0909567654` in the backend deployment environment. Verify account ownership before accepting payments.
 2. Configure `ADMIN_TELEGRAM_IDS` with the numeric Telegram user IDs of trusted support reviewers. Each reviewer must open the bot and send `/start` before a receipt is submitted.
-3. Deploy the backend and confirm the bot is polling. Registration submissions require a CBE or Telebirr selection and a JPG, PNG, or WEBP receipt screenshot. The receipt is stored in Cloudinary and sent privately to the configured Telegram reviewers.
-4. An allowlisted reviewer checks the screenshot and taps Approve payment or Reject payment. Decisions are one-time; approval updates registration status and sends the applicant the existing approval email. Rejection updates status and sends the rejection email.
-5. `GET /api/register/payment-options` exposes only configured payment instructions. `POST /api/register` accepts multipart form data with `paymentScreenshot`; direct registration without proof is rejected.
+3. Make the bot an administrator in both the student group and announcements channel, with permission to create and revoke invite links. Configure both chat IDs and the existing invite URLs in the backend environment. On startup, the bot revokes the old shared invite links; after approval, it creates saved, expiring, single-use links for that student.
+4. Deploy the backend and confirm the bot is polling. Registration submissions require a CBE or Telebirr selection and a JPG, PNG, or WEBP receipt screenshot. The receipt is stored in Cloudinary and sent privately to the configured Telegram reviewers.
+5. An allowlisted reviewer checks the screenshot and taps Approve payment or Reject payment. Decisions are one-time; approval updates registration status and sends the applicant the existing approval email. Rejection updates status and sends the rejection email.
+6. `GET /api/register/payment-options` exposes only configured payment instructions. `POST /api/register` accepts multipart form data with `paymentScreenshot`; direct registration without proof is rejected.
 
 ## Configure BotFather
 

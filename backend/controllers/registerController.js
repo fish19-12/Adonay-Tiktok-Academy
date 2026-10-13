@@ -350,9 +350,9 @@ const getRegistrationStatusByToken = async (req, res) => {
       .createHash("sha256")
       .update(token)
       .digest("hex");
-    const registration = await Registration.findOne({ statusTokenHash })
-      .select("status trainingType createdAt")
-      .lean();
+    const registration = await Registration.findOne({ statusTokenHash }).select(
+      "status trainingType createdAt approvedAt communityInvites",
+    );
 
     if (!registration) {
       return res
@@ -360,11 +360,31 @@ const getRegistrationStatusByToken = async (req, res) => {
         .json({ success: false, message: "Registration status not found." });
     }
 
+    if (registration.status === "approved" && !registration.approvedAt) {
+      registration.approvedAt = new Date();
+      await registration.save();
+    }
+
+    let communityInvites = null;
+    if (registration.status === "approved") {
+      try {
+        communityInvites =
+          await telegramBot.createApprovedCommunityInvites(registration);
+      } catch (inviteError) {
+        console.error(
+          "[Registration] Could not prepare approved community invites:",
+          inviteError?.message || "unknown error",
+        );
+      }
+    }
+
     return res.json({
       success: true,
       status: registration.status,
       trainingType: registration.trainingType,
       createdAt: registration.createdAt,
+      approvedAt: registration.approvedAt,
+      communityInvites,
     });
   } catch {
     return res.status(500).json({
@@ -563,6 +583,7 @@ const approveRegistration = async (req, res) => {
     */
 
     registration.status = "approved";
+    registration.approvedAt = new Date();
 
     await registration.save();
 

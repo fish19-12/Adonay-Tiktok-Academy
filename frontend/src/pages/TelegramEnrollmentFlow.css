@@ -332,6 +332,140 @@
   text-align: center;
   animation: academy-reveal 0.4s ease both;
 }
+.academy-mini-approved-content {
+  width: min(100%, 560px);
+  animation: academy-reveal 0.4s ease both;
+}
+.academy-mini-approved-topline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 11px;
+  margin-bottom: 23px;
+}
+.academy-mini-approved-topline .academy-mini-status-icon {
+  width: 44px;
+  height: 44px;
+  margin: 0;
+}
+.academy-mini-approved-badge {
+  padding: 8px 11px;
+  border: 1px solid rgba(41, 130, 87, 0.2);
+  background: rgba(41, 130, 87, 0.07);
+  color: #287e54;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+.academy-mini-approved-content > .academy-mini-kicker {
+  display: flex;
+  justify-content: center;
+}
+.academy-mini-approved-content > h1 {
+  margin: 8px 0 10px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(30px, 8vw, 42px);
+  line-height: 1.06;
+}
+.academy-mini-approved-intro {
+  max-width: 440px;
+  margin: 0 auto;
+  color: var(--flow-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.academy-mini-webinar-countdown {
+  display: grid;
+  gap: 19px;
+  margin-top: 25px;
+  padding: clamp(17px, 5vw, 26px);
+  border: 1px solid rgba(232, 95, 63, 0.2);
+  background:
+    linear-gradient(135deg, rgba(232, 95, 63, 0.065), transparent 62%),
+    rgba(255, 255, 255, 0.78);
+  box-shadow: 0 16px 36px rgba(31, 24, 20, 0.06);
+}
+.academy-mini-webinar-countdown.is-open {
+  border-color: rgba(41, 130, 87, 0.25);
+  background: linear-gradient(135deg, rgba(41, 130, 87, 0.08), white 68%);
+}
+.academy-mini-webinar-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+.academy-mini-webinar-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  background: rgba(232, 95, 63, 0.1);
+  color: var(--flow-coral);
+}
+.academy-mini-webinar-countdown.is-open .academy-mini-webinar-icon {
+  background: rgba(41, 130, 87, 0.1);
+  color: #287e54;
+}
+.academy-mini-webinar-heading h2 {
+  margin: 4px 0 0;
+  font-size: 16px;
+  line-height: 1.25;
+}
+.academy-mini-countdown-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+.academy-mini-countdown-unit {
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 13px 5px 11px;
+  border: 1px solid var(--flow-line);
+  background: white;
+}
+.academy-mini-countdown-unit strong {
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(23px, 7vw, 34px);
+  font-weight: 900;
+  line-height: 1;
+}
+.academy-mini-countdown-unit span {
+  color: var(--flow-muted);
+  font-size: 8px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.academy-mini-countdown-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--flow-muted);
+  font-size: 10px;
+}
+.academy-mini-webinar-open-copy {
+  margin: 0;
+  color: var(--flow-muted);
+  font-size: 12px;
+  line-height: 1.65;
+  text-align: left;
+}
+.academy-mini-webinar-link {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 17px;
+}
+.academy-mini-approved-footnote {
+  margin: 12px 0 0;
+  color: #98908b;
+  font-size: 10px;
+  line-height: 1.6;
+  text-align: center;
+}
 .academy-mini-status-icon {
   display: grid;
   place-items: center;
@@ -433,6 +567,12 @@
   margin: 3px 0 0;
   color: var(--flow-muted);
   font-size: 9px;
+}
+.academy-mini-community-unavailable {
+  margin: 0;
+  color: var(--flow-muted);
+  font-size: 10px;
+  line-height: 1.6;
 }
 .academy-mini-community-link {
   display: flex;
@@ -544,6 +684,13 @@
   }
   .academy-mini-payment-methods {
     grid-template-columns: 1fr;
+  }
+  .academy-mini-countdown-grid {
+    gap: 6px;
+  }
+  .academy-mini-countdown-unit {
+    padding-right: 2px;
+    padding-left: 2px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

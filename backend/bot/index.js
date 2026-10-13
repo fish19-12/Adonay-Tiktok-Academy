@@ -190,12 +190,102 @@ function welcomeKeyboard() {
 }
 
 const welcomeText = (name = "") =>
-  `✨ <b>ADONAY TIKTOK ACADEMY</b>\n` +
-  `<i>Learn with purpose. Create with confidence.</i>\n\n` +
-  `${name ? `Welcome, ${escapeHtml(name)}! 👋` : "Welcome, creator! 👋"}\n\n` +
-  "Turn ideas into compelling short-form content and build your digital presence with practical guidance.\n\n" +
-  "<b>Here to help you:</b> explore the Academy App, get quick answers, learn about our approach, or reach our support team.\n\n" +
-  "Where would you like to start? 👇";
+  `🚀 <b>WELCOME TO ADONAY TIKTOK ACADEMY!</b>\n\n` +
+  `${name ? `Welcome, ${escapeHtml(name)}! 👋\n\n` : ""}` +
+  "Turn your creativity into influence. ✨\n\n" +
+  "🎓 Learn practical skills\n" +
+  "📈 Master audience growth\n" +
+  "🎯 Build your personal brand\n" +
+  "💡 Discover content strategies\n" +
+  "🔴 Join live webinars\n" +
+  "📚 Access exclusive learning resources\n\n" +
+  "🔥 <b>Learn. Create. Grow. Make an Impact.</b>\n\n" +
+  "👇 Start your journey today!";
+
+async function createApprovedCommunityInvites(
+  registration,
+  bot = getTelegramBot(),
+  environment = process.env,
+  now = Date.now(),
+) {
+  if (registration.status !== "approved") return null;
+
+  const inviteTargets = [
+    ["studentGroup", environment.TELEGRAM_STUDENT_GROUP_ID],
+    ["announcementsChannel", environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID],
+  ];
+  const communityInvites = registration.communityInvites || {};
+  const expiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000);
+  let changed = false;
+
+  for (const [key, chatId] of inviteTargets) {
+    if (!chatId || !/^-?\d+$/.test(chatId) || !bot) continue;
+    const currentInvite = communityInvites[key];
+    if (
+      currentInvite?.url &&
+      currentInvite.expiresAt &&
+      new Date(currentInvite.expiresAt).getTime() > now
+    ) {
+      continue;
+    }
+
+    try {
+      const invite = await bot.telegram.createChatInviteLink(chatId, {
+        member_limit: 1,
+        expire_date: Math.floor(expiresAt.getTime() / 1000),
+      });
+      communityInvites[key] = { url: invite.invite_link, expiresAt };
+      changed = true;
+    } catch (error) {
+      console.error(
+        `[Telegram] Could not create approved ${key} invite:`,
+        error?.code || error?.message || "unknown error",
+      );
+    }
+  }
+
+  if (changed) {
+    registration.communityInvites = communityInvites;
+    await registration.save();
+  }
+
+  return {
+    studentGroupUrl: communityInvites.studentGroup?.url || null,
+    announcementsUrl: communityInvites.announcementsChannel?.url || null,
+  };
+}
+
+async function revokeLegacyCommunityInvites(
+  bot = getTelegramBot(),
+  environment = process.env,
+) {
+  if (!bot) return;
+
+  const legacyInvites = [
+    [
+      environment.TELEGRAM_STUDENT_GROUP_ID,
+      environment.TELEGRAM_STUDENT_GROUP_URL ||
+        "https://t.me/+KRece_7cHLZlOTJk",
+    ],
+    [
+      environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID,
+      environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL ||
+        "https://t.me/+6m8OBjwrEgUxMzk0",
+    ],
+  ];
+
+  await Promise.allSettled(
+    legacyInvites.map(([chatId, inviteUrl]) => {
+      const safeUrl = telegramInviteUrl(inviteUrl);
+      if (!chatId || !/^-?\d+$/.test(chatId) || !safeUrl) return null;
+      return bot.telegram.revokeChatInviteLink(chatId, safeUrl).catch(() => {
+        console.warn(
+          "[Telegram] Could not revoke a legacy community invite; verify the bot's admin permissions.",
+        );
+      });
+    }),
+  );
+}
 
 function startTelegramBot() {
   const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -313,16 +403,8 @@ function startTelegramBot() {
     });
   });
   bot.command("announcements", (ctx) => {
-    const announcementsUrl = telegramInviteUrl(
-      process.env.TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL,
-    );
-    if (!announcementsUrl)
-      return ctx.reply("Academy announcements are not configured yet.");
     return ctx.reply(
-      "Follow the official academy channel for updates and announcements.",
-      Markup.inlineKeyboard([
-        [Markup.button.url("📣 Open Announcements", announcementsUrl)],
-      ]),
+      "Academy group and channel invitations are provided in your Academy App after your registration is approved.",
     );
   });
   bot.command("faq", (ctx) => ctx.reply(FAQ_ANSWER, { parse_mode: "HTML" }));
@@ -468,6 +550,11 @@ function startTelegramBot() {
         error?.code || error?.message || "unknown error",
       );
     });
+  revokeLegacyCommunityInvites(bot).catch(() => {
+    console.warn(
+      "[Telegram] Legacy community invite cleanup did not complete.",
+    );
+  });
   console.info("Telegram bot polling startup requested.");
   return bot;
 }
@@ -494,3 +581,5 @@ module.exports.canReviewPayments = canReviewPayments;
 module.exports.notifyPaymentReview = notifyPaymentReview;
 module.exports.adminTelegramIds = adminTelegramIds;
 module.exports.paymentReviewStatus = paymentReviewStatus;
+module.exports.createApprovedCommunityInvites = createApprovedCommunityInvites;
+module.exports.revokeLegacyCommunityInvites = revokeLegacyCommunityInvites;
