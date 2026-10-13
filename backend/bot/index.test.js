@@ -79,6 +79,31 @@ test("payment reviews are limited to configured numeric Telegram IDs", () => {
   );
 });
 
+test("payment readiness identifies bot, reviewer, and polling requirements", () => {
+  assert.equal(
+    telegramBot.paymentReviewStatus({}, false),
+    "bot_not_configured",
+  );
+  assert.equal(
+    telegramBot.paymentReviewStatus({ TELEGRAM_BOT_TOKEN: "token" }, false),
+    "reviewers_not_configured",
+  );
+  assert.equal(
+    telegramBot.paymentReviewStatus(
+      { TELEGRAM_BOT_TOKEN: "token", ADMIN_TELEGRAM_IDS: "12345" },
+      false,
+    ),
+    "bot_not_polling",
+  );
+  assert.equal(
+    telegramBot.paymentReviewStatus(
+      { TELEGRAM_BOT_TOKEN: "token", ADMIN_TELEGRAM_IDS: "12345" },
+      true,
+    ),
+    "ready",
+  );
+});
+
 test("FAQ reply explains registration and welcomes learners at every level", () => {
   assert.match(telegramBot.faqAnswer, /How do I register\?/);
   assert.match(telegramBot.faqAnswer, /Launch Academy App/);

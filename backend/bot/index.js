@@ -114,6 +114,16 @@ function canReviewPayments(environment = process.env) {
   return adminTelegramIds(environment).size > 0;
 }
 
+function paymentReviewStatus(
+  environment = process.env,
+  isPolling = pollingActive,
+) {
+  if (!environment.TELEGRAM_BOT_TOKEN) return "bot_not_configured";
+  if (!canReviewPayments(environment)) return "reviewers_not_configured";
+  if (!isPolling) return "bot_not_polling";
+  return "ready";
+}
+
 async function notifyPaymentReview(registration, receiptBuffer, mimeType) {
   const bot = getTelegramBot();
   const admins = [...adminTelegramIds()];
@@ -438,35 +448,27 @@ function startTelegramBot() {
     )
     .catch(() => console.error("Telegram bot short description setup failed."));
 
-  bot.telegram
-    .getWebhookInfo()
-    .then((webhookInfo) => {
-      if (webhookInfo.url) {
-        console.error(
-          "Telegram webhook is configured. Long polling was not started; remove the webhook before restarting the bot.",
-        );
-        return;
-      }
-      return bot
-        .launch({
-          allowedUpdates: [
-            "message",
-            "edited_message",
-            "channel_post",
-            "edited_channel_post",
-            "callback_query",
-            "my_chat_member",
-            "chat_member",
-          ],
-        })
-        .then(() => {
-          pollingActive = true;
-          console.info("Telegram bot started with long polling.");
-        });
+  pollingActive = true;
+  bot
+    .launch({
+      allowedUpdates: [
+        "message",
+        "edited_message",
+        "channel_post",
+        "edited_channel_post",
+        "callback_query",
+        "my_chat_member",
+        "chat_member",
+      ],
     })
-    .catch(() =>
-      console.error("Telegram bot could not verify its polling configuration."),
-    );
+    .catch((error) => {
+      pollingActive = false;
+      console.error(
+        "Telegram bot polling stopped:",
+        error?.code || error?.message || "unknown error",
+      );
+    });
+  console.info("Telegram bot polling startup requested.");
   return bot;
 }
 
@@ -491,3 +493,4 @@ module.exports.aboutAnswer = ABOUT_ANSWER;
 module.exports.canReviewPayments = canReviewPayments;
 module.exports.notifyPaymentReview = notifyPaymentReview;
 module.exports.adminTelegramIds = adminTelegramIds;
+module.exports.paymentReviewStatus = paymentReviewStatus;

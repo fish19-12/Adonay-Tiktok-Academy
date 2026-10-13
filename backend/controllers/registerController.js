@@ -375,11 +375,12 @@ const getRegistrationStatusByToken = async (req, res) => {
 };
 
 const getPublicPaymentOptions = (_req, res) => {
+  const reviewStatus = telegramBot.paymentReviewStatus();
   return res.json({
     success: true,
     ...getPaymentOptions(),
-    reviewReady:
-      telegramBot.canReviewPayments() && telegramBot.isTelegramPollingActive(),
+    reviewReady: reviewStatus === "ready",
+    reviewStatus,
   });
 };
 

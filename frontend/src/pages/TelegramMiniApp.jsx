@@ -85,10 +85,23 @@ function MiniAppRegistration({ course, onClose, identity }) {
   const [paymentScreenshot, setPaymentScreenshot] = useState(null);
 
   useEffect(() => {
-    api
-      .get("/register/payment-options")
-      .then(({ data }) => setPaymentOptions(data))
-      .catch(() => setPaymentOptions({ configured: false }));
+    let active = true;
+    const loadPaymentOptions = () => {
+      api
+        .get("/register/payment-options")
+        .then(({ data }) => {
+          if (active) setPaymentOptions(data);
+        })
+        .catch(() => {
+          if (active) setPaymentOptions({ configured: false });
+        });
+    };
+    loadPaymentOptions();
+    const timer = window.setInterval(loadPaymentOptions, 15000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
   }, []);
 
   const update = (event) =>
@@ -300,8 +313,12 @@ function MiniAppRegistration({ course, onClose, identity }) {
                   </label>
                   {!paymentOptions.reviewReady && (
                     <p className="mini-form-error" role="status">
-                      Telegram support review is temporarily unavailable. Please
-                      try again later.
+                      {paymentOptions.reviewStatus ===
+                      "reviewers_not_configured"
+                        ? "Academy support reviewers are not configured yet. Please contact support."
+                        : paymentOptions.reviewStatus === "bot_not_configured"
+                          ? "Academy support is setting up payment review. Please try again later."
+                          : "The support bot is reconnecting. This page will retry automatically."}
                     </p>
                   )}
                 </>
