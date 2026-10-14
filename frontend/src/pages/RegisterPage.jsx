@@ -727,7 +727,16 @@ export default function RegisterPage() {
                               : paymentOptions.reviewStatus ===
                                   "bot_not_configured"
                                 ? "Academy support is setting up payment review. Please try again later."
-                                : "The support bot is reconnecting. This page will retry automatically."}
+                                : paymentOptions.reviewStatus ===
+                                    "polling_conflict"
+                                  ? "The support bot is already polling from another server. Academy support must stop the duplicate bot process."
+                                  : paymentOptions.reviewStatus ===
+                                      "bot_token_invalid"
+                                    ? "The Telegram bot token configured on the backend is invalid. Academy support must update it in Render."
+                                    : paymentOptions.reviewStatus ===
+                                        "bot_connection_failed"
+                                      ? "The backend cannot connect to Telegram. Academy support must check the bot logs and network."
+                                      : "The support bot is reconnecting. This page will retry automatically."}
                           </p>
                         )}
                       </div>

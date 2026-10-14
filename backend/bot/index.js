@@ -34,7 +34,61 @@ const ABOUT_ANSWER =
   "<i>Learn. Create. Grow.</i>";
 let activeBot = null;
 let pollingActive = false;
+let pollingFailureStatus = null;
 const communityChatReadiness = new Map();
+
+function classifyPollingFailure(error) {
+  const errorCode = error?.response?.error_code || error?.code;
+  const message = String(error?.response?.description || error?.message || "");
+  if (
+    Number(errorCode) === 409 ||
+    /terminated by other getupdates|conflict/i.test(message)
+  ) {
+    return "polling_conflict";
+  }
+  if (
+    Number(errorCode) === 401 ||
+    /unauthorized|invalid token/i.test(message)
+  ) {
+    return "bot_token_invalid";
+  }
+  return "bot_connection_failed";
+}
+
+function launchTelegramPolling(bot) {
+  pollingActive = false;
+  bot
+    .launch(
+      {
+        allowedUpdates: [
+          "message",
+          "edited_message",
+          "channel_post",
+          "edited_channel_post",
+          "callback_query",
+          "chat_join_request",
+          "my_chat_member",
+          "chat_member",
+        ],
+      },
+      () => {
+        pollingActive = true;
+        pollingFailureStatus = null;
+        console.info("Telegram bot connected; long polling is active.");
+      },
+    )
+    .catch((error) => {
+      pollingActive = false;
+      pollingFailureStatus = classifyPollingFailure(error);
+      console.error(
+        "Telegram bot polling failed:",
+        pollingFailureStatus,
+        error?.response?.description || error?.message || "unknown error",
+      );
+      const retryTimer = setTimeout(() => launchTelegramPolling(bot), 15000);
+      retryTimer.unref?.();
+    });
+}
 
 function escapeHtml(value) {
   return String(value).replace(
@@ -123,7 +177,7 @@ function paymentReviewStatus(
 ) {
   if (!environment.TELEGRAM_BOT_TOKEN) return "bot_not_configured";
   if (!canReviewPayments(environment)) return "reviewers_not_configured";
-  if (!isPolling) return "bot_not_polling";
+  if (!isPolling) return pollingFailureStatus || "bot_not_polling";
   return "ready";
 }
 
@@ -698,27 +752,7 @@ function startTelegramBot() {
     )
     .catch(() => console.error("Telegram bot short description setup failed."));
 
-  pollingActive = true;
-  bot
-    .launch({
-      allowedUpdates: [
-        "message",
-        "edited_message",
-        "channel_post",
-        "edited_channel_post",
-        "callback_query",
-        "chat_join_request",
-        "my_chat_member",
-        "chat_member",
-      ],
-    })
-    .catch((error) => {
-      pollingActive = false;
-      console.error(
-        "Telegram bot polling stopped:",
-        error?.code || error?.message || "unknown error",
-      );
-    });
+  launchTelegramPolling(bot);
   revokeLegacyCommunityInvites(bot).catch(() => {
     console.warn(
       "[Telegram] Legacy community invite cleanup did not complete.",
@@ -750,6 +784,7 @@ module.exports.canReviewPayments = canReviewPayments;
 module.exports.notifyPaymentReview = notifyPaymentReview;
 module.exports.adminTelegramIds = adminTelegramIds;
 module.exports.paymentReviewStatus = paymentReviewStatus;
+module.exports.classifyPollingFailure = classifyPollingFailure;
 module.exports.formatDiscoveredChatIds = formatDiscoveredChatIds;
 module.exports.createApprovedCommunityInvites = createApprovedCommunityInvites;
 module.exports.revokeLegacyCommunityInvites = revokeLegacyCommunityInvites;

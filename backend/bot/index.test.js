@@ -307,6 +307,25 @@ test("payment readiness identifies bot, reviewer, and polling requirements", () 
   );
 });
 
+test("classifies Telegram polling conflicts and invalid tokens", () => {
+  assert.equal(
+    telegramBot.classifyPollingFailure({
+      response: { error_code: 409, description: "Conflict: getUpdates active" },
+    }),
+    "polling_conflict",
+  );
+  assert.equal(
+    telegramBot.classifyPollingFailure({
+      response: { error_code: 401, description: "Unauthorized" },
+    }),
+    "bot_token_invalid",
+  );
+  assert.equal(
+    telegramBot.classifyPollingFailure(new Error("network unavailable")),
+    "bot_connection_failed",
+  );
+});
+
 test("chat ID helper formats only detected Academy groups and channels", () => {
   const result = telegramBot.formatDiscoveredChatIds([
     {

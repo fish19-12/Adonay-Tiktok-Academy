@@ -451,7 +451,15 @@ function TelegramEnrollmentFlow() {
                         ? "Academy support reviewers are not configured yet. Please contact support."
                         : paymentOptions.reviewStatus === "bot_not_configured"
                           ? "Academy support is setting up payment review. Please try again later."
-                          : "The support bot is reconnecting. This page will retry automatically."}
+                          : paymentOptions.reviewStatus === "polling_conflict"
+                            ? "The support bot is already polling from another server. Academy support must stop the duplicate bot process."
+                            : paymentOptions.reviewStatus ===
+                                "bot_token_invalid"
+                              ? "The Telegram bot token configured on the backend is invalid. Academy support must update it in Render."
+                              : paymentOptions.reviewStatus ===
+                                  "bot_connection_failed"
+                                ? "The backend cannot connect to Telegram. Academy support must check the bot logs and network."
+                                : "The support bot is reconnecting. This page will retry automatically."}
                     </p>
                   )}
                 </>
@@ -609,7 +617,7 @@ function TelegramEnrollmentFlow() {
                       ? "Open this Mini App in Telegram with the same account used for your approved registration to unlock your private group access."
                       : communityInvites?.studentGroupStatus ===
                           "permission_required"
-                        ? "The Academy bot needs permission to create an invite for the student group. Please contact support."
+                        ? "Make the Academy bot an administrator of the private student group with permission to invite users and approve join requests, then reopen this screen."
                         : communityInvites?.studentGroupStatus ===
                             "make_private"
                           ? "The student group must be private before approved-only access can be enabled. Please contact academy support."
@@ -626,7 +634,7 @@ function TelegramEnrollmentFlow() {
                       ? "Open this Mini App in Telegram with the same account used for your approved registration to unlock your private learning-channel access."
                       : communityInvites?.announcementsStatus ===
                           "permission_required"
-                        ? "The Academy bot needs permission to create an invite for the learning resources channel. Please contact support."
+                        ? "Make the Academy bot an administrator of the private learning channel with permission to invite users and approve join requests, then reopen this screen."
                         : communityInvites?.announcementsStatus ===
                             "make_private"
                           ? "The learning resources channel must be private before approved-only access can be enabled. Please contact academy support."
