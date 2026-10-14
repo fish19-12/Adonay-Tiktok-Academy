@@ -619,15 +619,18 @@ function TelegramEnrollmentFlow() {
                           "upgrade_required"
                         ? "This is a basic Telegram group, which cannot use protected join links. Convert it to a private supergroup, make the bot an administrator with invite and join-request permissions, then update the backend and Render with the new group ID."
                         : communityInvites?.studentGroupStatus ===
-                            "permission_required"
-                          ? "Telegram confirms the Academy bot is not an administrator with invite permission in this student group. Update its admin rights, then reopen this screen."
+                            "restrict_members_required"
+                          ? "The bot needs the Restrict Members admin permission to turn off member-created invites. Grant it in the supergroup's Administrators settings, then reopen this screen."
                           : communityInvites?.studentGroupStatus ===
-                              "make_private"
-                            ? "The student group must be private before approved-only access can be enabled. Please contact academy support."
+                              "permission_required"
+                            ? "Telegram confirms the Academy bot is missing invite or permission-management rights in this student group. Update its admin rights, then reopen this screen."
                             : communityInvites?.studentGroupStatus ===
-                                "not_configured"
-                              ? "The student-group button needs its numeric Telegram chat ID configured on the backend. Academy support can find it in Telegram chat diagnostics."
-                              : "The student group invite is temporarily unavailable. Please reopen this screen shortly."}
+                                "make_private"
+                              ? "The student group must be private before approved-only access can be enabled. Please contact academy support."
+                              : communityInvites?.studentGroupStatus ===
+                                  "not_configured"
+                                ? "The student-group button needs its numeric Telegram chat ID configured on the backend. Academy support can find it in Telegram chat diagnostics."
+                                : "The student group invite is temporarily unavailable. Please reopen this screen shortly."}
                   </p>
                 )}
                 {!communityInvites?.announcementsUrl && (

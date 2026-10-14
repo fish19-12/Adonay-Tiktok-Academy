@@ -343,17 +343,46 @@ async function createApprovedCommunityInvites(
             chatId,
             botInfo.id,
           );
-          readiness =
-            ["administrator", "creator"].includes(membership.status) &&
-            membership.can_invite_users !== false
-              ? {
-                  status: "ready",
-                  expiresAt: now + 5 * 60 * 1000,
-                }
-              : {
-                  status: "permission_required",
-                  expiresAt: now + 60 * 1000,
-                };
+          if (
+            !["administrator", "creator"].includes(membership.status) ||
+            membership.can_invite_users === false
+          ) {
+            readiness = {
+              status: "permission_required",
+              expiresAt: now + 60 * 1000,
+            };
+          } else if (
+            key === "studentGroup" &&
+            membership.status !== "creator" &&
+            membership.can_restrict_members !== true
+          ) {
+            readiness = {
+              status: "restrict_members_required",
+              expiresAt: now + 60 * 1000,
+            };
+          } else if (key === "studentGroup") {
+            if (!chat.permissions) {
+              readiness = {
+                status: "permission_required",
+                expiresAt: now + 60 * 1000,
+              };
+            } else {
+              await bot.telegram.setChatPermissions(chatId, {
+                ...chat.permissions,
+                can_invite_users: false,
+              });
+              readiness = {
+                status: "ready",
+                membersCannotInvite: true,
+                expiresAt: now + 5 * 60 * 1000,
+              };
+            }
+          } else {
+            readiness = {
+              status: "ready",
+              expiresAt: now + 5 * 60 * 1000,
+            };
+          }
         }
       } catch (error) {
         const errorMessage = String(

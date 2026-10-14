@@ -67,19 +67,31 @@ test("escapes Telegram HTML in the personalized welcome", () => {
 
 test("only approved registrations receive reusable one-person community invites", async () => {
   const calls = [];
+  const defaultPermissionUpdates = [];
   const bot = {
     telegram: {
       async getChat(chatId) {
         return {
           id: chatId,
           type: "supergroup",
+          permissions: {
+            can_send_messages: true,
+            can_invite_users: true,
+          },
         };
       },
       async getMe() {
         return { id: 900001 };
       },
       async getChatMember() {
-        return { status: "administrator", can_invite_users: true };
+        return {
+          status: "administrator",
+          can_invite_users: true,
+          can_restrict_members: true,
+        };
+      },
+      async setChatPermissions(chatId, permissions) {
+        defaultPermissionUpdates.push({ chatId, permissions });
       },
       async createChatInviteLink(chatId, options) {
         calls.push({ chatId, options });
@@ -119,6 +131,9 @@ test("only approved registrations receive reusable one-person community invites"
   );
   assert.equal(calls.length, 2);
   assert.equal(calls[0].options.creates_join_request, true);
+  assert.equal(defaultPermissionUpdates.length, 1);
+  assert.equal(defaultPermissionUpdates[0].permissions.can_invite_users, false);
+  assert.equal(defaultPermissionUpdates[0].permissions.can_send_messages, true);
   assert.equal(approved.saved, true);
   assert.equal(links.studentGroupUrl, "https://t.me/+private--100123");
   assert.equal(links.announcementsUrl, "https://t.me/+private--100456");
@@ -159,13 +174,24 @@ test("replaces a previously issued non-request invite with a join-request link",
   const bot = {
     telegram: {
       async getChat(chatId) {
-        return { id: chatId, type: "supergroup" };
+        return {
+          id: chatId,
+          type: "supergroup",
+          permissions: { can_send_messages: true },
+        };
       },
       async getMe() {
         return { id: 900001 };
       },
       async getChatMember() {
-        return { status: "administrator", can_invite_users: true };
+        return {
+          status: "administrator",
+          can_invite_users: true,
+          can_restrict_members: true,
+        };
+      },
+      async setChatPermissions() {
+        return true;
       },
       async revokeChatInviteLink(chatId, inviteUrl) {
         revoked.push({ chatId, inviteUrl });
@@ -309,6 +335,46 @@ test("basic Telegram groups require conversion before protected join requests", 
   );
 
   assert.equal(result.studentGroupStatus, "upgrade_required");
+});
+
+test("student group access requires restrict-members rights to disable member invites", async () => {
+  const bot = {
+    telegram: {
+      async getChat(chatId) {
+        return {
+          id: chatId,
+          type: "supergroup",
+          permissions: { can_invite_users: true },
+        };
+      },
+      async getMe() {
+        return { id: 900001 };
+      },
+      async getChatMember() {
+        return {
+          status: "administrator",
+          can_invite_users: true,
+          can_restrict_members: false,
+        };
+      },
+    },
+  };
+  const result = await telegramBot.createApprovedCommunityInvites(
+    {
+      status: "approved",
+      telegramUserId: 445566,
+      communityInvites: {},
+    },
+    bot,
+    {
+      TELEGRAM_STUDENT_GROUP_ID: "-1007782",
+      TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID: "",
+    },
+    Date.now(),
+  );
+
+  assert.equal(result.studentGroupUrl, null);
+  assert.equal(result.studentGroupStatus, "restrict_members_required");
 });
 
 test("payment reviews are limited to configured numeric Telegram IDs", () => {
