@@ -507,6 +507,17 @@ function startTelegramBot() {
       parse_mode: "HTML",
     });
   });
+  bot.command("myid", (ctx) => {
+    if (ctx.chat?.type !== "private") {
+      return ctx.reply("For privacy, send /myid to me in a private chat.");
+    }
+    return ctx.reply(
+      `Your Telegram user ID: <code>${escapeHtml(ctx.from.id)}</code>`,
+      {
+        parse_mode: "HTML",
+      },
+    );
+  });
   bot.command("courses", (ctx) => {
     const programs = academyPrograms
       .filter((program) => program.status === "available")
@@ -669,6 +680,7 @@ function startTelegramBot() {
       { command: "register", description: "Register for training" },
       { command: "chatid", description: "Show this group or channel ID" },
       { command: "chatids", description: "List discovered chat IDs (admins)" },
+      { command: "myid", description: "Show your Telegram user ID privately" },
       { command: "courses", description: "Explore available programs" },
       { command: "account", description: "Open account options" },
       { command: "payments", description: "Payment guidance" },
