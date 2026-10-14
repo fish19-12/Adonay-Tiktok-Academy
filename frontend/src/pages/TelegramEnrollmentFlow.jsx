@@ -616,15 +616,18 @@ function TelegramEnrollmentFlow() {
                     "identity_required"
                       ? "Open this Mini App in Telegram with the same account used for your approved registration to unlock your private group access."
                       : communityInvites?.studentGroupStatus ===
-                          "permission_required"
-                        ? "Make the Academy bot an administrator of the private student group with permission to invite users and approve join requests, then reopen this screen."
+                          "upgrade_required"
+                        ? "This is a basic Telegram group. Convert it to a supergroup, make the bot an administrator with invite and join-request permissions, then reopen this screen."
                         : communityInvites?.studentGroupStatus ===
-                            "make_private"
-                          ? "The student group must be private before approved-only access can be enabled. Please contact academy support."
+                            "permission_required"
+                          ? "Telegram confirms the Academy bot is not an administrator with invite permission in this student group. Update its admin rights, then reopen this screen."
                           : communityInvites?.studentGroupStatus ===
-                              "not_configured"
-                            ? "The student-group button needs its numeric Telegram chat ID configured on the backend. Academy support can find it in Telegram chat diagnostics."
-                            : "The student group invite is temporarily unavailable. Please reopen this screen shortly."}
+                              "make_private"
+                            ? "The student group must be private before approved-only access can be enabled. Please contact academy support."
+                            : communityInvites?.studentGroupStatus ===
+                                "not_configured"
+                              ? "The student-group button needs its numeric Telegram chat ID configured on the backend. Academy support can find it in Telegram chat diagnostics."
+                              : "The student group invite is temporarily unavailable. Please reopen this screen shortly."}
                   </p>
                 )}
                 {!communityInvites?.announcementsUrl && (
@@ -633,15 +636,18 @@ function TelegramEnrollmentFlow() {
                     "identity_required"
                       ? "Open this Mini App in Telegram with the same account used for your approved registration to unlock your private learning-channel access."
                       : communityInvites?.announcementsStatus ===
-                          "permission_required"
-                        ? "Make the Academy bot an administrator of the private learning channel with permission to invite users and approve join requests, then reopen this screen."
+                          "upgrade_required"
+                        ? "The learning channel must be private for approved-only join requests. Make the bot an administrator with invite and join-request permissions, then reopen this screen."
                         : communityInvites?.announcementsStatus ===
-                            "make_private"
-                          ? "The learning resources channel must be private before approved-only access can be enabled. Please contact academy support."
+                            "permission_required"
+                          ? "Telegram confirms the Academy bot is not an administrator with invite permission in the learning channel. Update its admin rights, then reopen this screen."
                           : communityInvites?.announcementsStatus ===
-                              "not_configured"
-                            ? "The learning-channel button needs its numeric Telegram chat ID configured on the backend. Academy support can find it in Telegram chat diagnostics."
-                            : "The learning resources channel invite is temporarily unavailable. Please reopen this screen shortly."}
+                              "make_private"
+                            ? "The learning resources channel must be private before approved-only access can be enabled. Please contact academy support."
+                            : communityInvites?.announcementsStatus ===
+                                "not_configured"
+                              ? "The learning-channel button needs its numeric Telegram chat ID configured on the backend. Academy support can find it in Telegram chat diagnostics."
+                              : "The learning resources channel invite is temporarily unavailable. Please reopen this screen shortly."}
                   </p>
                 )}
               </section>

@@ -317,16 +317,33 @@ async function createApprovedCommunityInvites(
     if (!readiness || readiness.expiresAt <= now) {
       try {
         const chat = await bot.telegram.getChat(chatId);
-        if (chat.username) {
+        if (chat.type === "group") {
+          readiness = {
+            status: "upgrade_required",
+            expiresAt: now + 5 * 60 * 1000,
+          };
+        } else if (chat.username) {
           readiness = {
             status: "make_private",
             expiresAt: now + 5 * 60 * 1000,
           };
         } else {
-          readiness = {
-            status: "ready",
-            expiresAt: now + 5 * 60 * 1000,
-          };
+          const botInfo = await bot.telegram.getMe();
+          const membership = await bot.telegram.getChatMember(
+            chatId,
+            botInfo.id,
+          );
+          readiness =
+            ["administrator", "creator"].includes(membership.status) &&
+            membership.can_invite_users !== false
+              ? {
+                  status: "ready",
+                  expiresAt: now + 5 * 60 * 1000,
+                }
+              : {
+                  status: "permission_required",
+                  expiresAt: now + 60 * 1000,
+                };
         }
       } catch (error) {
         const errorMessage = String(

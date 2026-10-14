@@ -75,6 +75,12 @@ test("only approved registrations receive reusable one-person community invites"
           type: "supergroup",
         };
       },
+      async getMe() {
+        return { id: 900001 };
+      },
+      async getChatMember() {
+        return { status: "administrator", can_invite_users: true };
+      },
       async createChatInviteLink(chatId, options) {
         calls.push({ chatId, options });
         return { invite_link: `https://t.me/+private-${chatId}` };
@@ -154,6 +160,12 @@ test("replaces a previously issued non-request invite with a join-request link",
     telegram: {
       async getChat(chatId) {
         return { id: chatId, type: "supergroup" };
+      },
+      async getMe() {
+        return { id: 900001 };
+      },
+      async getChatMember() {
+        return { status: "administrator", can_invite_users: true };
       },
       async revokeChatInviteLink(chatId, inviteUrl) {
         revoked.push({ chatId, inviteUrl });
@@ -245,7 +257,11 @@ test("public Telegram chats do not receive approved-only invite links", async ()
   const bot = {
     telegram: {
       async getChat(chatId) {
-        return { id: chatId, username: "public_academy_chat" };
+        return {
+          id: chatId,
+          type: "supergroup",
+          username: "public_academy_chat",
+        };
       },
       async createChatInviteLink() {
         assert.fail("A public chat must not receive a private invite link");
@@ -265,6 +281,34 @@ test("public Telegram chats do not receive approved-only invite links", async ()
   assert.equal(result.announcementsUrl, null);
   assert.equal(result.studentGroupStatus, "make_private");
   assert.equal(result.announcementsStatus, "make_private");
+});
+
+test("basic Telegram groups require conversion before protected join requests", async () => {
+  const bot = {
+    telegram: {
+      async getChat(chatId) {
+        return { id: chatId, type: "group" };
+      },
+      async createChatInviteLink() {
+        assert.fail("Basic groups must not receive join-request links");
+      },
+    },
+  };
+  const result = await telegramBot.createApprovedCommunityInvites(
+    {
+      status: "approved",
+      telegramUserId: 445566,
+      communityInvites: {},
+    },
+    bot,
+    {
+      TELEGRAM_STUDENT_GROUP_ID: "-1007781",
+      TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID: "",
+    },
+    Date.now(),
+  );
+
+  assert.equal(result.studentGroupStatus, "upgrade_required");
 });
 
 test("payment reviews are limited to configured numeric Telegram IDs", () => {
