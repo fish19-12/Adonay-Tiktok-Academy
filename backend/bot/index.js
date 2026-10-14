@@ -268,22 +268,6 @@ async function createApprovedCommunityInvites(
             status: "make_private",
             expiresAt: now + 5 * 60 * 1000,
           };
-        } else if (key === "studentGroup") {
-          if (!chat.permissions) {
-            readiness = {
-              status: "permission_required",
-              expiresAt: now + 5 * 60 * 1000,
-            };
-          } else {
-            await bot.telegram.setChatPermissions(chatId, {
-              ...chat.permissions,
-              can_invite_users: false,
-            });
-            readiness = {
-              status: "ready",
-              expiresAt: now + 5 * 60 * 1000,
-            };
-          }
         } else {
           readiness = {
             status: "ready",
