@@ -447,8 +447,8 @@ function TelegramEnrollmentFlow() {
                   {!paymentOptions.reviewReady && (
                     <p className="academy-mini-warning" role="status">
                       {paymentOptions.reviewStatus ===
-                      "reviewers_not_configured"
-                        ? "Academy support reviewers are not configured yet. Please contact support."
+                      "payment_reviewers_not_configured"
+                        ? "The support account that receives payment proofs is not configured yet. Please contact academy support."
                         : paymentOptions.reviewStatus === "bot_not_configured"
                           ? "Academy support is setting up payment review. Please try again later."
                           : paymentOptions.reviewStatus === "polling_conflict"
@@ -617,7 +617,7 @@ function TelegramEnrollmentFlow() {
                       ? "Open this Mini App in Telegram with the same account used for your approved registration to unlock your private group access."
                       : communityInvites?.studentGroupStatus ===
                           "upgrade_required"
-                        ? "This is a basic Telegram group. Convert it to a supergroup, make the bot an administrator with invite and join-request permissions, then reopen this screen."
+                        ? "This is a basic Telegram group, which cannot use protected join links. Convert it to a private supergroup, make the bot an administrator with invite and join-request permissions, then update the backend and Render with the new group ID."
                         : communityInvites?.studentGroupStatus ===
                             "permission_required"
                           ? "Telegram confirms the Academy bot is not an administrator with invite permission in this student group. Update its admin rights, then reopen this screen."

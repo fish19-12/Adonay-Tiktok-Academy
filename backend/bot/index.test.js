@@ -333,21 +333,41 @@ test("payment readiness identifies bot, reviewer, and polling requirements", () 
   );
   assert.equal(
     telegramBot.paymentReviewStatus({ TELEGRAM_BOT_TOKEN: "token" }, false),
-    "reviewers_not_configured",
+    "payment_reviewers_not_configured",
   );
   assert.equal(
     telegramBot.paymentReviewStatus(
-      { TELEGRAM_BOT_TOKEN: "token", ADMIN_TELEGRAM_IDS: "12345" },
+      {
+        TELEGRAM_BOT_TOKEN: "token",
+        PAYMENT_REVIEW_TELEGRAM_IDS: "12345",
+      },
       false,
     ),
     "bot_not_polling",
   );
   assert.equal(
     telegramBot.paymentReviewStatus(
-      { TELEGRAM_BOT_TOKEN: "token", ADMIN_TELEGRAM_IDS: "12345" },
+      {
+        TELEGRAM_BOT_TOKEN: "token",
+        PAYMENT_REVIEW_TELEGRAM_IDS: "12345",
+      },
       true,
     ),
     "ready",
+  );
+});
+
+test("payment receipt recipients are separate from the admin allowlist", () => {
+  const recipients = telegramBot.paymentReviewerTelegramIds({
+    ADMIN_TELEGRAM_IDS: "111,222",
+    PAYMENT_REVIEW_TELEGRAM_IDS: "111 invalid",
+  });
+
+  assert.deepEqual([...recipients], ["111"]);
+  assert.equal(
+    telegramBot.paymentReviewerTelegramIds({ ADMIN_TELEGRAM_IDS: "111,222" })
+      .size,
+    0,
   );
 });
 

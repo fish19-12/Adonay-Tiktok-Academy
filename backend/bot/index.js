@@ -168,7 +168,16 @@ function adminTelegramIds(environment = process.env) {
 }
 
 function canReviewPayments(environment = process.env) {
-  return adminTelegramIds(environment).size > 0;
+  return paymentReviewerTelegramIds(environment).size > 0;
+}
+
+function paymentReviewerTelegramIds(environment = process.env) {
+  return new Set(
+    (environment.PAYMENT_REVIEW_TELEGRAM_IDS || "")
+      .split(/[\s,]+/)
+      .map((id) => id.trim())
+      .filter((id) => /^\d+$/.test(id)),
+  );
 }
 
 function paymentReviewStatus(
@@ -176,7 +185,8 @@ function paymentReviewStatus(
   isPolling = pollingActive,
 ) {
   if (!environment.TELEGRAM_BOT_TOKEN) return "bot_not_configured";
-  if (!canReviewPayments(environment)) return "reviewers_not_configured";
+  if (!canReviewPayments(environment))
+    return "payment_reviewers_not_configured";
   if (!isPolling) return pollingFailureStatus || "bot_not_polling";
   return "ready";
 }
@@ -201,8 +211,8 @@ function formatDiscoveredChatIds(chats) {
 
 async function notifyPaymentReview(registration, receiptBuffer, mimeType) {
   const bot = getTelegramBot();
-  const admins = [...adminTelegramIds()];
-  if (!bot || !pollingActive || admins.length === 0) {
+  const reviewers = [...paymentReviewerTelegramIds()];
+  if (!bot || !pollingActive || reviewers.length === 0) {
     throw new Error("Telegram payment review is not configured.");
   }
 
@@ -239,7 +249,7 @@ async function notifyPaymentReview(registration, receiptBuffer, mimeType) {
         ? "webp"
         : "jpg";
   const deliveries = await Promise.allSettled(
-    admins.map((adminId) =>
+    reviewers.map((adminId) =>
       bot.telegram.sendPhoto(
         adminId,
         Input.fromBuffer(receiptBuffer, `payment-receipt.${extension}`),
@@ -798,6 +808,7 @@ module.exports.welcomeText = welcomeText;
 module.exports.faqAnswer = FAQ_ANSWER;
 module.exports.aboutAnswer = ABOUT_ANSWER;
 module.exports.canReviewPayments = canReviewPayments;
+module.exports.paymentReviewerTelegramIds = paymentReviewerTelegramIds;
 module.exports.notifyPaymentReview = notifyPaymentReview;
 module.exports.adminTelegramIds = adminTelegramIds;
 module.exports.paymentReviewStatus = paymentReviewStatus;

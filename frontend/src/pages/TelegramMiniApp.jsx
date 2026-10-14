@@ -318,8 +318,8 @@ function MiniAppRegistration({ course, onClose, identity }) {
                   {!paymentOptions.reviewReady && (
                     <p className="mini-form-error" role="status">
                       {paymentOptions.reviewStatus ===
-                      "reviewers_not_configured"
-                        ? "Academy support reviewers are not configured yet. Please contact support."
+                      "payment_reviewers_not_configured"
+                        ? "The support account that receives payment proofs is not configured yet. Please contact academy support."
                         : paymentOptions.reviewStatus === "bot_not_configured"
                           ? "Academy support is setting up payment review. Please try again later."
                           : paymentOptions.reviewStatus === "polling_conflict"

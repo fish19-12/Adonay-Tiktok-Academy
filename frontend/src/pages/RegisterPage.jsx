@@ -722,8 +722,8 @@ export default function RegisterPage() {
                             className="rounded-xl bg-amber-50 p-3 text-xs leading-5 text-amber-800"
                           >
                             {paymentOptions.reviewStatus ===
-                            "reviewers_not_configured"
-                              ? "Academy support reviewers are not configured yet. Please contact support."
+                            "payment_reviewers_not_configured"
+                              ? "The support account that receives payment proofs is not configured yet. Please contact academy support."
                               : paymentOptions.reviewStatus ===
                                   "bot_not_configured"
                                 ? "Academy support is setting up payment review. Please try again later."
