@@ -320,6 +320,32 @@ test("payment readiness identifies bot, reviewer, and polling requirements", () 
   );
 });
 
+test("chat ID helper formats only detected Academy groups and channels", () => {
+  const result = telegramBot.formatDiscoveredChatIds([
+    {
+      id: "-100123",
+      title: "Students <main>",
+      classification: "student_group",
+    },
+    {
+      id: "-100456",
+      title: "Learning resources",
+      classification: "announcements_channel",
+    },
+    { id: "999", title: "Private user", classification: "private" },
+  ]);
+
+  assert.match(result, /Student group:<\/b> <code>-100123<\/code>/);
+  assert.match(result, /Learning channel:<\/b> <code>-100456<\/code>/);
+  assert.match(result, /Students &lt;main&gt;/);
+  assert.doesNotMatch(result, /<code>999<\/code>/);
+});
+
+test("chat ID helper explains how to discover chats when no updates exist", () => {
+  const result = telegramBot.formatDiscoveredChatIds([]);
+  assert.match(result, /Add the bot to each chat/);
+});
+
 test("FAQ reply explains registration and welcomes learners at every level", () => {
   assert.match(telegramBot.faqAnswer, /How do I register\?/);
   assert.match(telegramBot.faqAnswer, /Launch Academy App/);

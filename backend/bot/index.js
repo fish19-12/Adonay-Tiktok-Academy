@@ -127,6 +127,24 @@ function paymentReviewStatus(
   return "ready";
 }
 
+function formatDiscoveredChatIds(chats) {
+  const relevantChats = chats.filter((chat) =>
+    ["student_group", "announcements_channel"].includes(chat.classification),
+  );
+  if (relevantChats.length === 0) {
+    return "No group or channel has been detected yet. Add the bot to each chat, send a group command, and publish a channel post, then try again.";
+  }
+
+  return [
+    "<b>Detected Academy Telegram chats</b>",
+    ...relevantChats.map(
+      (chat) =>
+        `<b>${chat.classification === "student_group" ? "Student group" : "Learning channel"}:</b> <code>${escapeHtml(chat.id)}</code>\n${escapeHtml(chat.title || "Untitled chat")}`,
+    ),
+    "\nUse these IDs for TELEGRAM_STUDENT_GROUP_ID and TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID in the backend environment.",
+  ].join("\n\n");
+}
+
 async function notifyPaymentReview(registration, receiptBuffer, mimeType) {
   const bot = getTelegramBot();
   const admins = [...adminTelegramIds()];
@@ -465,6 +483,30 @@ function startTelegramBot() {
       Markup.inlineKeyboard([[appButton("register", "📝 Open Registration")]]),
     ),
   );
+  bot.command("chatid", (ctx) => {
+    if (!["group", "supergroup", "channel"].includes(ctx.chat?.type)) {
+      return ctx.reply(
+        "Use /chatid inside the student group. For detected group and channel IDs, send /chatids to me privately.",
+      );
+    }
+    return ctx.reply(`Chat ID: <code>${escapeHtml(ctx.chat.id)}</code>`, {
+      parse_mode: "HTML",
+    });
+  });
+  bot.command("chatids", (ctx) => {
+    if (!adminTelegramIds().has(String(ctx.from?.id || ""))) {
+      return ctx.reply(
+        "This command is available to configured academy admins only.",
+      );
+    }
+    if (ctx.chat?.type !== "private") {
+      return ctx.reply("For privacy, send /chatids to me in a private chat.");
+    }
+    const { listDiscoveredTelegramChats } = require("./chatDiscovery");
+    return ctx.reply(formatDiscoveredChatIds(listDiscoveredTelegramChats()), {
+      parse_mode: "HTML",
+    });
+  });
   bot.command("courses", (ctx) => {
     const programs = academyPrograms
       .filter((program) => program.status === "available")
@@ -625,6 +667,8 @@ function startTelegramBot() {
       { command: "start", description: "Open the academy menu" },
       { command: "help", description: "Get help using the bot" },
       { command: "register", description: "Register for training" },
+      { command: "chatid", description: "Show this group or channel ID" },
+      { command: "chatids", description: "List discovered chat IDs (admins)" },
       { command: "courses", description: "Explore available programs" },
       { command: "account", description: "Open account options" },
       { command: "payments", description: "Payment guidance" },
@@ -710,6 +754,7 @@ module.exports.canReviewPayments = canReviewPayments;
 module.exports.notifyPaymentReview = notifyPaymentReview;
 module.exports.adminTelegramIds = adminTelegramIds;
 module.exports.paymentReviewStatus = paymentReviewStatus;
+module.exports.formatDiscoveredChatIds = formatDiscoveredChatIds;
 module.exports.createApprovedCommunityInvites = createApprovedCommunityInvites;
 module.exports.revokeLegacyCommunityInvites = revokeLegacyCommunityInvites;
 module.exports.handleCommunityJoinRequest = handleCommunityJoinRequest;
