@@ -6,6 +6,7 @@ const Registration = require("../models/Registration");
 const cloudinary = require("../config/cloudinary");
 const getPaymentOptions = require("../config/paymentOptions");
 const telegramBot = require("../bot");
+const { verifyTelegramInitData } = require("../utils/telegramInitData");
 
 const {
   sendRegistrationReceivedEmail,
@@ -65,6 +66,7 @@ const createRegistration = async (req, res) => {
       realEstateCompany,
       trainingType,
       paymentMethod,
+      telegramInitData,
     } = req.body;
 
     /*
@@ -83,6 +85,21 @@ const createRegistration = async (req, res) => {
     const paymentOptions = getPaymentOptions();
 
     const normalizedHasTikTok = normalizeBoolean(hasTikTok);
+    let telegramUserId = null;
+
+    if (telegramInitData) {
+      try {
+        telegramUserId = verifyTelegramInitData(
+          telegramInitData,
+          process.env.TELEGRAM_BOT_TOKEN,
+        ).id;
+      } catch (identityError) {
+        return res.status(401).json({
+          success: false,
+          message: identityError.message,
+        });
+      }
+    }
 
     if (!paymentOptions.configured) {
       return res.status(503).json({
@@ -270,6 +287,7 @@ const createRegistration = async (req, res) => {
       },
       paymentStatus: "pending",
       status: "pending",
+      telegramUserId,
       statusTokenHash,
     });
 
@@ -351,7 +369,7 @@ const getRegistrationStatusByToken = async (req, res) => {
       .update(token)
       .digest("hex");
     const registration = await Registration.findOne({ statusTokenHash }).select(
-      "status trainingType createdAt approvedAt communityInvites",
+      "status trainingType createdAt approvedAt telegramUserId communityInvites",
     );
 
     if (!registration) {
@@ -390,6 +408,63 @@ const getRegistrationStatusByToken = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Registration status is temporarily unavailable.",
+    });
+  }
+};
+
+const linkRegistrationTelegramIdentity = async (req, res) => {
+  const { token } = req.params;
+  if (typeof token !== "string" || !/^[A-Za-z0-9_-]{43}$/.test(token)) {
+    return res.status(404).json({
+      success: false,
+      message: "Registration status not found.",
+    });
+  }
+
+  let telegramUser;
+  try {
+    telegramUser = verifyTelegramInitData(
+      req.body?.initData,
+      process.env.TELEGRAM_BOT_TOKEN,
+    );
+  } catch (error) {
+    return res.status(401).json({ success: false, message: error.message });
+  }
+
+  try {
+    const statusTokenHash = crypto
+      .createHash("sha256")
+      .update(token)
+      .digest("hex");
+    const registration = await Registration.findOne({ statusTokenHash });
+    if (!registration) {
+      return res.status(404).json({
+        success: false,
+        message: "Registration status not found.",
+      });
+    }
+
+    if (
+      registration.telegramUserId &&
+      registration.telegramUserId !== telegramUser.id
+    ) {
+      return res.status(409).json({
+        success: false,
+        message: "This registration is linked to a different Telegram account.",
+      });
+    }
+
+    if (!registration.telegramUserId) {
+      registration.telegramUserId = telegramUser.id;
+      await registration.save();
+    }
+
+    return res.json({ success: true, linked: true });
+  } catch (error) {
+    console.error("[linkRegistrationTelegramIdentity]", error);
+    return res.status(500).json({
+      success: false,
+      message: "Telegram account could not be linked right now.",
     });
   }
 };
@@ -786,6 +861,7 @@ const deleteRegistration = async (req, res) => {
 
 module.exports = {
   createRegistration,
+  linkRegistrationTelegramIdentity,
   getPublicPaymentOptions,
   getRegistrationStatusByToken,
   getRegistrationStats,

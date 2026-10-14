@@ -67,8 +67,19 @@ test("escapes Telegram HTML in the personalized welcome", () => {
 
 test("only approved registrations receive reusable one-person community invites", async () => {
   const calls = [];
+  const permissionUpdates = [];
   const bot = {
     telegram: {
+      async getChat(chatId) {
+        return {
+          id: chatId,
+          type: "supergroup",
+          permissions: { can_send_messages: true, can_invite_users: true },
+        };
+      },
+      async setChatPermissions(chatId, permissions) {
+        permissionUpdates.push({ chatId, permissions });
+      },
       async createChatInviteLink(chatId, options) {
         calls.push({ chatId, options });
         return { invite_link: `https://t.me/+private-${chatId}` };
@@ -93,6 +104,7 @@ test("only approved registrations receive reusable one-person community invites"
 
   const approved = {
     status: "approved",
+    telegramUserId: 445566,
     communityInvites: {},
     async save() {
       this.saved = true;
@@ -105,7 +117,10 @@ test("only approved registrations receive reusable one-person community invites"
     1000,
   );
   assert.equal(calls.length, 2);
-  assert.equal(calls[0].options.member_limit, 1);
+  assert.equal(calls[0].options.creates_join_request, true);
+  assert.equal(permissionUpdates.length, 1);
+  assert.equal(permissionUpdates[0].permissions.can_send_messages, true);
+  assert.equal(permissionUpdates[0].permissions.can_invite_users, false);
   assert.equal(approved.saved, true);
   assert.equal(links.studentGroupUrl, "https://t.me/+private--100123");
   assert.equal(links.announcementsUrl, "https://t.me/+private--100456");
@@ -140,15 +155,65 @@ test("legacy shared group and channel invite links are revoked at startup", asyn
   assert.equal(revoked[1].inviteLink, "https://t.me/+6m8OBjwrEgUxMzk0");
 });
 
+test("replaces a previously issued non-request invite with a join-request link", async () => {
+  const revoked = [];
+  const created = [];
+  const bot = {
+    telegram: {
+      async getChat(chatId) {
+        return {
+          id: chatId,
+          type: "supergroup",
+          permissions: { can_send_messages: true, can_invite_users: true },
+        };
+      },
+      async setChatPermissions() {},
+      async revokeChatInviteLink(chatId, inviteUrl) {
+        revoked.push({ chatId, inviteUrl });
+      },
+      async createChatInviteLink(chatId, options) {
+        created.push({ chatId, options });
+        return { invite_link: `https://t.me/+restricted-${chatId}` };
+      },
+    },
+  };
+  const registration = {
+    status: "approved",
+    telegramUserId: 445566,
+    communityInvites: {
+      studentGroup: {
+        url: "https://t.me/+old-reusable-link",
+        expiresAt: new Date(Date.now() + 60_000),
+      },
+    },
+    async save() {},
+  };
+  const links = await telegramBot.createApprovedCommunityInvites(
+    registration,
+    bot,
+    {
+      TELEGRAM_STUDENT_GROUP_ID: "-100811",
+      TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID: "-100812",
+    },
+    Date.now(),
+  );
+
+  assert.equal(revoked.length, 1);
+  assert.equal(revoked[0].inviteUrl, "https://t.me/+old-reusable-link");
+  assert.ok(created.every(({ options }) => options.creates_join_request));
+  assert.equal(links.studentGroupUrl, "https://t.me/+restricted--100811");
+});
+
 test("approved invite response identifies missing chat configuration", async () => {
-  const registration = { status: "approved", communityInvites: {} };
+  const registration = {
+    status: "approved",
+    telegramUserId: 445566,
+    communityInvites: {},
+  };
   const result = await telegramBot.createApprovedCommunityInvites(
     registration,
     { telegram: {} },
-    {
-      TELEGRAM_STUDENT_GROUP_URL: "https://example.com/not-telegram",
-      TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL: "https://example.com/not-telegram",
-    },
+    {},
   );
 
   assert.equal(result.studentGroupUrl, null);
@@ -157,27 +222,18 @@ test("approved invite response identifies missing chat configuration", async () 
   assert.equal(result.announcementsStatus, "not_configured");
 });
 
-test("approved registrations fall back to the academy's existing invite URLs", async () => {
-  const result = await telegramBot.createApprovedCommunityInvites(
-    { status: "approved", communityInvites: {} },
-    { telegram: {} },
-    {},
-  );
-
-  assert.equal(result.studentGroupUrl, "https://t.me/+KRece_7cHLZlOTJk");
-  assert.equal(result.announcementsUrl, "https://t.me/+6m8OBjwrEgUxMzk0");
-  assert.equal(result.studentGroupStatus, "ready_shared_link");
-  assert.equal(result.announcementsStatus, "ready_shared_link");
-});
-
 test("approved invite response identifies missing Telegram admin permissions", async () => {
   const registration = {
     status: "approved",
+    telegramUserId: 445566,
     communityInvites: {},
     async save() {},
   };
   const bot = {
     telegram: {
+      async getChat() {
+        throw new Error("Not enough rights to invite users");
+      },
       async createChatInviteLink() {
         const error = new Error("Not enough rights to invite users");
         error.code = 400;
@@ -196,6 +252,32 @@ test("approved invite response identifies missing Telegram admin permissions", a
 
   assert.equal(result.studentGroupStatus, "permission_required");
   assert.equal(result.announcementsStatus, "permission_required");
+});
+
+test("public Telegram chats do not receive approved-only invite links", async () => {
+  const bot = {
+    telegram: {
+      async getChat(chatId) {
+        return { id: chatId, username: "public_academy_chat" };
+      },
+      async createChatInviteLink() {
+        assert.fail("A public chat must not receive a private invite link");
+      },
+    },
+  };
+  const result = await telegramBot.createApprovedCommunityInvites(
+    { status: "approved", telegramUserId: 445566, communityInvites: {} },
+    bot,
+    {
+      TELEGRAM_STUDENT_GROUP_ID: "-1009871",
+      TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID: "-1009872",
+    },
+  );
+
+  assert.equal(result.studentGroupUrl, null);
+  assert.equal(result.announcementsUrl, null);
+  assert.equal(result.studentGroupStatus, "make_private");
+  assert.equal(result.announcementsStatus, "make_private");
 });
 
 test("payment reviews are limited to configured numeric Telegram IDs", () => {

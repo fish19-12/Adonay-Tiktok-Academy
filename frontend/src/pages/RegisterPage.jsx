@@ -288,6 +288,10 @@ export default function RegisterPage() {
       });
       registrationData.append("paymentMethod", paymentMethod);
       registrationData.append("paymentScreenshot", paymentScreenshot);
+      const telegramInitData = window.Telegram?.WebApp?.initData;
+      if (telegramInitData) {
+        registrationData.append("telegramInitData", telegramInitData);
+      }
 
       const response = await api.post("/register", registrationData, {
         signal: controller.signal,

@@ -93,14 +93,22 @@ const registrationSchema = new mongoose.Schema(
       default: null,
     },
 
+    telegramUserId: {
+      type: Number,
+      default: null,
+      index: true,
+    },
+
     communityInvites: {
       studentGroup: {
         url: { type: String, default: null },
         expiresAt: { type: Date, default: null },
+        requiresJoinApproval: { type: Boolean, default: false },
       },
       announcementsChannel: {
         url: { type: String, default: null },
         expiresAt: { type: Date, default: null },
+        requiresJoinApproval: { type: Boolean, default: false },
       },
     },
 

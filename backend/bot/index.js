@@ -2,6 +2,8 @@ const { Telegraf, Markup, Input } = require("telegraf");
 const { recordTelegramChat } = require("./chatDiscovery");
 const academyPrograms = require("../config/academyPrograms");
 const reviewRegistrationPayment = require("../services/registrationPaymentReview");
+const handleCommunityJoinRequest = require("../services/communityJoinRequests");
+const Registration = require("../models/Registration");
 
 const WEBSITE_URL = "https://www.adonaytiktokacademy.com";
 const DEFAULT_MINI_APP_URL = "https://www.adonaytiktokacademy.com/app";
@@ -32,6 +34,7 @@ const ABOUT_ANSWER =
   "<i>Learn. Create. Grow.</i>";
 let activeBot = null;
 let pollingActive = false;
+const communityChatReadiness = new Map();
 
 function escapeHtml(value) {
   return String(value).replace(
@@ -210,44 +213,97 @@ async function createApprovedCommunityInvites(
 ) {
   if (registration.status !== "approved") return null;
 
+  if (!registration.telegramUserId) {
+    return {
+      studentGroupUrl: null,
+      announcementsUrl: null,
+      studentGroupStatus: "identity_required",
+      announcementsStatus: "identity_required",
+    };
+  }
+
   const inviteTargets = [
-    [
-      "studentGroup",
-      environment.TELEGRAM_STUDENT_GROUP_ID,
-      environment.TELEGRAM_STUDENT_GROUP_URL ||
-        "https://t.me/+KRece_7cHLZlOTJk",
-    ],
-    [
-      "announcementsChannel",
-      environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID,
-      environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_URL ||
-        "https://t.me/+6m8OBjwrEgUxMzk0",
-    ],
+    ["studentGroup", environment.TELEGRAM_STUDENT_GROUP_ID],
+    ["announcementsChannel", environment.TELEGRAM_ANNOUNCEMENTS_CHANNEL_ID],
   ];
   const communityInvites = registration.communityInvites || {};
   const inviteStatuses = {};
-  const fallbackInvites = {};
   const expiresAt = new Date(now + 30 * 24 * 60 * 60 * 1000);
   let changed = false;
 
-  for (const [key, chatId, inviteUrl] of inviteTargets) {
+  for (const [key, chatId] of inviteTargets) {
     if (!chatId || !/^-?\d+$/.test(chatId)) {
-      const safeInviteUrl = telegramInviteUrl(inviteUrl);
-      if (safeInviteUrl) {
-        fallbackInvites[key] = safeInviteUrl;
-        inviteStatuses[key] = "ready_shared_link";
-      } else {
-        inviteStatuses[key] = "not_configured";
-      }
+      inviteStatuses[key] = "not_configured";
       continue;
     }
     if (!bot) {
       inviteStatuses[key] = "bot_unavailable";
       continue;
     }
+
+    let readiness = communityChatReadiness.get(chatId);
+    if (!readiness || readiness.expiresAt <= now) {
+      try {
+        const chat = await bot.telegram.getChat(chatId);
+        if (chat.username) {
+          readiness = {
+            status: "make_private",
+            expiresAt: now + 5 * 60 * 1000,
+          };
+        } else if (key === "studentGroup") {
+          if (!chat.permissions) {
+            readiness = {
+              status: "permission_required",
+              expiresAt: now + 5 * 60 * 1000,
+            };
+          } else {
+            await bot.telegram.setChatPermissions(chatId, {
+              ...chat.permissions,
+              can_invite_users: false,
+            });
+            readiness = {
+              status: "ready",
+              expiresAt: now + 5 * 60 * 1000,
+            };
+          }
+        } else {
+          readiness = {
+            status: "ready",
+            expiresAt: now + 5 * 60 * 1000,
+          };
+        }
+      } catch (error) {
+        const errorMessage = String(
+          error?.response?.description ||
+            error?.description ||
+            error?.message ||
+            "",
+        );
+        readiness = {
+          status:
+            /administrator|invite users|not enough rights|permission/i.test(
+              errorMessage,
+            )
+              ? "permission_required"
+              : "invite_unavailable",
+          expiresAt: now + 60 * 1000,
+        };
+        console.error(
+          `[Telegram] Could not verify ${key} access settings:`,
+          error?.code || error?.message || "unknown error",
+        );
+      }
+      communityChatReadiness.set(chatId, readiness);
+    }
+    if (readiness.status !== "ready") {
+      inviteStatuses[key] = readiness.status;
+      continue;
+    }
+
     const currentInvite = communityInvites[key];
     if (
       currentInvite?.url &&
+      currentInvite.requiresJoinApproval === true &&
       currentInvite.expiresAt &&
       new Date(currentInvite.expiresAt).getTime() > now
     ) {
@@ -256,11 +312,20 @@ async function createApprovedCommunityInvites(
     }
 
     try {
+      if (currentInvite?.url) {
+        await bot.telegram
+          .revokeChatInviteLink(chatId, currentInvite.url)
+          .catch(() => {});
+      }
       const invite = await bot.telegram.createChatInviteLink(chatId, {
-        member_limit: 1,
+        creates_join_request: true,
         expire_date: Math.floor(expiresAt.getTime() / 1000),
       });
-      communityInvites[key] = { url: invite.invite_link, expiresAt };
+      communityInvites[key] = {
+        url: invite.invite_link,
+        expiresAt,
+        requiresJoinApproval: true,
+      };
       inviteStatuses[key] = "ready";
       changed = true;
     } catch (error) {
@@ -289,14 +354,8 @@ async function createApprovedCommunityInvites(
   }
 
   return {
-    studentGroupUrl:
-      communityInvites.studentGroup?.url ||
-      fallbackInvites.studentGroup ||
-      null,
-    announcementsUrl:
-      communityInvites.announcementsChannel?.url ||
-      fallbackInvites.announcementsChannel ||
-      null,
+    studentGroupUrl: communityInvites.studentGroup?.url || null,
+    announcementsUrl: communityInvites.announcementsChannel?.url || null,
     studentGroupStatus: inviteStatuses.studentGroup || "not_configured",
     announcementsStatus:
       inviteStatuses.announcementsChannel || "not_configured",
@@ -365,6 +424,27 @@ function startTelegramBot() {
       return next();
     },
   );
+
+  bot.on("chat_join_request", async (ctx) => {
+    try {
+      const result = await handleCommunityJoinRequest(
+        ctx.chatJoinRequest,
+        bot,
+        Registration,
+        process.env,
+      );
+      if (result.result === "approved") {
+        console.info("Approved a verified student community join request.");
+      } else if (result.result === "declined") {
+        console.info("Declined an unverified community join request.");
+      }
+    } catch (error) {
+      console.error(
+        "[Telegram] Could not process community join request:",
+        error?.code || error?.message || "unknown error",
+      );
+    }
+  });
 
   const sendWelcome = (ctx) =>
     ctx.reply(welcomeText(ctx.from?.first_name), {
@@ -587,6 +667,7 @@ function startTelegramBot() {
         "channel_post",
         "edited_channel_post",
         "callback_query",
+        "chat_join_request",
         "my_chat_member",
         "chat_member",
       ],
@@ -631,3 +712,4 @@ module.exports.adminTelegramIds = adminTelegramIds;
 module.exports.paymentReviewStatus = paymentReviewStatus;
 module.exports.createApprovedCommunityInvites = createApprovedCommunityInvites;
 module.exports.revokeLegacyCommunityInvites = revokeLegacyCommunityInvites;
+module.exports.handleCommunityJoinRequest = handleCommunityJoinRequest;

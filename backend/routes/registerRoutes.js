@@ -2,6 +2,7 @@ const express = require("express");
 
 const {
   createRegistration,
+  linkRegistrationTelegramIdentity,
   getPublicPaymentOptions,
   getRegistrationStatusByToken,
   getRegistrationStats,
@@ -32,6 +33,7 @@ Create a new student registration.
 router.get("/payment-options", getPublicPaymentOptions);
 router.post("/", paymentReceiptUpload, createRegistration);
 
+router.post("/status/:token/link-telegram", linkRegistrationTelegramIdentity);
 router.get("/status/:token", getRegistrationStatusByToken);
 
 /*

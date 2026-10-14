@@ -131,6 +131,10 @@ function MiniAppRegistration({ course, onClose, identity }) {
           registrationData.append(key, String(value));
         }
       });
+      const telegramInitData = window.Telegram?.WebApp?.initData;
+      if (telegramInitData) {
+        registrationData.append("telegramInitData", telegramInitData);
+      }
       registrationData.append("paymentScreenshot", paymentScreenshot);
       const { data } = await api.post("/register", registrationData);
       setSuccess(
