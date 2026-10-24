@@ -157,7 +157,7 @@ export default function SeminarCountdownPage() {
 
   const dateText = useMemo(
     () =>
-      targetDate.toLocaleDateString("en-US", {
+      targetDate.toLocaleDateString("am-ET", {
         weekday: "long",
         month: "long",
         day: "numeric",
@@ -167,7 +167,7 @@ export default function SeminarCountdownPage() {
 
   const timeText = useMemo(
     () =>
-      targetDate.toLocaleTimeString("en-US", {
+      targetDate.toLocaleTimeString("am-ET", {
         hour: "numeric",
         minute: "2-digit",
         hour12: true,
@@ -181,28 +181,22 @@ export default function SeminarCountdownPage() {
 
   const countdownMessage = useMemo(() => {
     if (remaining.days > 0) {
-      return `The live webinar is ${remaining.days} ${
-        remaining.days === 1 ? "day" : "days"
-      } away`;
+      return `የቀጥታ ስልጠናው በ${remaining.days} ቀን ውስጥ ይጀምራል`;
     }
 
     if (remaining.hours > 0) {
-      return `The live webinar starts in ${remaining.hours} ${
-        remaining.hours === 1 ? "hour" : "hours"
-      }`;
+      return `የቀጥታ ስልጠናው በ${remaining.hours} ሰዓት ውስጥ ይጀምራል`;
     }
 
     if (remaining.minutes > 0) {
-      return `The live webinar starts in ${remaining.minutes} ${
-        remaining.minutes === 1 ? "minute" : "minutes"
-      }`;
+      return `የቀጥታ ስልጠናው በ${remaining.minutes} ደቂቃ ውስጥ ይጀምራል`;
     }
 
-    return "The live webinar starts very soon";
+    return "የቀጥታ ስልጠናው በቅርቡ ይጀምራል";
   }, [remaining]);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f5f7ff] text-[#171a35]">
+    <main lang="am" className="relative min-h-screen overflow-hidden bg-[#f5f7ff] text-[#171a35]">
       <Background />
 
       {/* ===================================================
@@ -220,7 +214,7 @@ export default function SeminarCountdownPage() {
               </p>
 
               <p className="mt-1 text-[7px] font-black uppercase tracking-[0.2em] text-[#858ba3]">
-                TikTok /<span className="text-[#e749a0]"> Academy</span>
+                ቲክቶክ /<span className="text-[#e749a0]"> አካዳሚ</span>
               </p>
             </div>
           </Link>
@@ -253,9 +247,9 @@ export default function SeminarCountdownPage() {
               className="transition-transform group-hover:-translate-x-0.5"
             />
 
-            <span className="hidden sm:inline">Registration</span>
+            <span className="hidden sm:inline">ምዝገባ</span>
 
-            <span className="sm:hidden">Back</span>
+            <span className="sm:hidden">ተመለስ</span>
           </Link>
         </div>
       </header>
@@ -278,22 +272,22 @@ export default function SeminarCountdownPage() {
               </span>
 
               <span className="text-[8px] font-black uppercase tracking-[0.2em] text-[#6254d5] sm:text-[9px]">
-                Registered Live Webinar
+                ለቀጥታ ስልጠና ተመዝግበዋል
               </span>
 
               <Sparkles size={12} className="text-[#efa22d]" />
             </div>
 
             <h1 className="mt-5 text-4xl font-black leading-[1.02] tracking-[-0.06em] text-[#171a35] sm:text-5xl lg:text-6xl">
-              Your webinar is
+              ቀጥታ ስልጠናው
               <span className="ml-2 bg-gradient-to-r from-[#5547e7] via-[#8a4ff3] to-[#12bfdc] bg-clip-text text-transparent">
-                almost here.
+                ሊጀምር ተቃርቧል!
               </span>
             </h1>
 
             <p className="mx-auto mt-4 max-w-xl text-xs leading-5 text-[#7f859a] sm:text-sm">
-              You&apos;re registered for the Adonay TikTok Academy live
-              training. Here&apos;s your countdown to the next session.
+              ለአዶናይ ቲክቶክ አካዳሚ የቀጥታ ስልጠና ተመዝግበዋል። እስከሚቀጥለው ስልጠና
+              የቀረው ጊዜ እነሆ።
             </p>
           </div>
 
@@ -317,14 +311,14 @@ export default function SeminarCountdownPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <InfoCard
                     icon={<CalendarDays size={19} />}
-                    label="Webinar date"
+                    label="የስልጠና ቀን"
                     value={dateText}
                     tone="purple"
                   />
 
                   <InfoCard
                     icon={<Clock3 size={19} />}
-                    label="Starting time"
+                    label="የሚጀምርበት ሰዓት"
                     value={timeText}
                     tone="blue"
                   />
@@ -355,7 +349,7 @@ export default function SeminarCountdownPage() {
                     </div>
 
                     <p className="mt-5 text-[8px] font-black uppercase tracking-[0.28em] text-[#a1a5b7]">
-                      Time remaining
+                      እስኪጀምር የቀረው ጊዜ
                     </p>
 
                     {/* COUNTDOWN */}
@@ -363,25 +357,25 @@ export default function SeminarCountdownPage() {
                     <div className="mx-auto mt-5 grid max-w-4xl grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
                       <CountdownUnit
                         value={remaining.days}
-                        label="Days"
+                        label="ቀን"
                         tone="purple"
                       />
 
                       <CountdownUnit
                         value={remaining.hours}
-                        label="Hours"
+                        label="ሰዓት"
                         tone="blue"
                       />
 
                       <CountdownUnit
                         value={remaining.minutes}
-                        label="Minutes"
+                        label="ደቂቃ"
                         tone="cyan"
                       />
 
                       <CountdownUnit
                         value={remaining.seconds}
-                        label="Seconds"
+                        label="ሰከንድ"
                         tone="orange"
                       />
                     </div>
@@ -395,12 +389,11 @@ export default function SeminarCountdownPage() {
 
                       <div>
                         <p className="text-[10px] font-black text-[#5550c9]">
-                          Live online training
+                          የቀጥታ የመስመር ላይ ስልጠና
                         </p>
 
                         <p className="mt-1 text-[9px] leading-4 text-[#8a8fa2]">
-                          Be ready before the countdown reaches zero. Your live
-                          webinar session starts at the scheduled time.
+                          ቆጣሪው ከመጨረሱ በፊት ይዘጋጁ። የቀጥታ ስልጠናው በተወሰነው ሰዓት ይጀምራል።
                         </p>
                       </div>
                     </div>
@@ -419,11 +412,11 @@ export default function SeminarCountdownPage() {
 
                     <div>
                       <p className="text-[10px] font-black text-[#50556b]">
-                        Adonay TikTok Academy
+                        አዶናይ ቲክቶክ አካዳሚ
                       </p>
 
                       <p className="mt-0.5 text-[9px] text-[#9ca0b2]">
-                        Practical live training
+                        ተግባራዊ የቀጥታ ስልጠና
                       </p>
                     </div>
                   </div>
@@ -455,7 +448,7 @@ export default function SeminarCountdownPage() {
                       "
                     >
                       <Play size={13} fill="currentColor" />
-                      Join Live
+                      ቀጥታ ስልጠናውን ይቀላቀሉ
                       <ArrowRight
                         size={12}
                         className="transition-transform group-hover:translate-x-0.5"
@@ -486,7 +479,7 @@ export default function SeminarCountdownPage() {
                       "
                     >
                       <CheckCircle2 size={13} />
-                      Registration
+                      ወደ ምዝገባ ይሂዱ
                       <ArrowRight
                         size={12}
                         className="transition-transform group-hover:translate-x-0.5"
@@ -503,19 +496,19 @@ export default function SeminarCountdownPage() {
               ================================================= */}
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[9px] font-bold text-[#9da2b5]">
-            <span>Live webinar</span>
+            <span>የቀጥታ ስልጠና</span>
 
             <span className="hidden h-1 w-1 rounded-full bg-[#d6d9e4] sm:block" />
 
-            <span>Wednesday • 7:00 PM</span>
+            <span>ረቡዕ • 7:00 ማታ</span>
 
             <span className="hidden h-1 w-1 rounded-full bg-[#d6d9e4] sm:block" />
 
-            <span>Adonay TikTok Academy</span>
+            <span>አዶናይ ቲክቶክ አካዳሚ</span>
           </div>
 
           <p className="mt-4 text-center text-[8px] text-[#b0b3c1]">
-            © 2026 Adonay TikTok Academy
+            © 2026 አዶናይ ቲክቶክ አካዳሚ
           </p>
         </div>
       </section>
@@ -690,16 +683,16 @@ function LiveState() {
         </span>
 
         <span className="text-[8px] font-black uppercase tracking-[0.18em] text-[#188f69]">
-          Live now
+          አሁን በቀጥታ ላይ
         </span>
       </div>
 
       <h2 className="mt-4 text-2xl font-black tracking-[-0.04em] text-[#171a35] sm:text-3xl">
-        The webinar is live
+        ስልጠናው በቀጥታ ላይ ነው
       </h2>
 
       <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-[#858a9e]">
-        Your Adonay TikTok Academy live session has started.
+        የአዶናይ ቲክቶክ አካዳሚ የቀጥታ ስልጠና ተጀምሯል።
       </p>
 
       {LIVE_SEMINAR_URL && (
@@ -728,7 +721,7 @@ function LiveState() {
           "
         >
           <Play size={14} fill="currentColor" />
-          Join Live Webinar
+          ቀጥታ ስልጠናውን ይቀላቀሉ
           <ArrowRight size={13} />
         </a>
       )}

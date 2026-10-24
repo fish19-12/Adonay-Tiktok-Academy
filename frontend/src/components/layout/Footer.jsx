@@ -4,7 +4,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-black/[0.07] bg-[#faf8f5]">
+    <footer lang="am" className="border-t border-black/[0.07] bg-[#faf8f5]">
       <div
         className="
           mx-auto
@@ -38,7 +38,7 @@ export default function Footer() {
         >
           © {currentYear}{" "}
           <span className="font-bold text-black/65">Adonay TikTok Academy</span>
-          . All rights reserved.
+          . መብቱ በሕግ የተጠበቀ ነው።
         </p>
 
         {/* =====================================================

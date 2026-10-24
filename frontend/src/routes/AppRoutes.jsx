@@ -7,9 +7,8 @@ import TestimonialPage from "../pages/TestimonialPage.jsx";
 import RegisterPage from "../pages/RegisterPage.jsx";
 import FAQPage from "../pages/FAQPage.jsx";
 import SeminarCountdownPage from "../pages/SeminarCountdownPage";
-import WebinarsPage from "../pages/WebinarsPage.jsx";
-import WebinarDetailPage from "../pages/WebinarDetailPage.jsx";
 import TelegramEnrollmentFlow from "../pages/TelegramEnrollmentFlow.jsx";
+import BusinessRegistrationPage from "../pages/BusinessRegistrationPage.jsx";
 
 export default function AppRoutes() {
   return (
@@ -21,10 +20,12 @@ export default function AppRoutes() {
       {/* Academy */}
       <Route path="/about" element={<AboutPage />} />
       <Route path="/services" element={<ServicesPage />} />
+      <Route
+        path="/business-registration"
+        element={<BusinessRegistrationPage />}
+      />
       <Route path="/testimonial" element={<TestimonialPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/webinars" element={<WebinarsPage />} />
-      <Route path="/webinars/:slug" element={<WebinarDetailPage />} />
 
       <Route path="/seminar-countdown" element={<SeminarCountdownPage />} />
 

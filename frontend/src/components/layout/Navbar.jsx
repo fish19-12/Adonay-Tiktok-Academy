@@ -9,7 +9,6 @@ import {
   Star,
   Info,
   ArrowRight,
-  GraduationCap,
   Sparkles,
 } from "lucide-react";
 
@@ -117,24 +116,20 @@ export default function Navbar() {
 
   const desktopItems = [
     {
-      name: "Home",
+      name: "መነሻ",
       path: "/",
     },
     {
-      name: "Services",
+      name: "አገልግሎቶች",
       path: "/services",
     },
     {
-      name: "About",
+      name: "ስለ እኛ",
       path: "/about",
     },
     {
-      name: "Testimonials",
+      name: "የተማሪዎች ልምድ",
       path: "/testimonial",
-    },
-    {
-      name: "Webinars",
-      path: "/webinars",
     },
   ];
 
@@ -144,40 +139,34 @@ export default function Navbar() {
 
   const mobileItems = [
     {
-      name: "Home",
+      name: "መነሻ",
       path: "/",
       icon: Home,
-      description: "Discover the academy",
+      description: "አካዳሚውን ይተዋወቁ",
     },
     {
-      name: "Services",
+      name: "አገልግሎቶች",
       path: "/services",
       icon: Sparkles,
-      description: "Explore what we offer",
+      description: "የምናቀርባቸውን ፕሮግራሞች ይመልከቱ",
     },
     {
-      name: "About",
+      name: "ስለ እኛ",
       path: "/about",
       icon: Info,
-      description: "Learn about us",
+      description: "ስለ አካዳሚው ይወቁ",
     },
     {
-      name: "Testimonials",
+      name: "የተማሪዎች ልምድ",
       path: "/testimonial",
       icon: Star,
-      description: "See student experiences",
+      description: "የተማሪዎችን ስኬት ይመልከቱ",
     },
     {
-      name: "Webinars",
-      path: "/webinars",
-      icon: Sparkles,
-      description: "Join live learning sessions",
-    },
-    {
-      name: "FAQ",
+      name: "ጥያቄና መልስ",
       path: "/faq",
       icon: Sparkles,
-      description: "Get answers",
+      description: "መልስ ያግኙ",
     },
   ];
 
@@ -220,7 +209,7 @@ export default function Navbar() {
               <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-all duration-300 group-hover:-translate-y-0.5 group-hover:shadow-md">
                 <img
                   src={logo}
-                  alt="Adonay TikTok Academy"
+                  alt="አዶናይ ቲክቶክ አካዳሚ"
                   width="44"
                   height="44"
                   loading="eager"
@@ -238,13 +227,13 @@ export default function Navbar() {
 
                 <div className="mt-0.5 flex items-center gap-1.5">
                   <span className="text-[8px] font-extrabold uppercase tracking-[0.22em] text-cyan-600">
-                    TikTok
+                    ቲክቶክ
                   </span>
 
                   <span className="text-[8px] font-bold text-slate-300">/</span>
 
                   <span className="text-[8px] font-extrabold uppercase tracking-[0.18em] text-pink-500">
-                    Academy
+                    አካዳሚ
                   </span>
                 </div>
               </div>
@@ -279,33 +268,10 @@ export default function Navbar() {
                 <Sparkles size={13} className="text-violet-500" />
 
                 <span className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                  Learn & Grow
+                  ይማሩና ያድጉ
                 </span>
               </div>
 
-              {/* REGISTER BUTTON */}
-
-              <Link
-                to="/register"
-                className="group relative hidden h-10 items-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 px-5 text-[11px] font-extrabold uppercase tracking-[0.08em] text-white shadow-[0_8px_25px_rgba(124,58,237,0.18)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(124,58,237,0.28)] lg:flex"
-              >
-                <GraduationCap
-                  size={15}
-                  strokeWidth={2.5}
-                  className="relative z-10"
-                />
-
-                <span className="relative z-10">Register</span>
-
-                <ArrowRight
-                  size={14}
-                  className="relative z-10 transition-transform duration-300 group-hover:translate-x-1"
-                />
-
-                {/* Shine */}
-
-                <span className="absolute inset-0 -translate-x-full bg-white/20 transition-transform duration-500 group-hover:translate-x-full" />
-              </Link>
             </div>
           </div>
         </div>
@@ -346,7 +312,7 @@ export default function Navbar() {
               <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                 <img
                   src={logo}
-                  alt="Adonay TikTok Academy"
+                  alt="አዶናይ ቲክቶክ አካዳሚ"
                   width="40"
                   height="40"
                   loading="eager"
@@ -362,13 +328,13 @@ export default function Navbar() {
 
                 <div className="mt-0.5 flex items-center gap-1">
                   <span className="text-[7px] font-extrabold uppercase tracking-[0.18em] text-cyan-600">
-                    TikTok
+                    ቲክቶክ
                   </span>
 
                   <span className="text-[7px] text-slate-300">/</span>
 
                   <span className="text-[7px] font-extrabold uppercase tracking-[0.15em] text-pink-500">
-                    Academy
+                    አካዳሚ
                   </span>
                 </div>
               </div>
@@ -377,18 +343,6 @@ export default function Navbar() {
             {/* MOBILE ACTIONS */}
 
             <div className="flex items-center gap-2">
-              {/* Join */}
-
-              <Link
-                to="/register"
-                aria-label="Register for training"
-                className="flex h-9 items-center gap-1.5 rounded-xl bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 px-3 text-[9px] font-extrabold uppercase tracking-[0.04em] text-white shadow-[0_5px_18px_rgba(124,58,237,0.18)] transition-transform duration-300 active:scale-95"
-              >
-                <GraduationCap size={14} />
-
-                <span className="hidden min-[390px]:inline">Join</span>
-              </Link>
-
               {/* Menu */}
 
               <button
@@ -501,37 +455,7 @@ export default function Navbar() {
 
             {/* MENU CONTENT */}
 
-            <div className="relative flex h-full flex-col overflow-y-auto px-6 pb-10 pt-28">
-              {/* HEADER */}
-
-              <div className="mb-9">
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="h-1.5 w-7 rounded-full bg-cyan-400" />
-                  <span className="h-1.5 w-4 rounded-full bg-violet-500" />
-                  <span className="h-1.5 w-7 rounded-full bg-pink-500" />
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                    <img
-                      src={logo}
-                      alt="Adonay TikTok Academy"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div>
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-800">
-                      Adonay TikTok Academy
-                    </p>
-
-                    <p className="mt-1 text-xs text-slate-400">
-                      Learn. Create. Grow.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
+            <div className="relative flex h-full flex-col overflow-y-auto px-6 pb-10 pt-24">
               {/* NAVIGATION */}
 
               <div className="space-y-2">
@@ -615,58 +539,11 @@ export default function Navbar() {
                 })}
               </div>
 
-              {/* REGISTER CARD */}
-
-              <motion.div
-                initial={{
-                  opacity: 0,
-                  y: 15,
-                }}
-                animate={{
-                  opacity: 1,
-                  y: 0,
-                }}
-                transition={{
-                  delay: 0.3,
-                  duration: 0.3,
-                }}
-                className="mt-7"
-              >
-                <Link
-                  to="/register"
-                  onClick={() => setOpen(false)}
-                  className="group relative flex overflow-hidden rounded-2xl bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500 p-[1px] shadow-[0_15px_40px_rgba(124,58,237,0.16)]"
-                >
-                  <div className="relative flex w-full items-center gap-4 rounded-[15px] bg-gradient-to-r from-violet-500 to-pink-500 px-5 py-4 text-white">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/15">
-                      <GraduationCap size={21} />
-                    </div>
-
-                    <div className="flex-1">
-                      <p className="text-[9px] font-extrabold uppercase tracking-[0.15em] text-white/70">
-                        Start Learning
-                      </p>
-
-                      <p className="mt-0.5 text-sm font-extrabold">
-                        Register for Training
-                      </p>
-                    </div>
-
-                    <ArrowRight
-                      size={19}
-                      className="transition-transform duration-300 group-hover:translate-x-1"
-                    />
-
-                    <span className="absolute inset-0 -translate-x-full bg-white/10 transition-transform duration-700 group-hover:translate-x-full" />
-                  </div>
-                </Link>
-              </motion.div>
-
               {/* FOOTER */}
 
               <div className="mt-auto pt-8 text-center">
                 <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-300">
-                  Learn • Create • Grow • Go Viral
+                  ይማሩ • ይፍጠሩ • ያድጉ • ይታወቁ
                 </p>
               </div>
             </div>

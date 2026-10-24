@@ -74,6 +74,7 @@ app.use("/api/telegram", require("./routes/telegramRoutes"));
  * DELETE /api/register/:id
  */
 app.use("/api/register", require("./routes/registerRoutes"));
+app.use("/api/business-inquiries", require("./routes/businessInquiryRoutes"));
 
 /*
  * Compatibility route for the current frontend.

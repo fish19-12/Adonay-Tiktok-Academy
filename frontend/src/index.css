@@ -137,21 +137,30 @@ body {
    SCROLLBAR
 ============================================================ */
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #64748b #cbd5e1;
+}
+
 ::-webkit-scrollbar {
   width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #030712;
+  border-radius: 999px;
+  background: #cbd5e1;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.14);
+  border: 2px solid transparent;
   border-radius: 999px;
+  background: #64748b;
+  background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(37, 244, 238, 0.35);
+  background: #8b5cf6;
+  background-clip: padding-box;
 }
 
 /* ============================================================

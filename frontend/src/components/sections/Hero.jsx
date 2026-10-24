@@ -1,7 +1,16 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, CalendarDays, Play, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  Check,
+  MessageCircle,
+  Play,
+  Sparkles,
+  X,
+  Zap,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 /*
 ===============================================================
@@ -12,105 +21,16 @@ import { useEffect, useMemo, useState } from "react";
  - No background image
  - No unnecessary sections
  - Horizontal 16:9 video
- - Real countdown
+ - Direct program access
  - One primary CTA
  - Fully responsive
 ===============================================================
 */
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-
 const VIDEO_URL =
   "https://player.mediadelivery.net/play/773543/88acc664-0a03-4c44-ae49-7a22c07a237d";
 
-function formatWebinarDate(dateString) {
-  if (!dateString) return "Check back soon";
-
-  const date = new Date(dateString);
-
-  if (Number.isNaN(date.getTime())) {
-    return "Check back soon";
-  }
-
-  return date.toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZoneName: "short",
-  });
-}
-
-/*
-===============================================================
- COUNTDOWN
-===============================================================
-*/
-
-function getRemainingTime(targetDate) {
-  if (!targetDate) return 0;
-  const target = new Date(targetDate).getTime();
-  return Math.max(0, target - Date.now());
-}
-
-function pad(number) {
-  return String(number).padStart(2, "0");
-}
-
-/*
-===============================================================
- COUNTDOWN ITEM
-===============================================================
-*/
-
-function CountdownBox({ value, label }) {
-  return (
-    <div className="flex flex-col items-center">
-      <div
-        className="
-          flex
-          h-12
-          w-14
-          items-center
-          justify-center
-          rounded-xl
-          border
-          border-black/[0.07]
-          bg-white
-          shadow-[0_3px_12px_rgba(0,0,0,0.04)]
-          sm:h-14
-          sm:w-16
-        "
-      >
-        <span
-          className="
-            text-xl
-            font-black
-            leading-none
-            tracking-[-0.04em]
-            text-[#111111]
-            sm:text-2xl
-          "
-        >
-          {pad(value)}
-        </span>
-      </div>
-
-      <span
-        className="
-          mt-1
-          text-[7px]
-          font-bold
-          uppercase
-          tracking-[0.14em]
-          text-black/35
-        "
-      >
-        {label}
-      </span>
-    </div>
-  );
-}
+const TELEGRAM_URL = "https://t.me/AdonayTiktokAcademyofficialBot";
 
 /*
 ===============================================================
@@ -122,69 +42,7 @@ export default function Hero() {
   const shouldReduceMotion = useReducedMotion();
 
   const [videoOpen, setVideoOpen] = useState(false);
-  const [upcomingWebinar, setUpcomingWebinar] = useState(null);
-  const [timeLeft, setTimeLeft] = useState(0);
-
-  useEffect(() => {
-    const loadWebinar = async () => {
-      try {
-        const response = await fetch(`${API_URL}/webinars`);
-        const webinars = await response.json();
-
-        if (!Array.isArray(webinars) || !webinars.length) {
-          return;
-        }
-
-        const nextWebinar = [...webinars]
-          .filter((webinar) => webinar.status !== "cancelled")
-          .sort(
-            (a, b) => new Date(a.scheduledAt || 0) - new Date(b.scheduledAt || 0),
-          )
-          .find((webinar) => new Date(webinar.scheduledAt).getTime() > Date.now());
-
-        if (nextWebinar) {
-          setUpcomingWebinar(nextWebinar);
-          setTimeLeft(getRemainingTime(nextWebinar.scheduledAt));
-        }
-      } catch (error) {
-        console.error("Failed to load webinar countdown:", error);
-      }
-    };
-
-    loadWebinar();
-  }, []);
-
-  useEffect(() => {
-    if (!upcomingWebinar?.scheduledAt) return;
-
-    const updateCountdown = () => {
-      setTimeLeft(getRemainingTime(upcomingWebinar.scheduledAt));
-    };
-
-    updateCountdown();
-
-    const interval = window.setInterval(updateCountdown, 1000);
-
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, [upcomingWebinar]);
-
-  const countdown = useMemo(() => {
-    const totalSeconds = Math.floor(timeLeft / 1000);
-
-    return {
-      days: Math.floor(totalSeconds / 86400),
-
-      hours: Math.floor((totalSeconds % 86400) / 3600),
-
-      minutes: Math.floor((totalSeconds % 3600) / 60),
-
-      seconds: totalSeconds % 60,
-
-      expired: timeLeft <= 0,
-    };
-  }, [timeLeft]);
+  const [accessSelectorOpen, setAccessSelectorOpen] = useState(false);
 
   /*
   -------------------------------------------------------------
@@ -211,18 +69,30 @@ export default function Hero() {
   useEffect(() => {
     const handleEscape = (event) => {
       if (event.key === "Escape") {
-        closeVideo();
+        if (videoOpen) closeVideo();
+        if (accessSelectorOpen) setAccessSelectorOpen(false);
       }
     };
 
-    if (videoOpen) {
+    if (videoOpen || accessSelectorOpen) {
       window.addEventListener("keydown", handleEscape);
     }
 
     return () => {
       window.removeEventListener("keydown", handleEscape);
     };
-  }, [videoOpen]);
+  }, [videoOpen, accessSelectorOpen]);
+
+  useEffect(() => {
+    if (!accessSelectorOpen) return undefined;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [accessSelectorOpen]);
 
   return (
     <>
@@ -231,11 +101,15 @@ export default function Hero() {
       ===================================================== */}
 
       <section
+        lang="am"
         className="
           relative
           min-h-screen
           overflow-hidden
-          bg-[#faf8f5]
+          bg-gradient-to-br
+          from-slate-50
+          via-white
+          to-cyan-50/40
           text-[#111111]
         "
       >
@@ -261,72 +135,10 @@ export default function Hero() {
               w-[480px]
               -translate-x-1/2
               rounded-full
-              bg-[#e85f3f]/[0.035]
+              bg-cyan-300/[0.12]
               blur-[100px]
             "
           />
-        </div>
-
-        {/* ===================================================
-            TOP BAR
-        =================================================== */}
-
-        <div
-          className="
-            relative
-            z-20
-            border-b
-            border-black/[0.07]
-            bg-[#111111]
-            px-4
-            py-2.5
-          "
-        >
-          <div
-            className="
-              flex
-              items-center
-              justify-center
-              gap-2
-              text-center
-            "
-          >
-            <span
-              className="
-                h-1.5
-                w-1.5
-                rounded-full
-                bg-[#e85f3f]
-              "
-            />
-
-            <span
-              className="
-                text-[9px]
-                font-bold
-                uppercase
-                tracking-[0.13em]
-                text-white/60
-              "
-            >
-              Workshop
-            </span>
-
-            <span className="text-white/20">·</span>
-
-            <span
-              className="
-                text-[10px]
-                font-semibold
-                text-white
-                sm:text-[11px]
-              "
-            >
-              {upcomingWebinar?.scheduledAt
-                ? formatWebinarDate(upcomingWebinar.scheduledAt)
-                : "Webinar schedule coming soon"}
-            </span>
-          </div>
         </div>
 
         {/* ===================================================
@@ -345,11 +157,12 @@ export default function Hero() {
             items-center
             px-5
             pb-12
-            pt-9
+            pt-32
             text-center
             sm:px-8
             sm:pb-16
-            sm:pt-12
+            sm:pt-36
+            md:pt-36
           "
         >
           {/* =================================================
@@ -377,15 +190,14 @@ export default function Hero() {
               duration: 0.4,
             }}
             className="
-              text-[9px]
+              text-[10px]
               font-black
-              uppercase
-              tracking-[0.17em]
-              text-[#d9573f]
-              sm:text-[10px]
+              tracking-[0.03em]
+              text-violet-700
+              sm:text-xs
             "
           >
-            {upcomingWebinar ? upcomingWebinar.title : "The Adonay Creator Workshop"}
+            የአዶናይ የይዘት ፈጠራ ስልጠና
           </motion.p>
 
           {/* =================================================
@@ -418,28 +230,23 @@ export default function Hero() {
             }}
             className="
               mt-3
-              max-w-3xl
-              font-serif
-              text-[32px]
+              max-w-4xl
+              font-sans
+              text-[25px]
               font-black
-              leading-[1]
-              tracking-[-0.04em]
-              sm:text-[40px]
-              md:text-[46px]
-              lg:text-[52px]
+              leading-[1.3]
+              tracking-[-0.025em]
+              sm:text-[34px]
+              sm:leading-[1.35]
+              md:text-[42px]
+              lg:text-[48px]
             "
           >
-            {upcomingWebinar ? (
-              <>
-                {upcomingWebinar.title}
-              </>
-            ) : (
-              <>
-                Learn what makes people
-                <br />
-                <span className="text-[#d9573f]">stop, watch & follow.</span>
-              </>
-            )}
+            ሰዎች እንዲቆሙ፣ እንዲመለከቱና
+            <br />
+            <span className="bg-gradient-to-r from-cyan-600 via-violet-600 to-pink-600 bg-clip-text text-transparent">
+              እንዲከተሉዎ የሚያደርገውን ምስጢር ይወቁ!
+            </span>
           </motion.h1>
 
           {/* =================================================
@@ -469,17 +276,16 @@ export default function Hero() {
             }}
             className="
               mt-4
-              max-w-lg
+              max-w-2xl
               text-[13px]
-              leading-6
-              text-black/55
-              sm:text-sm
-              sm:leading-6
+              leading-7
+              text-slate-600
+              sm:text-[15px]
+              sm:leading-7
             "
           >
-            {upcomingWebinar?.description
-              ? upcomingWebinar.description
-              : "Learn the attention, storytelling and personal branding principles I have tested across millions of viewers."}
+            ጠንካራ እና ተፅዕኖ ፈጣሪ ይዘት ለመፍጠር የሚያስፈልጉ የትኩረት ሳቢነት፣ የታሪክ
+            አነሳስ እና የግል ብራንዲንግ መርሆዎችን ይማሩ።
           </motion.p>
 
           {/* =================================================
@@ -507,15 +313,14 @@ export default function Hero() {
             }}
             className="
               mt-3
-              text-[9px]
+              text-[10px]
               font-bold
-              uppercase
-              tracking-[0.12em]
-              text-black/35
-              sm:text-[10px]
+              tracking-[0.02em]
+              text-slate-500
+              sm:text-xs
             "
           >
-            6M+ followers · 1.3B+ views
+            6M+ ተከታዮች · 6.5B+ የቪዲዮ እይታዎች
           </motion.p>
 
           {/* =================================================
@@ -552,29 +357,28 @@ export default function Hero() {
               className="
                 h-px
                 w-7
-                bg-black/15
+                bg-gradient-to-r from-cyan-400 to-violet-500
                 sm:w-10
               "
             />
 
             <span
               className="
-                text-[8px]
+                text-[10px]
                 font-black
-                uppercase
-                tracking-[0.16em]
-                text-black/35
-                sm:text-[9px]
+                tracking-[0.02em]
+                text-slate-500
+                sm:text-xs
               "
             >
-              Watch this first
+                ይህን አስቀድመው ይመልከቱ
             </span>
 
             <span
               className="
                 h-px
                 w-7
-                bg-black/15
+                bg-gradient-to-r from-violet-500 to-pink-500
                 sm:w-10
               "
             />
@@ -628,7 +432,7 @@ export default function Hero() {
               >
                 <iframe
                   src={VIDEO_URL}
-                  title="Adonay Creator Workshop Video"
+                  title="የአዶናይ የይዘት ፈጠራ ስልጠና ቪዲዮ"
                   className="
                     absolute
                     inset-0
@@ -642,7 +446,6 @@ export default function Hero() {
                     fullscreen;
                     picture-in-picture
                   "
-                  allowFullScreen
                   loading="lazy"
                 />
 
@@ -651,7 +454,7 @@ export default function Hero() {
                 <button
                   type="button"
                   onClick={openVideo}
-                  aria-label="Open video"
+                  aria-label="ቪዲዮውን ይክፈቱ"
                   className="
                     absolute
                     bottom-3
@@ -706,137 +509,22 @@ export default function Hero() {
             }}
             className="
               mt-7
-              max-w-xl
-              font-serif
-              text-[23px]
+              max-w-3xl
+              font-sans
+              text-[19px]
               font-black
-              leading-[1.08]
-              tracking-[-0.035em]
-              sm:text-[29px]
-              md:text-[34px]
+              leading-[1.5]
+              tracking-[-0.02em]
+              sm:text-[25px]
+              md:text-[30px]
             "
           >
-            I don't teach theory.
+            ቲዎሪ (ጽንሰ-ሐሳብ) አላስተምርም።
             <br />
-            <span className="text-[#d9573f]">
-              I teach what I personally use.
+            <span className="bg-gradient-to-r from-cyan-600 via-violet-600 to-pink-600 bg-clip-text text-transparent">
+              እኔ የማስተምረው በራሴ ተግባር ላይ ውዬ ውጤት ያመጣሁበትን መንገድ ብቻ ነው።
             </span>
           </motion.h2>
-
-          {/* =================================================
-              COUNTDOWN
-          ================================================= */}
-
-          <motion.div
-            initial={
-              shouldReduceMotion
-                ? false
-                : {
-                    opacity: 0,
-                  }
-            }
-            animate={
-              shouldReduceMotion
-                ? false
-                : {
-                    opacity: 1,
-                  }
-            }
-            transition={{
-              duration: 0.4,
-              delay: shouldReduceMotion ? 0 : 0.45,
-            }}
-            className="mt-6"
-          >
-            {!countdown.expired ? (
-              <>
-                <div
-                  className="
-                    flex
-                    items-center
-                    justify-center
-                    gap-1.5
-                  "
-                >
-                  <CalendarDays size={11} className="text-[#d9573f]" />
-
-                  <span
-                    className="
-                      text-[8px]
-                      font-black
-                      uppercase
-                      tracking-[0.14em]
-                      text-black/35
-                    "
-                  >
-                    Starts in
-                  </span>
-                </div>
-
-                <div
-                  className="
-                    mt-2.5
-                    flex
-                    items-start
-                    justify-center
-                    gap-1.5
-                    sm:gap-2
-                  "
-                >
-                  <CountdownBox value={countdown.days} label="Days" />
-
-                  <span
-                    className="
-                      mt-3
-                      text-lg
-                      font-black
-                      text-black/15
-                    "
-                  >
-                    :
-                  </span>
-
-                  <CountdownBox value={countdown.hours} label="Hours" />
-
-                  <span
-                    className="
-                      mt-3
-                      text-lg
-                      font-black
-                      text-black/15
-                    "
-                  >
-                    :
-                  </span>
-
-                  <CountdownBox value={countdown.minutes} label="Minutes" />
-
-                  <span
-                    className="
-                      mt-3
-                      text-lg
-                      font-black
-                      text-black/15
-                    "
-                  >
-                    :
-                  </span>
-
-                  <CountdownBox value={countdown.seconds} label="Seconds" />
-                </div>
-              </>
-            ) : (
-              <p
-                className="
-                  text-sm
-                  font-black
-                  text-[#d9573f]
-                "
-              >
-                The workshop is live.
-              </p>
-            )}
-          </motion.div>
 
           {/* =================================================
               CTA
@@ -869,12 +557,10 @@ export default function Hero() {
               max-w-[380px]
             "
           >
-            <Link
-              to={
-                upcomingWebinar
-                  ? `/webinars/${upcomingWebinar.slug || upcomingWebinar._id}`
-                  : "/register"
-              }
+            <button
+              type="button"
+              onClick={() => setAccessSelectorOpen(true)}
+              aria-haspopup="dialog"
               className="
                 group
                 flex
@@ -884,28 +570,28 @@ export default function Hero() {
                 justify-center
                 gap-2.5
                 rounded-xl
-                bg-[#e85f3f]
+                bg-gradient-to-r
+                from-cyan-500
+                via-violet-600
+                to-pink-500
                 px-5
                 py-3.5
                 text-[13px]
                 font-black
                 text-white
-                shadow-[0_10px_25px_rgba(232,95,63,0.22)]
+                shadow-[0_10px_25px_rgba(99,102,241,0.22)]
                 transition-all
                 duration-300
                 hover:-translate-y-0.5
-                hover:bg-[#d95537]
-                hover:shadow-[0_14px_30px_rgba(232,95,63,0.28)]
+                hover:shadow-[0_14px_30px_rgba(99,102,241,0.3)]
                 active:scale-[0.98]
                 focus-visible:outline-none
                 focus-visible:ring-2
-                focus-visible:ring-[#e85f3f]
+                focus-visible:ring-violet-500
                 focus-visible:ring-offset-2
               "
             >
-              <span>
-                {countdown.expired ? "Get Access Now" : "Reserve My Seat"}
-              </span>
+              <span>አሁኑኑ ይጀምሩ</span>
 
               <span
                 className="
@@ -923,7 +609,7 @@ export default function Hero() {
               >
                 <ArrowRight size={13} />
               </span>
-            </Link>
+            </button>
           </motion.div>
 
           {/* =================================================
@@ -934,16 +620,111 @@ export default function Hero() {
             className="
               mt-2
               max-w-md
-              text-[8px]
-              leading-4
-              text-black/30
+              text-[10px]
+              leading-5
+              text-slate-500
             "
           >
-            Practical lessons from real-world content, audience growth and
-            personal branding.
+            በይዘት ዝግጅት፣ በታዳሚ ዕድገት እና በግል ብራንዲንግ ዙሪያ በተግባር የተመሰረቱ
+            ልምዶች።
           </p>
         </div>
       </section>
+
+      {accessSelectorOpen && (
+        <div
+          className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/50 p-4 backdrop-blur-sm"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) {
+              setAccessSelectorOpen(false);
+            }
+          }}
+        >
+          <section
+            lang="am"
+            aria-labelledby="access-selector-title"
+            aria-modal="true"
+            className="relative w-full max-w-md overflow-hidden rounded-3xl border border-white/70 bg-white p-5 shadow-[0_30px_100px_rgba(15,23,42,0.28)] sm:p-6"
+            role="dialog"
+          >
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-400 via-violet-500 to-pink-500" />
+            <button
+              type="button"
+              onClick={() => setAccessSelectorOpen(false)}
+              aria-label="የምርጫ ማያውን ዝጋ"
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+            >
+              <X size={17} />
+            </button>
+
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-cyan-100 via-violet-100 to-pink-100 text-violet-700">
+              <Sparkles size={18} />
+            </span>
+            <h2
+              className="mt-4 pr-8 text-xl font-black tracking-tight text-slate-900 sm:text-2xl"
+              id="access-selector-title"
+            >
+              የሚፈልጉትን ስልጠና ይምረጡ
+            </h2>
+            <p className="mt-1.5 text-sm leading-6 text-slate-500">
+              ከግብዎ ጋር የሚስማማውን የስልጠና ፕሮግራም ይምረጡ።
+            </p>
+
+            <div className="mt-5 grid gap-3">
+              <a
+                className="group flex items-center gap-3 rounded-2xl border border-cyan-100 bg-gradient-to-r from-cyan-50/80 to-violet-50/70 p-4 transition hover:-translate-y-0.5 hover:border-violet-200 hover:shadow-[0_12px_28px_rgba(99,102,241,0.1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                href={TELEGRAM_URL}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-violet-600 shadow-sm">
+                  <Zap size={19} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-slate-900">
+                    የቲክቶክ ዕድገት አባልነት
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-5 text-slate-500">
+                    በቴሌግራም ተቀላቅለው ይጀምሩ።
+                  </span>
+                </span>
+                <MessageCircle
+                  className="shrink-0 text-violet-600 transition-transform group-hover:translate-x-0.5"
+                  size={17}
+                />
+              </a>
+
+              <Link
+                className="group flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-pink-200 hover:shadow-[0_12px_28px_rgba(99,102,241,0.1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400"
+                onClick={() => setAccessSelectorOpen(false)}
+                to="/business-registration"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-100 to-pink-100 text-violet-700">
+                  <BriefcaseBusiness size={19} />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-slate-900">
+                    የቲክቶክ ቢዝነስ ማስተርማይንድ
+                  </span>
+                  <span className="mt-0.5 block text-xs leading-5 text-slate-500">
+                    በቢዝነስ ምዝገባ ገጻችን ያመልክቱ።
+                  </span>
+                </span>
+                <ArrowRight
+                  className="shrink-0 text-violet-600 transition-transform group-hover:translate-x-0.5"
+                  size={17}
+                />
+              </Link>
+            </div>
+
+            <p className="mt-4 flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
+              <Check size={13} className="text-violet-500" />
+              ለግብዎ የሚስማማውን ቀጣይ እርምጃ ይምረጡ።
+            </p>
+          </section>
+        </div>
+      )}
 
       {/* =====================================================
           VIDEO MODAL
@@ -951,6 +732,7 @@ export default function Hero() {
 
       {videoOpen && (
         <div
+          lang="am"
           className="
             fixed
             inset-0
@@ -964,7 +746,7 @@ export default function Hero() {
           "
           role="dialog"
           aria-modal="true"
-          aria-label="Adonay video"
+          aria-label="የአዶናይ ቪዲዮ"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
               closeVideo();
@@ -976,7 +758,7 @@ export default function Hero() {
           <button
             type="button"
             onClick={closeVideo}
-            aria-label="Close video"
+            aria-label="ቪዲዮውን ዝጋ"
             className="
               absolute
               right-4
@@ -1017,7 +799,7 @@ export default function Hero() {
             <div className="relative aspect-video">
               <iframe
                 src={`${VIDEO_URL}?autoplay=true`}
-                title="Adonay Creator Workshop"
+                title="የአዶናይ የይዘት ፈጠራ ስልጠና"
                 className="
                   absolute
                   inset-0
@@ -1031,7 +813,6 @@ export default function Hero() {
                   fullscreen;
                   picture-in-picture
                 "
-                allowFullScreen
               />
             </div>
           </div>
