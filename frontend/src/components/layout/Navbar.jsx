@@ -2,15 +2,7 @@ import { Link, NavLink, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-import {
-  Menu,
-  X,
-  Home,
-  Star,
-  Info,
-  ArrowRight,
-  Sparkles,
-} from "lucide-react";
+import { Menu, X, Home, Star, Info, ArrowRight, Sparkles } from "lucide-react";
 
 import logo from "../../assets/images/logo.jpg";
 
@@ -227,13 +219,13 @@ export default function Navbar() {
 
                 <div className="mt-0.5 flex items-center gap-1.5">
                   <span className="text-[8px] font-extrabold uppercase tracking-[0.22em] text-cyan-600">
-                    ቲክቶክ
+                    Tiktok
                   </span>
 
                   <span className="text-[8px] font-bold text-slate-300">/</span>
 
                   <span className="text-[8px] font-extrabold uppercase tracking-[0.18em] text-pink-500">
-                    አካዳሚ
+                    Academy
                   </span>
                 </div>
               </div>
@@ -271,7 +263,6 @@ export default function Navbar() {
                   ይማሩና ያድጉ
                 </span>
               </div>
-
             </div>
           </div>
         </div>
